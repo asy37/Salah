@@ -14,7 +14,7 @@ const TOOLS_ITEMS = [
     subtitle: "Günlük tesbihatlarınız",
     icon: "timer",
     iconBg: "primary" as const,
-    route: "./dhikr",
+    route: "./more/dhikr",
   },
   {
     key: "daily-verse",
@@ -22,7 +22,7 @@ const TOOLS_ITEMS = [
     subtitle: "Günün ilhamı",
     icon: "menu-book",
     iconBg: "primary" as const,
-    route: "./daily-verse",
+    route: "./more/daily-verse",
   },
   {
     key: "prayers",
@@ -30,27 +30,10 @@ const TOOLS_ITEMS = [
     subtitle: "Kaydedilen dualar",
     icon: "volunteer-activism",
     iconBg: "primary" as const,
-    route: "./duas",
+    route: "./more/duas",
   },
 ] as const;
 
-const LOCATION_ITEMS = [
-  {
-    key: "qibla",
-    title: "Kıble Bulucu",
-    icon: "explore",
-    
-    iconBg: "primary" as const,
-    route: "./qibla",
-  },
-  {
-    key: "mosques",
-    title: "Yakındaki Camiler",
-    icon: "mosque",
-    iconBg: "primary" as const,
-    route: "../adhan",
-  },
-] as const;
 
 export default function MoreScreen() {
   const colorScheme = useColorScheme();
@@ -89,14 +72,14 @@ export default function MoreScreen() {
       title: "Profil",
       icon: "person",
       iconBg: "gray" as const,
-      route: "./profile",
+      route: "./more/profile",
     },
     {
       key: "settings",
       title: "Ayarlar",
       icon: "settings",
       iconBg: "gray" as const,
-      route: "./settings",
+      route: "./more/settings",
     },
     {
       key: "logout",
@@ -119,11 +102,11 @@ export default function MoreScreen() {
       <MoreHeader isDark={isDark} />
       <View className="flex-1 px-4 mt-4 space-y-6">
         <MenuSection title="" items={TOOLS_ITEMS} isDark={isDark} />
-        <MenuSection
+        {/* <MenuSection
           title="Konum Servisleri"
           items={LOCATION_ITEMS}
           isDark={isDark}
-        />
+        /> */}
         <MenuSection title="Hesap" items={ACCOUNT_ITEMS} isDark={isDark} />
         <PremiumCard isDark={isDark} />
         <VersionInfo isDark={isDark} />
