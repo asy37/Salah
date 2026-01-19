@@ -1,35 +1,81 @@
-import { Pressable, useColorScheme, View } from "react-native";
+import { Text, TouchableOpacity, useColorScheme, View, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import clsx from "clsx";
-import DhikrHeader from "@/components/dhikr/DhikrHeader";
 import DhikrCounter from "@/components/dhikr/DhikrCounter";
 import DhikrBottomBar from "@/components/dhikr/DhikrBottomBar";
-
-const DHIKR_OPTIONS = [
-  { key: "subhanallah", label: "SubhanAllah", target: 100 },
-  { key: "alhamdulillah", label: "Alhamdulillah", target: 100 },
-  { key: "allahuakbar", label: "Allahu Akbar", target: 100 },
-  { key: "astaghfirullah", label: "Astaghfirullah", target: 100 },
-] as const;
+import type { Dhikr } from "@/types/dhikir";
+import { MaterialIcons } from "@expo/vector-icons";
+import { colors } from "@/components/theme/colors";
+import Button from "@/components/button/Button";
+import DhikrAdd from "@/components/dhikr/DhikrAdd";
+import { useDhikr } from "@/lib/hooks/dhikir/useDhikr";
+import { useDhikrSync } from "@/lib/hooks/dhikir/useDhikrSync";
+import { dhikrRepo } from "@/lib/database/sqlite/dhikr/repository";
+import { useAuth } from "@/lib/hooks/useAuth";
+import { getDb } from "@/lib/database/sqlite/db";
 
 export default function DhikrScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
-  const [currentDhikr] = useState(DHIKR_OPTIONS[0]);
-  const [count, setCount] = useState(0);
+  const { user } = useAuth();
+  const userId = user?.id || null;
 
-  const handleIncrement = () => {
-    setCount((prev) => prev + 1);
-  };
+  const [openAddDhikrModal, setOpenAddDhikrModal] = useState(false);
+  const [currentSlug, setCurrentSlug] = useState<string | null>(null);
+  const [isLoadingDhikrs, setIsLoadingDhikrs] = useState(true);
 
-  const handleReset = () => {
-    setCount(0);
-  };
+  // Initialize database and load available dhikrs
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        // Ensure database is initialized
+        await getDb();
+        
+        // Load all dhikrs for current user
+        if (userId) {
+          const records = await dhikrRepo.getAllDhikrs(userId);
+          
+          // Set first dhikr as current if none selected
+          if (!currentSlug && records.length > 0) {
+            setCurrentSlug(records[0].slug);
+          }
+        }
+      } catch (error) {
+        console.error('[DhikrScreen] Error loading dhikrs:', error);
+      } finally {
+        setIsLoadingDhikrs(false);
+      }
+    };
 
-  const progress = (count / currentDhikr.target) * 100;
-  const circumference = 2 * Math.PI * 140; // radius = 140
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
+    initialize();
+  }, [userId, currentSlug]);
+
+  // Use dhikr hook for current selected dhikr
+  const { dhikr: currentDhikr, isLoading: isLoadingDhikr, increment, reset } = useDhikr(currentSlug);
+
+  // Enable auto-sync
+  useDhikrSync();
+
+  const targetReached = currentDhikr ? currentDhikr.current_count >= currentDhikr.target_count : false;
+
+  const handleIncrement = useCallback(() => {
+    increment();
+  }, [increment]);
+
+  const handleReset = useCallback(() => {
+    reset();
+  }, [reset]);
+
+  const handleSelectDhikr = useCallback((dhikr: Dhikr) => {
+    setCurrentSlug(dhikr.slug);
+  }, []);
+
+  const handleDhikrAdded = useCallback(async (newDhikr: Dhikr) => {
+    // Set new dhikr as current
+    setCurrentSlug(newDhikr.slug);
+    // Modal is already closed by DhikrAdd component
+  }, []);
 
   return (
     <SafeAreaView
@@ -39,29 +85,66 @@ export default function DhikrScreen() {
       )}
       edges={["top"]}
     >
-      <View className="relative flex-1">
-        <DhikrHeader isDark={isDark} />
-        <Pressable
-          className="flex-1 flex-col items-center justify-center"
-          onPress={handleIncrement}
-        >
-          <DhikrCounter
-            count={count}
-            dhikrName={currentDhikr.label}
-            target={currentDhikr.target}
-            progress={progress}
-            strokeDashoffset={strokeDashoffset}
-            circumference={circumference}
-            isDark={isDark}
-          />
-        </Pressable>
-        <DhikrBottomBar
-          currentDhikr={currentDhikr}
-          dhikrOptions={DHIKR_OPTIONS}
-          onReset={handleReset}
-          isDark={isDark}
-        />
-      </View>
+      <Button onPress={() => setOpenAddDhikrModal(true)} isDark={isDark} className="absolute top-6 right-6">
+        <MaterialIcons name="add" size={24} color={isDark ? "white" : "black"} />
+      </Button>
+      {(() => {
+        if (isLoadingDhikrs || isLoadingDhikr) {
+          return (
+            <View className="flex-1 items-center justify-center">
+              <ActivityIndicator size="large" color="#1F8F5F" />
+            </View>
+          );
+        }
+
+        if (currentDhikr) {
+          return (
+            <>
+              <Text className="text-2xl font-bold text-center">
+                {currentDhikr.label || "Dhikr"}
+              </Text>
+              <View className="relative flex-1">
+                <TouchableOpacity
+                  className="flex-1 flex-col items-center justify-center"
+                  onPress={handleIncrement}
+                >
+                  {targetReached && (
+                    <View className="absolute top-10 items-center justify-center">
+                      <MaterialIcons name="check-circle" size={24} color={colors.success} />
+                      <Text className="text-lg font-bold text-center text-success">Target Reached</Text>
+                    </View>
+                  )}
+                  <DhikrCounter
+                    count={currentDhikr.current_count}
+                    dhikrName={currentDhikr.label}
+                    target={currentDhikr.target_count}
+                    isDark={isDark}
+                  />
+                </TouchableOpacity>
+              </View>
+            </>
+          );
+        }
+
+        return (
+          <View className="flex-1 items-center justify-center">
+            <Text className="text-2xl font-bold text-center">
+              Select or add a Dhikr
+            </Text>
+          </View>
+        );
+      })()}
+      <DhikrBottomBar
+        setCurrentDhikr={handleSelectDhikr}
+        currentDhikr={currentDhikr}
+        onReset={handleReset}
+        isDark={isDark}
+      />
+      <DhikrAdd 
+        openAddDhikrModal={openAddDhikrModal} 
+        setOpenAddDhikrModal={setOpenAddDhikrModal}
+        onDhikrAdded={handleDhikrAdded}
+      />
     </SafeAreaView>
   );
 }

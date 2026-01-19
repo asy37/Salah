@@ -21,7 +21,7 @@ export default function QuranAudioPlayer({ isDark }: QuranAudioPlayerProps) {
   const { surahName, surahEnglishName } = useSurahStore();
 
   const handleTogglePlayPause = () => {
-    setIsPlaying(!isPlaying);
+      setIsPlaying(!isPlaying);
   };
 
   // activeAyahNumber null ise player'ı gizle
@@ -78,7 +78,7 @@ export default function QuranAudioPlayer({ isDark }: QuranAudioPlayerProps) {
                 if (activeAyahNumber > 1) {
                   const newNumber = activeAyahNumber - 1;
                   setActiveAyahNumber(newNumber);
-                  setIsPlaying(true);
+                setIsPlaying(true);
                 }
               }}
               className="rounded-full p-2"

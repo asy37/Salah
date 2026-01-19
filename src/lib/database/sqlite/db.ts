@@ -42,26 +42,41 @@ CREATE TABLE IF NOT EXISTS quran_translations (
   data TEXT NOT NULL,
   created_at INTEGER NOT NULL
 );
+
+-- 4️⃣ Dhikr List Table
+CREATE TABLE IF NOT EXISTS dhikr_list (
+  id TEXT PRIMARY KEY,
+  user_id TEXT,
+  slug TEXT NOT NULL,
+  label TEXT NOT NULL,
+  target_count INTEGER NOT NULL,
+  current_count INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL CHECK (status IN ('active','completed')),
+  started_at INTEGER NOT NULL,
+  completed_at INTEGER,
+  is_dirty INTEGER NOT NULL DEFAULT 0,
+  last_synced_at INTEGER,
+  updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_dhikr_list_user_slug ON dhikr_list(user_id, slug);
+CREATE INDEX IF NOT EXISTS idx_dhikr_list_dirty ON dhikr_list(is_dirty);
 `;
 
 /**
  * SQLite connection & schema initialization
  *
- * - Uses single DB file for all local features (prayer tracking + Quran translations)
+ * - Uses single DB file for all local features (prayer tracking + Quran translations + dhikr)
  * - Runs `schema.sql` exactly once on first access
  * - Only async Expo SQLite API is used
  */
 export async function getDb(): Promise<SQLite.SQLiteDatabase> {
-  if (!dbPromise) {
-    dbPromise = (async () => {
-      // Using a more general name since this DB contains both prayer tracking and Quran translations
-      const db = await SQLite.openDatabaseAsync("islamic_app.db");
-      await db.execAsync(SCHEMA_SQL);
-      return db;
-    })();
-  }
+  dbPromise ??= (async () => {
+    // Using a more general name since this DB contains both prayer tracking, Quran translations and dhikr
+    const db = await SQLite.openDatabaseAsync("islamic_app.db");
+    await db.execAsync(SCHEMA_SQL);
+    return db;
+  })();
 
   return dbPromise;
 }
-
-

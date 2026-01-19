@@ -69,13 +69,13 @@ export default function QuranSubHeader({
             />
           )}
           {isSurahPlaybackActive && (
-            <Button
+          <Button
               onPress={handlePlaySurah}
-              isDark={isDark}
+            isDark={isDark}
               leftIcon={isPlaying ? "pause" : "play-arrow"}
-              size="small"
-              backgroundColor="primary"
-            />
+            size="small"
+            backgroundColor="primary"
+          />
           )}
         </View>
         <Button

@@ -17,6 +17,7 @@ import { queryKeys } from "@/lib/query/queryKeys";
 import { fetchPrayerTimes } from "@/lib/api/services/prayerTimes";
 import { useLocationStore } from "@/lib/storage/locationStore";
 import { useMethodStore } from "@/lib/storage/useMethodStore";
+import { useDhikrSync } from "@/lib/hooks/dhikir/useDhikrSync";
 
 // Keep splash screen visible while loading fonts
 SplashScreen.preventAutoHideAsync();
@@ -115,6 +116,7 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <EmailConfirmationProvider />
       <LocationPermissionProvider />
+      <DhikrSyncProvider />
       {!shouldShowRegister && <PrayerHeader />}
       <Stack
         screenOptions={{
@@ -126,4 +128,13 @@ export default function RootLayout() {
       </Stack>
     </QueryClientProvider>
   );
+}
+
+/**
+ * Provider component for dhikr sync
+ * Sets up automatic sync triggers
+ */
+function DhikrSyncProvider() {
+  useDhikrSync();
+  return null;
 }

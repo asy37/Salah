@@ -1,15 +1,12 @@
-import { Text, View } from "react-native";
+import { Text, View, Animated } from "react-native";
 import clsx from "clsx";
 import { useEffect, useRef } from "react";
-import { Animated, StyleSheet } from "react-native";
+import Svg, { Circle } from "react-native-svg";
 
 type DhikrCounterProps = {
   readonly count: number;
   readonly dhikrName: string;
   readonly target: number;
-  readonly progress: number;
-  readonly strokeDashoffset: number;
-  readonly circumference: number;
   readonly isDark: boolean;
 };
 
@@ -17,9 +14,6 @@ export default function DhikrCounter({
   count,
   dhikrName,
   target,
-  progress,
-  strokeDashoffset,
-  circumference,
   isDark,
 }: DhikrCounterProps) {
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -60,10 +54,25 @@ export default function DhikrCounter({
   }, [count, scaleAnim]);
 
   const radius = 140;
-  const size = 320;
+  const strokeWidth = isDark ? 8 : 6;
+  const size = radius * 2 + strokeWidth * 2;
+  const center = size / 2;
+  
+  // Calculate progress based on increment steps
+  // Ring circumference / target = how much of the ring each increment fills
+  const circumference = 2 * Math.PI * radius;
+  const incrementStep = circumference / target; // Each increment fills this much of the ring
+  const currentProgressLength = Math.min(count * incrementStep, circumference); // Current filled length (capped at circumference)
+  
+  // Calculate stroke-dasharray and stroke-dashoffset for SVG
+  // stroke-dasharray: [circumference, circumference] - total dash pattern
+  // stroke-dashoffset: how much to offset (unfilled portion)
+  const strokeDasharray = circumference;
+  const strokeDashoffset = circumference - currentProgressLength;
 
   return (
     <View className="relative z-10 flex-col items-center justify-center">
+
       <View className="relative w-72 h-72 sm:w-80 sm:h-80 flex items-center justify-center">
         {/* Background glow */}
         <Animated.View
@@ -76,37 +85,31 @@ export default function DhikrCounter({
           }}
         />
 
-        {/* Progress Ring - Simplified View-based approach */}
+        {/* Progress Ring - SVG based on increment calculation */}
         <View className="absolute inset-0 items-center justify-center">
-          {/* Background circle */}
-          <View
-            className="absolute rounded-full"
-            style={{
-              width: radius * 2 + (isDark ? 16 : 12),
-              height: radius * 2 + (isDark ? 16 : 12),
-              borderWidth: isDark ? 8 : 6,
-              borderColor: isDark ? "rgba(34, 56, 51, 0.3)" : "rgba(226, 236, 232, 0.3)",
-            }}
-          />
-          {/* Progress circle - partial border based on progress */}
-          <View
-            className="absolute rounded-full"
-            style={{
-              width: radius * 2 + (isDark ? 16 : 12),
-              height: radius * 2 + (isDark ? 16 : 12),
-              borderWidth: isDark ? 8 : 6,
-              borderColor: "transparent",
-              borderTopColor: progress > 0 ? (isDark ? "#4CAF84" : "#1F8F5F") : "transparent",
-              borderRightColor: progress > 25 ? (isDark ? "#4CAF84" : "#1F8F5F") : "transparent",
-              borderBottomColor: progress > 50 ? (isDark ? "#4CAF84" : "#1F8F5F") : "transparent",
-              borderLeftColor: progress > 75 ? (isDark ? "#4CAF84" : "#1F8F5F") : "transparent",
-              transform: [{ rotate: "-90deg" }],
-              shadowColor: isDark ? "#4CAF84" : "#1F8F5F",
-              shadowOffset: { width: 0, height: 0 },
-              shadowOpacity: isDark ? 0.4 : 0.25,
-              shadowRadius: isDark ? 15 : 12,
-            }}
-          />
+          <Svg width={size} height={size} style={{ transform: [{ rotate: "-90deg" }] }}>
+            {/* Background circle */}
+            <Circle
+              cx={center}
+              cy={center}
+              r={radius}
+              stroke={isDark ? "rgba(34, 56, 51, 0.3)" : "rgba(226, 236, 232, 0.3)"}
+              strokeWidth={strokeWidth}
+              fill="transparent"
+            />
+            {/* Progress circle - smooth progress based on increment calculation */}
+            <Circle
+              cx={center}
+              cy={center}
+              r={radius}
+              stroke={isDark ? "#4CAF84" : "#1F8F5F"}
+              strokeWidth={strokeWidth}
+              fill="transparent"
+              strokeDasharray={strokeDasharray}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+            />
+          </Svg>
         </View>
 
         {/* Content */}
@@ -130,8 +133,7 @@ export default function DhikrCounter({
           </Animated.Text>
           <Text
             className={clsx(
-              "text-xs font-medium mt-4 tracking-widest uppercase opacity-80",
-              isDark ? "text-primary-500" : "text-primary-500"
+              "text-xs font-medium mt-4 tracking-widest uppercase opacity-80 text-primary-500"
             )}
           >
             Target: {target}

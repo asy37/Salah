@@ -4,7 +4,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { prayerTrackingRepo } from '@/lib/database/sqlite/repository';
+import { prayerTrackingRepo } from '@/lib/database/sqlite/prayer-tracking/repository';
 import { dailyResetService, getTodayDateString } from '@/lib/services/dailyReset';
 import type { PrayerStatus, PrayerName } from '@/types/prayer-tracking';
 
