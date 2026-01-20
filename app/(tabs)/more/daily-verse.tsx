@@ -1,10 +1,8 @@
-import { ScrollView, Text, useColorScheme, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView, useColorScheme } from "react-native";
 import clsx from "clsx";
 import DailyVerseHeader from "@/components/daily-verse/DailyVerseHeader";
 import DailyVerseCard from "@/components/daily-verse/DailyVerseCard";
 import DateInfo from "@/components/daily-verse/DateInfo";
-import SwipeHint from "@/components/daily-verse/SwipeHint";
 
 export default function DailyVerseScreen() {
   const colorScheme = useColorScheme();
@@ -13,7 +11,7 @@ export default function DailyVerseScreen() {
   return (
     <ScrollView
       className={clsx(
-        "flex-1",
+        "flex-1 p-4",
         isDark ? "bg-background-dark" : "bg-background-light"
       )}
       contentContainerStyle={{ paddingBottom: 32 }}
@@ -22,7 +20,6 @@ export default function DailyVerseScreen() {
       <DailyVerseHeader isDark={isDark} />
       <DateInfo isDark={isDark} />
       <DailyVerseCard isDark={isDark} />
-      <SwipeHint isDark={isDark} />
     </ScrollView>
   );
 }

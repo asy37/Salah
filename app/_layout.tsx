@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { View, ActivityIndicator } from "react-native";
 import "../global.css";
 // Note: NotificationService is lazy-loaded to avoid Expo Go compatibility issues
 // It will be imported only when needed, not at app startup
@@ -18,6 +17,10 @@ import { fetchPrayerTimes } from "@/lib/api/services/prayerTimes";
 import { useLocationStore } from "@/lib/storage/locationStore";
 import { useMethodStore } from "@/lib/storage/useMethodStore";
 import { useDhikrSync } from "@/lib/hooks/dhikir/useDhikrSync";
+import { useTranslationStore } from "@/lib/storage/useQuranStore";
+import { useTranslationByIdentifier } from "@/lib/hooks/useTranslationByIdentifier";
+import { getDownloadedTranslations } from "@/lib/database/sqlite/translation/repository";
+import { QuranAudioProvider } from "@/contexts/QuranAudioContext";
 
 // Keep splash screen visible while loading fonts
 SplashScreen.preventAutoHideAsync();
@@ -78,11 +81,11 @@ export default function RootLayout() {
   // Prefetch prayer times on app start and when location changes
   const location = useLocationStore((state) => state.location);
   const method = useMethodStore((state) => state.method?.id);
-  
+
   useEffect(() => {
     // Method is always available (has default value), but we need to wait for it
     if (!method) return;
-    
+
     // Use location if available, otherwise use default Istanbul coordinates
     const latitude = location?.latitude ?? 41.0082;
     const longitude = location?.longitude ?? 28.9784;
@@ -99,6 +102,39 @@ export default function RootLayout() {
     });
   }, [location, method]);
 
+  const { selectedTranslation, setSelectedTranslation, setTranslationData } =
+    useTranslationStore();
+  const [downloadedList, setDownloadedList] = useState<
+    Awaited<ReturnType<typeof getDownloadedTranslations>> | null
+  >(null);
+
+  // İndirilmiş çevirileri yükle (seçili yoksa data[0] ile varsayılan atamak için)
+  useEffect(() => {
+    getDownloadedTranslations().then(setDownloadedList);
+  }, []);
+
+  // Öncelik: 1) Daha önce seçilmiş, 2) Seçili yok ve data varsa data[0]
+  const effectiveIdentifier =
+    selectedTranslation?.edition_identifier ??
+    downloadedList?.[0]?.edition_identifier ??
+    null;
+
+  const { translation: quran } = useTranslationByIdentifier(effectiveIdentifier);
+
+  // Seçili yoksa ama indirilmiş liste varsa ilkini seçili yap (persist için)
+  useEffect(() => {
+    if (!selectedTranslation && downloadedList && downloadedList.length > 0) {
+      setSelectedTranslation(downloadedList[0]);
+    }
+  }, [selectedTranslation, downloadedList, setSelectedTranslation]);
+
+  useEffect(() => {
+    if (quran) {
+      setTranslationData(quran);
+    }
+  }, [quran, setTranslationData]);
+
+
   if (!fontsLoaded && fontsLoaded !== undefined) {
     return null;
   }
@@ -111,21 +147,23 @@ export default function RootLayout() {
   //     </View>
   //   );
   // }
-
   return (
     <QueryClientProvider client={queryClient}>
-      <EmailConfirmationProvider />
-      <LocationPermissionProvider />
-      <DhikrSyncProvider />
-      {!shouldShowRegister && <PrayerHeader />}
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="auth" />
-      </Stack>
+      <QuranAudioProvider>
+        <EmailConfirmationProvider />
+        <LocationPermissionProvider />
+        <DhikrSyncProvider />
+        {!shouldShowRegister && <PrayerHeader />}
+
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="auth" />
+        </Stack>
+      </QuranAudioProvider>
     </QueryClientProvider>
   );
 }

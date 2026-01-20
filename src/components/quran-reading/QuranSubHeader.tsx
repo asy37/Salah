@@ -2,23 +2,18 @@ import { Text, View } from "react-native";
 import { useState } from "react";
 import QuranSettings from "./modals/QuranSettings";
 import Button from "../button/Button";
-import { TranslationMetadata } from "@/lib/database/sqlite/translation/repository";
 import clsx from "clsx";
 import { useAudioStore, useSurahStore } from "@/lib/storage/useQuranStore";
 
 type QuranSubHeaderProps = {
   readonly isDark: boolean;
   readonly onOpenSurahModal: () => void;
-  readonly setSelectTranslation: (item: TranslationMetadata) => void;
-  readonly selectedTranslation: string | null;
   readonly onPlaySurah?: (surahNumber: number) => void; // Sure okuma başlatma callback'i
 };
 
 export default function QuranSubHeader({
   isDark,
   onOpenSurahModal,
-  setSelectTranslation,
-  selectedTranslation,
   onPlaySurah,
 }: QuranSubHeaderProps) {
   const [settingsModal, setSettingsModal] = useState(false);
@@ -87,8 +82,6 @@ export default function QuranSubHeader({
         />
       </View>
       <QuranSettings
-        setSelectTranslation={setSelectTranslation}
-        selectedTranslation={selectedTranslation}
         isDark={isDark}
         visible={settingsModal}
         onClose={() => setSettingsModal(false)}

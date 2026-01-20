@@ -1,14 +1,12 @@
 import { View, useColorScheme } from "react-native";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import clsx from "clsx";
 import QuranSubHeader from "@/components/quran-reading/QuranSubHeader";
 import QuranContent from "@/components/quran-reading/QuranContent";
 import QuranAudioPlayer from "@/components/quran-reading/QuranAudioPlayer";
 import { useQuran } from "@/lib/hooks/useQuran";
 import QuranData from "@/lib/quran/arabic/ar.json";
-import { useTranslationByIdentifier } from "@/lib/hooks/useTranslationByIdentifier";
 import SurahSelectionModal from "@/components/quran-reading/modals/SurahSelectionModal";
-import { TranslationMetadata } from "@/lib/database/sqlite/translation/repository";
 import { useSurahPlayer } from "@/lib/hooks/useSurahPlayer";
 import { useAudioStore } from "@/lib/storage/useQuranStore";
 import { splitAyahText } from "@/lib/quran/utils/wordSplitter";
@@ -21,20 +19,10 @@ export default function QuranScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const [isSurahModalVisible, setIsSurahModalVisible] = useState(false);
-  const [selectedTranslation, setSelectedTranslation] =
-    useState<TranslationMetadata | null>(null);
 
-  const { translation: quran } = useTranslationByIdentifier(
-    selectedTranslation?.edition_identifier || null
-  );
-  const translationData = useMemo(
-    () => (quran?.surahs ? { surahs: quran.surahs } : undefined),
-    [quran?.surahs]
-  );
   const { surah, ayahs, goNext, goPrev, setCurrentSurahNumber } = useQuran(
     QuranData,
     1,
-    translationData
   );
 
   const {
@@ -152,8 +140,6 @@ export default function QuranScreen() {
       )}
     >
       <QuranSubHeader
-        setSelectTranslation={setSelectedTranslation}
-        selectedTranslation={selectedTranslation?.edition_identifier || null}
         isDark={isDark}
         onOpenSurahModal={() => setIsSurahModalVisible(true)}
         onPlaySurah={handlePlaySurah}

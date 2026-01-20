@@ -1,6 +1,7 @@
-import { Ayah } from "@/types/quran";
+import { Ayah, Surah } from "@/types/quran";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { TranslationMetadata } from "../database/sqlite/translation/repository";
 
 type AudioStateType = {
   // Aktif ayet numarası (şu anda çalan ayet)
@@ -52,6 +53,14 @@ type AyahStateType = {
   clearCache: () => void;
 };
 
+export type TranslationData = { surahs: Surah[] } | null;
+
+type TranslationStateType = {
+  translationData: TranslationData;
+  selectedTranslation: TranslationMetadata | null;
+  setTranslationData: (translationData: TranslationData) => void;
+  setSelectedTranslation: (selectedTranslation: TranslationMetadata | null) => void;
+};
 export const useAudioStore = create<AudioStateType>()(
   persist(
     (set) => ({
@@ -146,6 +155,20 @@ export const useAyahStore = create<AyahStateType>()(
     }),
     {
       name: "quran-store",
+    }
+  )
+);
+
+export const useTranslationStore = create<TranslationStateType>()(
+  persist(
+    (set) => ({
+      translationData: null,
+      selectedTranslation: null,
+      setTranslationData: (translationData: TranslationData) => set({ translationData }),
+      setSelectedTranslation: (selectedTranslation: TranslationMetadata | null) => set({ selectedTranslation }),
+    }),
+    {
+      name: "translation-store",
     }
   )
 );

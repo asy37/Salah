@@ -62,6 +62,7 @@ export interface SurahApi {
 // --------------------
 // Surah - UI Format
 // --------------------
+
 export interface Surah {
   number: number;
   name: string; // Arabic name
@@ -241,3 +242,11 @@ export interface MetaResponse {
     ayahs: number[];
   }>;
 }
+
+export type SurahItem = {
+  number: number;
+  name: string;
+  englishName: string;
+  englishNameTranslation?: string;
+  ayahs: Ayah[];
+};

@@ -21,6 +21,41 @@ export interface AuthResponse {
 }
 
 /**
+ * Sign in with email and password
+ */
+export async function signInWithPassword(
+  email: string,
+  password: string
+): Promise<AuthResponse> {
+  try {
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      return {
+        user: null,
+        session: null,
+        error: new Error(error.message),
+      };
+    }
+
+    return {
+      user: authData.user,
+      session: authData.session,
+      error: null,
+    };
+  } catch (error) {
+    return {
+      user: null,
+      session: null,
+      error: error instanceof Error ? error : new Error('Giriş yapılırken bir hata oluştu'),
+    };
+  }
+}
+
+/**
  * Sign up with email and password
  * Email confirmation is required
  */
@@ -222,6 +257,27 @@ export async function resendConfirmationEmail(email: string): Promise<{ error: E
   } catch (error) {
     return {
       error: error instanceof Error ? error : new Error('Onay maili gönderilirken bir hata oluştu'),
+    };
+  }
+}
+
+/**
+ * Send password reset email
+ */
+export async function resetPasswordForEmail(email: string): Promise<{ error: Error | null }> {
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: undefined, // Uygulama içi yönlendirme gerekirse ayarlanabilir
+    });
+
+    if (error) {
+      return { error: new Error(error.message) };
+    }
+
+    return { error: null };
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error : new Error('Şifre sıfırlama maili gönderilirken bir hata oluştu'),
     };
   }
 }

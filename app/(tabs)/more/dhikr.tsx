@@ -85,7 +85,7 @@ export default function DhikrScreen() {
       )}
       edges={["top"]}
     >
-      <Button onPress={() => setOpenAddDhikrModal(true)} isDark={isDark} className="absolute top-6 right-6">
+      <Button onPress={() => setOpenAddDhikrModal(true)} isDark={isDark} className="absolute top-6 left-6">
         <MaterialIcons name="add" size={24} color={isDark ? "white" : "black"} />
       </Button>
       {(() => {

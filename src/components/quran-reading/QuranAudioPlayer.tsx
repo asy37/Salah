@@ -16,7 +16,6 @@ export default function QuranAudioPlayer({ isDark }: QuranAudioPlayerProps) {
     setIsPlaying,
     position,
     duration,
-    isSurahPlaybackActive,
   } = useAudioStore();
   const { surahName, surahEnglishName } = useSurahStore();
 

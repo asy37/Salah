@@ -13,7 +13,7 @@ type translationData = {
   };
   surahs: Surah[];
 };
-export function useTranslationByIdentifier(identifier: string | null) {
+export function useTranslationByIdentifier(identifier?: string | null) {
   const [translation, setTranslation] = useState<translationData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);

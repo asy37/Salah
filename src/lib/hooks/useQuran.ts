@@ -1,17 +1,18 @@
-import { useEffect, useMemo } from "react";
-import { Surah, Ayah } from "@/types/quran";
+import { useCallback, useEffect, useMemo } from "react";
+import { Surah, Ayah, SurahItem } from "@/types/quran";
 import {
   useAudioStore,
   usePageStore,
   useSurahStore,
+  useTranslationStore,
 } from "@/lib/storage/useQuranStore";
+import { getDailyAyahNumber } from "@/lib/quran/dailyAyah";
 
 const AYAH_PER_PAGE = 10;
 
 export function useQuran(
   quranData: unknown,
   initialSurahNumber = 1,
-  translationData?: { surahs: Surah[] }
 ) {
   const {
     currentSurahNumber: storeSurahNumber,
@@ -19,6 +20,8 @@ export function useQuran(
     setCurrentSurahNumber: setStoreSurahNumber,
     setCurrentPageIndex: setStorePageIndex,
   } = usePageStore();
+
+  const { translationData } = useTranslationStore();
 
   const { setJuz, setSurahName, setSurahEnglishName, setSurahNumber } =
     useSurahStore();
@@ -73,6 +76,93 @@ export function useQuran(
       };
     });
   }, [surah, translationData, currentSurahNumber]);
+
+  /**
+   * Rastgele bir ayet döndürür.
+   * - Önce rastgele sure (1–114), sonra o surenin içinden rastgele ayet seçilir.
+   * - Çeviri varsa translationText ile zenginleştirilir.
+   */
+  const getRandomAyah = useCallback((): Ayah | null => {
+    const data = quranData as {
+      surahs?: Array<{
+        number: number;
+        name: string;
+        englishName: string;
+        englishNameTranslation?: string;
+        ayahs: Ayah[];
+      }>;
+    };
+    if (!data?.surahs?.length) return null;
+
+    const surahIndex = Math.floor(Math.random() * data.surahs.length);
+    const surahItem = data.surahs[surahIndex];
+    if (!surahItem?.ayahs?.length) return null;
+
+    const ayahIndex = Math.floor(Math.random() * surahItem.ayahs.length);
+    const arabicAyah = surahItem.ayahs[ayahIndex];
+
+    const translationSurah = translationData?.surahs?.find(
+      (ts) => ts.number === surahItem.number
+    );
+    const translationAyah = translationSurah?.ayahs?.find(
+      (ta) => ta.numberInSurah === arabicAyah.numberInSurah
+    );
+
+    return {
+      ...arabicAyah,
+      surahArabicName: surahItem.name,
+      surahTranslation:
+        surahItem.englishNameTranslation ?? surahItem.englishName ?? "",
+      translationText: translationAyah?.text,
+    };
+  }, [quranData, translationData]);
+
+  /**
+   * Küresel ayet numarasına (1–6236) göre ayet döndürür.
+   * Çeviri varsa translationText ile zenginleştirilir.
+   */
+  const getAyahByNumber = useCallback(
+    (globalAyahNumber: number): Ayah | null => {
+      const data = quranData as { surahs?: SurahItem[] };
+      if (!data?.surahs?.length) return null;
+
+      for (const surahItem of data.surahs) {
+        const arabicAyah = surahItem.ayahs?.find(
+          (a) => a.number === globalAyahNumber
+        );
+        if (!arabicAyah) continue;
+
+        const translationSurah = translationData?.surahs?.find(
+          (ts) => ts.number === surahItem.number
+        );
+        const translationAyah = translationSurah?.ayahs?.find(
+          (ta) => ta.numberInSurah === arabicAyah.numberInSurah
+        );
+
+        return {
+          ...arabicAyah,
+          surahArabicName: surahItem.name,
+          surahTranslation:
+            surahItem.englishNameTranslation ?? surahItem.englishName ?? "",
+          translationText: translationAyah?.text,
+        };
+      }
+      return null;
+    },
+    [quranData, translationData]
+  );
+
+  /**
+   * Günlük ayet: getDailyAyahNumber ile o güne özel deterministik ayet numarası
+   * alınır, getAyahByNumber ile ayet bulunur. Aynı gün her zaman aynı ayet.
+   */
+  const getDailyAyah = useCallback(
+    (date?: Date): Ayah | null => {
+      const n = getDailyAyahNumber(date ?? new Date());
+      return getAyahByNumber(n);
+    },
+    [getAyahByNumber]
+  );
 
   /** Ayetleri sayfalara böl */
   const pages: Ayah[][] = useMemo(() => {
@@ -204,5 +294,8 @@ export function useQuran(
     goNext,
     goPrev,
     setCurrentSurahNumber,
+    getRandomAyah,
+    getAyahByNumber,
+    getDailyAyah,
   };
 }

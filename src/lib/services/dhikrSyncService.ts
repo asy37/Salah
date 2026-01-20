@@ -176,38 +176,58 @@ class DhikrSyncService {
 
       if (error) {
         console.error('[DhikrSync] Edge function error:', error);
+        // FunctionsHttpError: error.context = fetch Response
+        const res = error?.context as { status?: number; text?: () => Promise<string> } | undefined;
+        let bodyText: string | undefined;
+        if (res && typeof res.status === 'number') {
+          console.error('[DhikrSync] Edge function status:', res.status);
+          try {
+            bodyText = await res.text?.();
+            if (bodyText) console.error('[DhikrSync] Edge function body:', bodyText);
+          } catch {
+            // Response body already consumed or not readable
+          }
+        }
+        let code = '', msg = '';
+        try { const b = bodyText ? JSON.parse(bodyText) : {}; code = b.code ?? ''; msg = b.message ?? ''; } catch { }
+        if (code === 'NOT_FOUND' || (typeof msg === 'string' && msg.toLowerCase().includes('not found'))) {
+          console.warn('[DhikrSync] sync_dhikr Edge Function bulunamadı. Deploy: supabase functions deploy sync_dhikr');
+        }
         this.isSyncing = false;
         return result;
       }
 
-      // Process response
+      // Process response (Edge Function returns { syncedIds, errors }; skippedIds yok)
       const response = data as {
-        syncedIds: string[];
-        skippedIds: string[];
-        errors: Array<{ id: string; error: string }>;
+        syncedIds?: string[];
+        skippedIds?: string[];
+        errors?: Array<{ id: string; error: string }>;
       };
+      const syncedIds = response.syncedIds ?? [];
+      const skippedIds = response.skippedIds ?? [];
+      const errors = response.errors ?? [];
 
       // Mark successfully synced records as clean
-      for (const id of response.syncedIds) {
+      for (const id of syncedIds) {
         try {
           await dhikrRepo.markDhikrSynced(id);
           result.syncedCount++;
-        } catch (error) {
-          console.error(`[DhikrSync] Error marking ${id} as synced:`, error);
+        } catch (err) {
+          console.error(`[DhikrSync] Error marking ${id} as synced:`, err);
           result.errorCount++;
         }
       }
 
       // Log skipped records (conflict resolution - server has newer version)
-      result.skippedCount = response.skippedIds.length;
+      result.skippedCount = skippedIds.length;
       if (result.skippedCount > 0) {
         console.log(`[DhikrSync] Skipped ${result.skippedCount} records (server has newer version)`);
       }
 
       // Log errors
-      result.errorCount += response.errors.length;
-      if (response.errors.length > 0) {
-        console.error('[DhikrSync] Sync errors:', response.errors);
+      result.errorCount += errors.length;
+      if (errors.length > 0) {
+        console.error('[DhikrSync] Sync errors:', errors);
       }
 
       // Update last sync timestamp

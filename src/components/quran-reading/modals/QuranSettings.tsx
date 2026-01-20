@@ -3,22 +3,17 @@ import React from "react";
 import { DownloadModal } from "./DownloadModal";
 import Button from "@/components/button/Button";
 import TranslationSelect from "./TranslationSelect";
-import { TranslationMetadata } from "@/lib/database/sqlite/translation/repository";
 
 type QuranSettingsProps = {
   readonly isDark: boolean;
   readonly visible: boolean;
   readonly onClose: () => void;
-  readonly selectedTranslation: string | null;
-  readonly setSelectTranslation: (edition: TranslationMetadata) => void;
 };
 
 export default function QuranSettings({
   isDark,
   visible,
   onClose,
-  selectedTranslation,
-  setSelectTranslation,
 }: QuranSettingsProps) {
   const [showDownloadModal, setShowDownloadModal] = React.useState(false);
   const [showTranslationSelect, setShowTranslationSelect] =
@@ -51,8 +46,6 @@ export default function QuranSettings({
         onClose={() => setShowDownloadModal(false)}
       />
       <TranslationSelect
-        onSelect={setSelectTranslation}
-        selectedTranslation={selectedTranslation}
         isDark={isDark}
         visible={showTranslationSelect}
         onClose={() => setShowTranslationSelect(false)}

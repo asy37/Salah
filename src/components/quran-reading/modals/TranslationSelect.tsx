@@ -5,6 +5,7 @@ import {
   TranslationMetadata,
 } from "@/lib/database/sqlite/translation/repository";
 import { queryKeys } from "@/lib/query/queryKeys";
+import { useTranslationStore } from "@/lib/storage/useQuranStore";
 import { useQuery } from "@tanstack/react-query";
 import { FlatList, View } from "react-native";
 
@@ -12,23 +13,20 @@ type TranslationSelectProps = {
   readonly isDark: boolean;
   readonly visible: boolean;
   readonly onClose: () => void;
-  readonly onSelect: (item: TranslationMetadata) => void;
-  readonly selectedTranslation: string | null;
 };
 export default function TranslationSelect({
   isDark,
   visible,
   onClose,
-  onSelect,
-  selectedTranslation,
 }: TranslationSelectProps) {
+  const { selectedTranslation, setSelectedTranslation } = useTranslationStore();
   const { data, isLoading } = useQuery({
     queryKey: queryKeys.translation.downloaded(),
     queryFn: getDownloadedTranslations,
   });
 
   const handleSelect = (item: TranslationMetadata) => {
-    onSelect(item);
+    setSelectedTranslation(item);
     onClose();
   };
   return (
@@ -44,7 +42,7 @@ export default function TranslationSelect({
         keyExtractor={(item) => item.edition_identifier}
         contentContainerClassName="gap-2 pb-4 w-full"
         renderItem={({ item }) => {
-          const isSelected = selectedTranslation === item.edition_identifier;
+          const isSelected = selectedTranslation?.edition_identifier === item.edition_identifier;
           return (
             <View className="w-full">
               <Button
