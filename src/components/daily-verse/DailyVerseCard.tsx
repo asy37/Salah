@@ -1,13 +1,19 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import clsx from "clsx";
 import Button from "../button/Button";
 import { colors } from "../theme/colors";
 import { useAudioStore } from "@/lib/storage/useQuranStore";
-import React from "react";
+import React, { useEffect } from "react";
 import { useQuran } from "@/lib/hooks/useQuran";
 import QuranData from "@/lib/quran/arabic/ar.json";
 import { useQuranAudio } from "@/contexts/QuranAudioContext";
+import AyahBlock from "../quran-reading/AyahBlock";
+import { splitAyahText } from "@/lib/quran/utils/wordSplitter";
+import {
+  getActiveWordIndexFromTimings,
+  getVerseTiming,
+} from "@/lib/quran/utils/audioTimings";
 
 type DailyVerseCardProps = {
   readonly isDark: boolean;
@@ -25,11 +31,58 @@ export default function DailyVerseCard({ isDark }: DailyVerseCardProps) {
     setIsSurahPlaybackActive,
     setCurrentSurahAyahIndex,
     setActiveWordIndex,
+    activeWordIndex,
+    position,
+    duration,
   } = useAudioStore();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (dailyAyah) setActiveAyahNumber(dailyAyah.number);
   }, [dailyAyah?.number, setActiveAyahNumber]);
+
+  // Kelime takibi: günlük ayet çalarken activeWordIndex güncelle (quran.tsx ile aynı mantık)
+  useEffect(() => {
+    if (!dailyAyah) return;
+    if (
+      activeAyahNumber !== dailyAyah.number ||
+      duration <= 0 ||
+      position <= 0 ||
+      !isPlaying
+    ) {
+      return;
+    }
+
+    const words = splitAyahText(dailyAyah.text);
+    if (words.length === 0) return;
+
+    const surahNum = dailyAyah.surahNumber ?? 1;
+    const verseTiming = getVerseTiming(surahNum, dailyAyah.numberInSurah);
+    const timingIndex = verseTiming
+      ? getActiveWordIndexFromTimings(position, verseTiming)
+      : null;
+
+    const wordDuration = duration / words.length;
+    const fallbackIndex = Math.min(
+      Math.floor(position / wordDuration),
+      words.length - 1
+    );
+    const clampedIndex =
+      typeof timingIndex === "number"
+        ? Math.max(0, Math.min(timingIndex, words.length - 1))
+        : fallbackIndex;
+
+    if (clampedIndex !== activeWordIndex) {
+      setActiveWordIndex(clampedIndex);
+    }
+  }, [
+    dailyAyah,
+    activeAyahNumber,
+    position,
+    duration,
+    isPlaying,
+    activeWordIndex,
+    setActiveWordIndex,
+  ]);
 
   const handleAyahPress = (ayahNumber: number) => {
     if (activeAyahNumber === ayahNumber) {
@@ -55,27 +108,14 @@ export default function DailyVerseCard({ isDark }: DailyVerseCardProps) {
       >
         بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
       </Text>
-      <ScrollView className="flex-col gap-2 max-h-[200px]">
-        {/* Arabic */}
-        <Text
-          className={clsx(
-            "text-3xl md:text-4xl font-bold leading-loose py-2 text-right",
-            isDark ? "text-text-primaryDark" : "text-text-primaryLight"
-          )}
-          style={{ lineHeight: 60 }}
-        >
-          {dailyAyah.text}
-        </Text>
-        {/* Translation */}
-        <Text
-          className={clsx(
-            "text-lg font-normal leading-relaxed",
-            isDark ? "text-text-secondaryDark" : "text-text-secondaryLight"
-          )}
-        >
-          {dailyAyah.translationText ?? ""}
-        </Text>
-      </ScrollView>
+      <AyahBlock
+        ayah={dailyAyah}
+        isDark={isDark}
+        onAyahPress={handleAyahPress}
+        activeWordIndex={
+          activeAyahNumber === dailyAyah.number ? activeWordIndex : -1
+        }
+      />
       {/* Surah Info */}
       <View
         className={clsx(

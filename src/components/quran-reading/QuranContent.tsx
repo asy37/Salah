@@ -1,29 +1,21 @@
-import {
-  FlatList,
-  View,
-  Dimensions,
-  PanResponder,
-  Animated,
-} from "react-native";
+import { Animated, FlatList, View } from "react-native";
 import AyahBlock from "./AyahBlock";
 import { Ayah } from "@/types/quran";
 import PageIndicator from "./PageIndicator";
-import { useEffect, useRef, useMemo } from "react";
-import * as Haptics from "expo-haptics";
+import { useMemo } from "react";
 import { useSurahStore } from "@/lib/storage/useQuranStore";
+import { useSwipeScroll } from "@/lib/hooks/useSwipeScroll";
 
 type QuranContentProps = Readonly<{
   ayahs: Ayah[];
   isDark: boolean;
   goNext: () => void;
   goPrev: () => void;
-  activeAyahNumber?: number | null; // Aktif ayet numarası (scroll için)
-  activeWordIndex?: number; // Aktif kelime index'i
-  onScroll?: () => void; // Kullanıcı scroll yaptığında çağrılacak (sure okumasını iptal etmek için)
-  onAyahPress?: (ayahNumber: number) => void; // Ayet tıklandığında çağrılacak
+  activeAyahNumber?: number | null;
+  activeWordIndex?: number;
+  onScroll?: () => void;
+  onAyahPress?: (ayahNumber: number) => void;
 }>;
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.5;
 
 export default function QuranContent({
   isDark,
@@ -35,92 +27,24 @@ export default function QuranContent({
   onScroll,
   onAyahPress,
 }: QuranContentProps) {
-  const listRef = useRef<FlatList<Ayah>>(null);
-  const translateX = useRef(new Animated.Value(0)).current;
   const { surahNumber } = useSurahStore();
-  const previousAyahNumberRef = useRef<number | null | undefined>(activeAyahNumber);
 
-  // Sayfa değiştiğinde scroll'u sıfırla
-  useEffect(() => {
-    listRef.current?.scrollToOffset({
-      offset: 0,
-      animated: true,
-    });
-    translateX.setValue(0);
-  }, [ayahs, translateX]);
+  const activeIndex =
+    activeAyahNumber == null
+      ? -1
+      : ayahs.findIndex((a) => a.number === activeAyahNumber);
 
-  // Aktif ayet değiştiğinde scroll yap (sadece ayet değişiminde, positionMillis değişiminde değil)
-  useEffect(() => {
-    if (activeAyahNumber === null || activeAyahNumber === undefined) {
-      previousAyahNumberRef.current = activeAyahNumber;
-      return;
-    }
-
-    // Sadece ayet numarası değiştiğinde scroll yap
-    if (previousAyahNumberRef.current !== activeAyahNumber) {
-      previousAyahNumberRef.current = activeAyahNumber;
-
-      // Aktif ayeti bul
-      const activeAyahIndex = ayahs.findIndex(
-        (ayah) => ayah.number === activeAyahNumber
-      );
-
-      if (activeAyahIndex >= 0 && listRef.current) {
-        // Aktif ayeti görünür alana getir
-        listRef.current.scrollToIndex({
-          index: activeAyahIndex,
-          animated: true,
-          viewPosition: 0.3, // Ekranın üst kısmından %30 aşağıda
-        });
-      }
-    }
-  }, [activeAyahNumber, ayahs]);
-
-  const panResponder = useMemo(
-    () =>
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => false,
-        onMoveShouldSetPanResponder: (_, gestureState) => {
-          return (
-            Math.abs(gestureState.dx) > Math.abs(gestureState.dy) &&
-            Math.abs(gestureState.dx) > 10
-          );
-        },
-        onPanResponderMove: (_, gestureState) => {
-          translateX.setValue(gestureState.dx);
-        },
-        onPanResponderRelease: (_, gestureState) => {
-          const swipeDistance = gestureState.dx;
-          const isSwipeLeft = swipeDistance < 0;
-
-          if (Math.abs(swipeDistance) > SWIPE_THRESHOLD) {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-            const targetX = isSwipeLeft ? -SCREEN_WIDTH : SCREEN_WIDTH;
-            Animated.timing(translateX, {
-              toValue: targetX,
-              duration: 200,
-              useNativeDriver: true,
-            }).start(() => {
-              if (isSwipeLeft) {
-                goPrev();
-              } else {
-                goNext();
-              }
-              translateX.setValue(0);
-            });
-          } else {
-            Animated.spring(translateX, {
-              toValue: 0,
-              tension: 50,
-              friction: 7,
-              useNativeDriver: true,
-            }).start();
-          }
-        },
-      }),
-    [goNext, goPrev, translateX]
-  );
+  const {
+    listRef,
+    translateX,
+    panHandlers,
+    onScrollToIndexFailed,
+  } = useSwipeScroll<Ayah>({
+    goNext,
+    goPrev,
+    resetDeps: [ayahs],
+    activeIndex: activeIndex < 0 ? undefined : activeIndex,
+  });
 
   const footerComponent = useMemo(
     () => (
@@ -135,7 +59,7 @@ export default function QuranContent({
   );
 
   return (
-    <View style={{ flex: 1 }} {...panResponder.panHandlers}>
+    <View style={{ flex: 1 }} {...panHandlers}>
       <Animated.View
         style={{
           flex: 1,
@@ -170,16 +94,7 @@ export default function QuranContent({
               onScroll();
             }
           }}
-          onScrollToIndexFailed={(info) => {
-            // Scroll hatası durumunda fallback
-            const wait = new Promise((resolve) => setTimeout(resolve, 500));
-            wait.then(() => {
-              listRef.current?.scrollToIndex({
-                index: info.index,
-                animated: true,
-              });
-            });
-          }}
+          onScrollToIndexFailed={onScrollToIndexFailed}
         />
       </Animated.View>
     </View>

@@ -27,9 +27,17 @@ export default function AyahBlock({
     setActiveAyahNumber,
   } = useAudioStore();
 
+
   // Ayet metnini kelimelere böl
   const words = useMemo(() => splitAyahText(ayah.text), [ayah.text]);
-
+  const spokenIndexMap = useMemo(() => {
+    let spokenIndex = -1;
+    return words.map(word => {
+      if (word.isPause) return -1;
+      spokenIndex += 1;
+      return spokenIndex;
+    });
+  }, [words]);
   const handlePress = (number: number) => {
     if (onAyahPress) {
       onAyahPress(number);
@@ -117,15 +125,15 @@ export default function AyahBlock({
         }}
       >
         {words.map((word, index) => {
-          const isActive = activeAyahNumber === ayah.number && index === activeWordIndex;
+          const isActive =
+            activeAyahNumber === ayah.number &&
+            spokenIndexMap[index] === activeWordIndex;
           return (
             <Text
               key={`${ayah.number}-${index}`}
-              className={clsx(
-                isActive && "text-primary-500 font-bold"
-              )}
+              className={clsx(isActive && "text-primary-500 font-bold")}
             >
-              {word}
+              {word.raw}
               {index < words.length - 1 && " "}
             </Text>
           );

@@ -27,6 +27,7 @@ export interface AyahApi {
 // --------------------
 export interface Ayah {
   number: number; // Global ayah number
+  surahNumber?: number; // 1–114; getAyahByNumber / getDailyAyah ile gelir
   surahArabicName: string;
   surahTranslation: string;
   text: string;

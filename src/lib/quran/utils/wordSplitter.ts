@@ -2,7 +2,12 @@
  * Arapça ayet metnini kelimelere bölen utility fonksiyonları
  * RTL kurallarına dikkat eder ve durakları normalize eder
  */
-
+export type AyahWord = {
+  raw: string;        // UI'da gösterilecek hali
+  clean: string;      // Senkron için (vakıf temizlenmiş)
+  isPause: boolean;   // Vakıf/durak mı?
+};  
+const WAQF_CHARS = /[ۖۗۘۙۚۛۜ]/g;
 /**
  * Arapça metindeki durakları normalize eder
  * Bazı duraklar farklı Unicode karakterlerle temsil edilebilir
@@ -21,27 +26,31 @@ function normalizeDiacritics(text: string): string {
  * @param text - Arapça ayet metni
  * @returns Kelime dizisi (RTL sırasında)
  */
-export function splitAyahText(text: string): string[] {
+export function splitAyahText(text: string): AyahWord[] {
   if (!text || text.trim().length === 0) {
     return [];
   }
 
-  // Metni normalize et
   const normalized = normalizeDiacritics(text);
 
-  // Boşluklara göre böl (Arapça metinlerde kelimeler boşluklarla ayrılır)
-  // Ayrıca bazı özel durumları da kontrol et
-  const words = normalized
+  return normalized
     .split(/\s+/)
-    .filter((word) => word.length > 0) // Boş string'leri filtrele
-    .map((word) => word.trim());
+    .filter((word) => word.length > 0)
+    .map((raw) => {
+      const clean = raw.replace(WAQF_CHARS, "");
+      const isPause = clean.length === 0;
 
-  return words;
+      return {
+        raw,
+        clean,
+        isPause,
+      };
+    });
 }
 
 /**
  * Kelime dizisini tekrar birleştirir (test/debug için)
  */
-export function joinAyahWords(words: string[]): string {
-  return words.join(" ");
+export function joinAyahWords(words: AyahWord[]): string {
+  return words.map(w => w.raw).join(" ");
 }
