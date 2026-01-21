@@ -14,7 +14,7 @@ import {
   getTimeTextColor,
 } from "../adhan/utils/utils-styles";
 import { useState } from "react";
-import { useUpdatePrayerStatusLocal } from "@/lib/hooks/usePrayerTrackingLocal";
+import { useUpdatePrayerStatusLocal } from "@/lib/hooks/prayer-tracking/usePrayerTrackingLocal";
 import { ActionButtons } from "./ActionButtons";
 
 type PrayerItem = {

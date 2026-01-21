@@ -1,19 +1,14 @@
-import { MaterialIcons } from "@expo/vector-icons";
 import { Text, View } from "react-native";
 import clsx from "clsx";
-import Button from "../button/Button";
-import { colors } from "../theme/colors";
 import { useAudioStore } from "@/lib/storage/useQuranStore";
 import React, { useEffect } from "react";
-import { useQuran } from "@/lib/hooks/useQuran";
+import { useQuran } from "@/lib/hooks/quran/useQuran";
 import QuranData from "@/lib/quran/arabic/ar.json";
 import { useQuranAudio } from "@/contexts/QuranAudioContext";
 import AyahBlock from "../quran-reading/AyahBlock";
-import { splitAyahText } from "@/lib/quran/utils/wordSplitter";
-import {
-  getActiveWordIndexFromTimings,
-  getVerseTiming,
-} from "@/lib/quran/utils/audioTimings";
+import { DailyVerseAudio } from "./DailyVerseAudio";
+import SurahInfo from "./SurahInfo";
+import { useAyahWordSync } from "@/lib/hooks/daily-verse/useAyahWordSync";
 
 type DailyVerseCardProps = {
   readonly isDark: boolean;
@@ -32,8 +27,6 @@ export default function DailyVerseCard({ isDark }: DailyVerseCardProps) {
     setCurrentSurahAyahIndex,
     setActiveWordIndex,
     activeWordIndex,
-    position,
-    duration,
   } = useAudioStore();
 
   useEffect(() => {
@@ -41,48 +34,12 @@ export default function DailyVerseCard({ isDark }: DailyVerseCardProps) {
   }, [dailyAyah?.number, setActiveAyahNumber]);
 
   // Kelime takibi: günlük ayet çalarken activeWordIndex güncelle (quran.tsx ile aynı mantık)
-  useEffect(() => {
-    if (!dailyAyah) return;
-    if (
-      activeAyahNumber !== dailyAyah.number ||
-      duration <= 0 ||
-      position <= 0 ||
-      !isPlaying
-    ) {
-      return;
-    }
-
-    const words = splitAyahText(dailyAyah.text);
-    if (words.length === 0) return;
-
-    const surahNum = dailyAyah.surahNumber ?? 1;
-    const verseTiming = getVerseTiming(surahNum, dailyAyah.numberInSurah);
-    const timingIndex = verseTiming
-      ? getActiveWordIndexFromTimings(position, verseTiming)
-      : null;
-
-    const wordDuration = duration / words.length;
-    const fallbackIndex = Math.min(
-      Math.floor(position / wordDuration),
-      words.length - 1
-    );
-    const clampedIndex =
-      typeof timingIndex === "number"
-        ? Math.max(0, Math.min(timingIndex, words.length - 1))
-        : fallbackIndex;
-
-    if (clampedIndex !== activeWordIndex) {
-      setActiveWordIndex(clampedIndex);
-    }
-  }, [
-    dailyAyah,
-    activeAyahNumber,
-    position,
-    duration,
-    isPlaying,
-    activeWordIndex,
-    setActiveWordIndex,
-  ]);
+  useAyahWordSync({
+    ayahText: dailyAyah?.text,
+    ayahNumber: dailyAyah?.number,
+    surahNumber: dailyAyah?.surahNumber,
+    verseNumberInSurah: dailyAyah?.numberInSurah,
+  });
 
   const handleAyahPress = (ayahNumber: number) => {
     if (activeAyahNumber === ayahNumber) {
@@ -116,64 +73,15 @@ export default function DailyVerseCard({ isDark }: DailyVerseCardProps) {
           activeAyahNumber === dailyAyah.number ? activeWordIndex : -1
         }
       />
-      {/* Surah Info */}
-      <View
-        className={clsx(
-          "inline-flex items-center justify-center px-5 py-1.5 rounded-full mb-8 border",
-          isDark
-            ? "bg-primary-500/20 border-primary-500/10"
-            : "bg-primary-50 border-primary-500/10"
-        )}
-      >
-        <Text
-          className={clsx(
-            "text-sm font-semibold tracking-wide",
-            isDark ? "text-primary-300" : "text-primary-500"
-          )}
-        >
-         Juz: {dailyAyah.juz}  
-        </Text>
-        <Text
-          className={clsx(
-            "text-sm font-semibold tracking-wide",
-            isDark ? "text-primary-300" : "text-primary-500"
-          )}
-        >
-           Surah :{dailyAyah.surahArabicName + "/" + dailyAyah.surahTranslation}
-        </Text>
-        <Text
-          className={clsx(
-            "text-sm font-semibold tracking-wide",
-            isDark ? "text-primary-300" : "text-primary-500"
-          )}
-        >
-          Ayah Number: {dailyAyah.number}
-        </Text>
-      </View>
-      <View
-        className={clsx(
-          "group relative flex-col items-center rounded-3xl overflow-hidden",
-          isDark ? "bg-background-cardDark" : "bg-background-cardLight"
-        )}
-
-      >
-        <View className={clsx("w-full h-0.5 rounded-full",
-          isDark ? "bg-light" : "bg-primary-500"
-        )} />
-      </View>
-      <View className="flex-row items-center justify-between">
-        <View className=" items-center gap-2">
-          <MaterialIcons name="share" size={24} color="primary-500" />
-          <Text className="text-sm font-bold">Share</Text>
-        </View>
-        <Button onPress={() => handleAyahPress(dailyAyah.number)} isDark={isDark} className="p-5">
-          <MaterialIcons name={isPlaying ? "pause" : "play-arrow"} size={24} color={colors.primary[500]} />
-        </Button>
-        <View className=" items-center gap-2">
-          <MaterialIcons name="favorite" size={24} color="primary-500" />
-          <Text className="text-sm font-bold">Share</Text>
-        </View>
-      </View>
+      <SurahInfo dailyAyah={dailyAyah} isDark={isDark} />
+      <View className={clsx("w-full h-[1px] rounded-full",
+        isDark ? "bg-light" : "bg-primary-400"
+      )} />
+      <DailyVerseAudio
+        dailyAyah={dailyAyah}
+        isDark={isDark}
+        handleAyahPress={handleAyahPress}
+      />
     </View>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../useAuth";
-import { useUserId } from "../useUser";
+import { useAuth } from "../auth/useAuth";
+import { useUserId } from "../auth/useUser";
 import { getDhikrStatsSummary } from "@/lib/database/sqlite/dhikr/stats.service";
 import { DhikrStats } from "@/types/dhikir";
 

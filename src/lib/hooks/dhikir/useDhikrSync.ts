@@ -12,7 +12,7 @@
 import { useEffect, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import { dhikrSyncService } from '@/lib/services/dhikrSyncService';
-import { useAuth } from '../useAuth';
+import { useAuth } from '../auth/useAuth';
 
 /**
  * Hook to setup automatic dhikr sync

@@ -1,6 +1,6 @@
 import { Image, Text, View, useColorScheme } from "react-native";
 import clsx from "clsx";
-import { useLocation } from "@/lib/hooks/useLocation";
+import { useLocation } from "@/lib/hooks/qibla/useLocation";
 import ModalComponent from "@/components/modal/ModalComponent";
 import Button from "../button/Button";
 import ManualLocationModal from "./manuel-location/ManualLocationModal";

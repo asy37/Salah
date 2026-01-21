@@ -1,24 +1,20 @@
+import React from "react";
 import { View, useColorScheme } from "react-native";
-import React, { useState, useEffect } from "react";
 import clsx from "clsx";
 import QuranSubHeader from "@/components/quran-reading/QuranSubHeader";
 import QuranContent from "@/components/quran-reading/QuranContent";
 import QuranAudioPlayer from "@/components/quran-reading/QuranAudioPlayer";
-import { useQuran } from "@/lib/hooks/useQuran";
+import { useQuran } from "@/lib/hooks/quran/useQuran";
 import QuranData from "@/lib/quran/arabic/ar.json";
 import SurahSelectionModal from "@/components/quran-reading/modals/SurahSelectionModal";
-import { useSurahPlayer } from "@/lib/hooks/useSurahPlayer";
+import { useSurahPlayer } from "@/lib/hooks/audio-player/useSurahPlayer";
 import { useAudioStore } from "@/lib/storage/useQuranStore";
-import { splitAyahText } from "@/lib/quran/utils/wordSplitter";
-import {
-  getActiveWordIndexFromTimings,
-  getVerseTiming,
-} from "@/lib/quran/utils/audioTimings";
+import { useAyahWordSync } from "@/lib/hooks/quran/useAyahWordSync";
 
 export default function QuranScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
-  const [isSurahModalVisible, setIsSurahModalVisible] = useState(false);
+  const [isSurahModalVisible, setIsSurahModalVisible] = React.useState(false);
 
   const { surah, ayahs, goNext, goPrev, setCurrentSurahNumber } = useQuran(
     QuranData,
@@ -28,11 +24,8 @@ export default function QuranScreen() {
   const {
     activeAyahNumber,
     activeWordIndex,
-    position,
-    duration,
     isPlaying,
     setIsPlaying,
-    setActiveWordIndex,
   } = useAudioStore();
 
   // useSurahPlayer - sure okuma akışı
@@ -42,56 +35,10 @@ export default function QuranScreen() {
   });
 
   // Kelime highlight için positionMillis'e göre activeWordIndex güncelle
-  useEffect(() => {
-    if (
-      activeAyahNumber === null ||
-      duration === 0 ||
-      position === 0 ||
-      !isPlaying
-    ) {
-      return;
-    }
-
-    // Aktif ayeti bul
-    const activeAyah = surah.ayahs.find(
-      (ayah) => ayah.number === activeAyahNumber
-    );
-
-    if (!activeAyah) return;
-
-    // Ayet metnini kelimelere böl
-    const words = splitAyahText(activeAyah.text);
-    if (words.length === 0) return;
-
-    // 1) Timing tabanlı hesap (varsa)
-    const verseTiming = getVerseTiming(surah.number, activeAyah.numberInSurah);
-    const timingIndex =
-      verseTiming ? getActiveWordIndexFromTimings(position, verseTiming) : null;
-
-    // 2) Fallback: tahmini (eşit süre) hesap
-    const fallbackIndex = (() => {
-      const wordDuration = duration / words.length;
-      const currentWordIndex = Math.floor(position / wordDuration);
-      return Math.min(currentWordIndex, words.length - 1);
-    })();
-
-    const clampedIndex =
-      timingIndex !== null
-        ? Math.max(0, Math.min(timingIndex, words.length - 1))
-        : fallbackIndex;
-
-    if (clampedIndex !== activeWordIndex) {
-      setActiveWordIndex(clampedIndex);
-    }
-  }, [
-    activeAyahNumber,
-    position,
-    duration,
-    isPlaying,
-    surah.ayahs,
-    activeWordIndex,
-    setActiveWordIndex,
-  ]);
+  useAyahWordSync({
+    surahNumber: surah.number,
+    ayahs: surah.ayahs,
+  });
 
   // Sure okuma başlatma fonksiyonu
   const handlePlaySurah = (surahNumber: number) => {

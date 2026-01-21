@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React from "react";
 import { ActivityIndicator, Text, View, useColorScheme } from "react-native";
 import clsx from "clsx";
 import * as Haptics from "expo-haptics";
@@ -8,11 +8,11 @@ import AlignmentFeedback from "@/components/qibla/AlignmentFeedback";
 import LocationInfo from "@/components/qibla/LocationInfo";
 import AngleInfo from "@/components/qibla/AngleInfo";
 import CalibrationHint from "@/components/qibla/CalibrationHint";
-import { useLocation } from "@/lib/hooks/useLocation";
+import { useLocation } from "@/lib/hooks/qibla/useLocation";
 import { useLocationStore } from "@/lib/storage/locationStore";
 import { useDeviceHeading } from "@/lib/hooks/useDeviceHeading";
-import { useQiblaBearing } from "@/lib/hooks/useQiblaBearing";
-import { useQiblaGuide } from "@/lib/hooks/useQiblaGuide";
+import { useQiblaBearing } from "@/lib/hooks/qibla/useQiblaBearing";
+import { useQiblaGuide } from "@/lib/hooks/qibla/useQiblaGuide";
 export default function QiblaTabScreen() {
   const BAD_ACCURACY_THRESHOLD = 1; // MVP: gerçek platform accuracy yoksa null döneriz
 
@@ -30,7 +30,7 @@ export default function QiblaTabScreen() {
     ? { lat: storedLocation.latitude, lng: storedLocation.longitude }
     : null;
 
-  useEffect(() => {
+    React.useEffect(() => {
     if (!location && !locationLoading && !locationError) {
       requestLocation();
     }
@@ -40,8 +40,9 @@ export default function QiblaTabScreen() {
   const { qiblaBearing } = useQiblaBearing(location);
   const { angleDiff, feedbackLevel } = useQiblaGuide(heading, qiblaBearing);
 
-  const alignedTriggeredRef = useRef(false);
-  useEffect(() => {
+  const alignedTriggeredRef = React.useRef(false);
+  
+  React.useEffect(() => {
     if (feedbackLevel === "aligned" && !alignedTriggeredRef.current) {
       alignedTriggeredRef.current = true;
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
@@ -53,7 +54,7 @@ export default function QiblaTabScreen() {
     }
   }, [feedbackLevel]);
 
-  const shouldShowCalibration = useMemo(() => {
+  const shouldShowCalibration = React.useMemo(() => {
     if (accuracy === null) return false;
     return accuracy <= BAD_ACCURACY_THRESHOLD;
   }, [accuracy]);

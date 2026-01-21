@@ -12,7 +12,7 @@ import DhikrAdd from "@/components/dhikr/DhikrAdd";
 import { useDhikr } from "@/lib/hooks/dhikir/useDhikr";
 import { useDhikrSync } from "@/lib/hooks/dhikir/useDhikrSync";
 import { dhikrRepo } from "@/lib/database/sqlite/dhikr/repository";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { useAuth } from "@/lib/hooks/auth/useAuth";
 import { getDb } from "@/lib/database/sqlite/db";
 
 export default function DhikrScreen() {

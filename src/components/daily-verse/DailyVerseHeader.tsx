@@ -1,34 +1,28 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import clsx from "clsx";
+import Button from "../button/Button";
+import { colors } from "@/components/theme/colors";
+import TranslationSelect from "../quran-reading/modals/TranslationSelect";
+import React from "react";
 
-export default function DailyVerseHeader({ isDark }: { isDark: boolean }) {
+type DailyVerseHeaderProps = {
+  readonly isDark: boolean;
+};
+
+export default function DailyVerseHeader({ isDark }: DailyVerseHeaderProps) {
   const router = useRouter();
-
+  const [translationModal, setTranslationModal] = React.useState(false);
   return (
     <View className="flex-row items-center p-6 justify-between z-10">
-      <Pressable
-        className="flex size-10 shrink-0 items-center justify-center rounded-full"
-        onPress={() => router.back()}
-        hitSlop={10}
-        style={{
-          backgroundColor: isDark
-            ? "rgba(22, 41, 37, 0.5)"
-            : "rgba(255, 255, 255, 0.8)",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.1,
-          shadowRadius: 2,
-          elevation: 2,
-        }}
-      >
+      <Button onPress={() => router.back()} isDark={isDark} size="small">
         <MaterialIcons
           name="arrow-back"
           size={24}
-          color={isDark ? "#EAF3F0" : "#6B7F78"}
+          color={isDark ? colors.text.primaryDark : colors.text.primaryLight}
         />
-      </Pressable>
+      </Button>
       <View className="flex-col items-center">
         <Text
           className={clsx(
@@ -39,26 +33,18 @@ export default function DailyVerseHeader({ isDark }: { isDark: boolean }) {
           Daily Reflection
         </Text>
       </View>
-      <Pressable
-        className="flex size-10 shrink-0 items-center justify-center rounded-full"
-        hitSlop={10}
-        style={{
-          backgroundColor: isDark
-            ? "rgba(22, 41, 37, 0.5)"
-            : "rgba(255, 255, 255, 0.8)",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.1,
-          shadowRadius: 2,
-          elevation: 2,
-        }}
-      >
+      <Button onPress={() => setTranslationModal(true)} isDark={isDark} size="small">
         <MaterialIcons
           name="settings"
           size={24}
-          color={isDark ? "#EAF3F0" : "#6B7F78"}
+          color={isDark ? colors.text.primaryDark : colors.text.primaryLight}
         />
-      </Pressable>
+      </Button>
+      <TranslationSelect
+        isDark={isDark}
+        visible={translationModal}
+        onClose={() => setTranslationModal(false)}
+      />
     </View>
   );
 }

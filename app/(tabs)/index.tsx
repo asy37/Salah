@@ -2,8 +2,8 @@ import { ScrollView, useColorScheme, View, Text, ActivityIndicator } from "react
 import clsx from "clsx";
 import TodayJourneyCard from "@/components/tracking/TodayJourneyCard";
 import DailyProgressSection from "@/components/tracking/DailyProgressSection";
-import { usePrayerTrackingLocal, convertToPrayerTrackingData } from "@/lib/hooks/usePrayerTrackingLocal";
-import { useAutoSync } from "@/lib/hooks/usePrayerSync";
+import { usePrayerTrackingLocal, convertToPrayerTrackingData } from "@/lib/hooks/prayer-tracking/usePrayerTrackingLocal";
+import { useAutoSync } from "@/lib/hooks/adhan/usePrayerSync";
 
 export default function PrayerTrackingScreen() {
   const colorScheme = useColorScheme();

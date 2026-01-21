@@ -9,7 +9,7 @@ import "../global.css";
 import PrayerHeader from "@/components/layout/header";
 import { queryClient } from "@/lib/query/queryClient";
 import { setupQueryManagers } from "@/lib/query/setup";
-import { useAuthFlow } from "@/lib/hooks/useAuth";
+import { useAuthFlow } from "@/lib/hooks/auth/useAuth";
 import EmailConfirmationProvider from "@/components/auth/EmailConfirmationProvider";
 import LocationPermissionProvider from "@/components/location/LocationPermissionProvider";
 import { queryKeys } from "@/lib/query/queryKeys";
@@ -18,9 +18,9 @@ import { useLocationStore } from "@/lib/storage/locationStore";
 import { useMethodStore } from "@/lib/storage/useMethodStore";
 import { useDhikrSync } from "@/lib/hooks/dhikir/useDhikrSync";
 import { useTranslationStore } from "@/lib/storage/useQuranStore";
-import { useTranslationByIdentifier } from "@/lib/hooks/useTranslationByIdentifier";
 import { getDownloadedTranslations } from "@/lib/database/sqlite/translation/repository";
 import { QuranAudioProvider } from "@/contexts/QuranAudioContext";
+import { useTranslationByIdentifier } from "@/lib/hooks/quran/useTranslationByIdentifier";
 
 // Keep splash screen visible while loading fonts
 SplashScreen.preventAutoHideAsync();

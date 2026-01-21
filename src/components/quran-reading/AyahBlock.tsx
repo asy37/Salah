@@ -20,6 +20,7 @@ export default function AyahBlock({
   activeWordIndex = -1,
   onAyahPress,
 }: AyahBlockProps) {
+  
   const {
     activeAyahNumber,
     isPlaying,
@@ -56,6 +57,7 @@ export default function AyahBlock({
   // Sadece bu ayet çalıyorsa pause ikonu göster
   const isCurrentAyahPlaying =
     activeAyahNumber === ayah.number && isPlaying;
+
   return (
     <View
       className={

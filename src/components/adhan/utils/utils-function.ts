@@ -1,4 +1,4 @@
-import { LocationData } from "@/lib/hooks/useLocation";
+import { LocationData } from "@/lib/hooks/qibla/useLocation";
 import { PrayerTimings } from "@/components/prayer-list/prayer-timings";
 import { createPrayerTime } from "@/components/prayer-list/utils";
 

@@ -4,7 +4,7 @@ import Button from "../button/Button";
 import React from "react";
 import { Dhikr } from "@/types/dhikir";
 import { dhikrRepo } from "@/lib/database/sqlite/dhikr/repository";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { useAuth } from "@/lib/hooks/auth/useAuth";
 import { DHIKR_PRESETS } from "@/constants/dhikr-presets";
 import clsx from "clsx";
 

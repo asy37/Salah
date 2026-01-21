@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import clsx from "clsx";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { useAuth } from "@/lib/hooks/auth/useAuth";
 import { resendConfirmationEmail } from "@/lib/api/services/auth";
 
 interface EmailConfirmationModalProps {

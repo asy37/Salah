@@ -3,7 +3,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import clsx from "clsx";
 import { useState, useEffect } from "react";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { useAuth } from "@/lib/hooks/auth/useAuth";
 import { resendConfirmationEmail } from "@/lib/api/services/auth";
 
 export default function RegistrationConfirmationScreen() {

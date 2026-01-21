@@ -1,5 +1,5 @@
 import { colors } from "@/components/theme/colors";
-import { FeedbackLevel } from "@/lib/hooks/useQiblaGuide";
+import { FeedbackLevel } from "@/lib/hooks/qibla/useQiblaGuide";
 
 export const getCompassColor = (feedbackLevel: FeedbackLevel) => {
   switch (feedbackLevel) {

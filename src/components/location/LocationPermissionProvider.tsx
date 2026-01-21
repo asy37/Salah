@@ -6,7 +6,7 @@
 
 import { useState, useEffect } from "react";
 import * as Location from "expo-location";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { useAuth } from "@/lib/hooks/auth/useAuth";
 import { storage } from "@/lib/storage/mmkv";
 import LocationPermissionModal from "@/components/adhan/LocationPermissionModal";
 import { useLocationStore } from "@/lib/storage/locationStore";

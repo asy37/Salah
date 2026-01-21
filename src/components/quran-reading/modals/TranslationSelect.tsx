@@ -51,6 +51,7 @@ export default function TranslationSelect({
                 rightIcon={isSelected ? "check" : "chevron-right"}
                 text={item.name}
                 size="large"
+                isActive={isSelected}
               />
             </View>
           );

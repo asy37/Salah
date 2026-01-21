@@ -3,7 +3,7 @@ import ModalComponent from "@/components/modal/ModalComponent";
 import clsx from "clsx";
 import { useState } from "react";
 import { dhikrRepo } from "@/lib/database/sqlite/dhikr/repository";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { useAuth } from "@/lib/hooks/auth/useAuth";
 import type { Dhikr } from "@/types/dhikir";
 import Button from "@/components/button/Button";
 

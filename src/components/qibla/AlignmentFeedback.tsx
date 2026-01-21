@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Text, View } from "react-native";
-import type { FeedbackLevel } from "@/lib/hooks/useQiblaGuide";
+import type { FeedbackLevel } from "@/lib/hooks/qibla/useQiblaGuide";
 import { colors } from "@/components/theme/colors";
 
 type AlignmentFeedbackProps = Readonly<{
