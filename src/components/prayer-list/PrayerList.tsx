@@ -1,8 +1,8 @@
 import clsx from "clsx";
 import { Text, View } from "react-native";
 import PrayerScheduleItem from "./PrayerItem";
-import { PrayerTimings } from "./prayer-timings";
-import { getPrayerStatus, transformPrayerTimings } from "./utils";
+import { PrayerTimings } from "./types/prayer-timings";
+import { getPrayerStatus, transformPrayerTimings } from "./utils/utils";
 
 type PrayerListProps = {
   readonly isDark: boolean;

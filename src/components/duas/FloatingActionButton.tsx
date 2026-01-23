@@ -1,30 +1,36 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import { Pressable, View } from "react-native";
-import clsx from "clsx";
+import React from "react";
+import { View } from "react-native";
+import Button from "@/components/button/Button";
+import ModalComponent from "@/components/modal/ModalComponent";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { DuaFormData, duaSchema } from "./schema";
+import DuaForm from "./DuaForm";
 
-export default function FloatingActionButton({
-  isDark,
-}: {
-  isDark: boolean;
-}) {
+export default function FloatingActionButton() {
+  const [isModalVisible, setIsModalVisible] = React.useState(false);
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<DuaFormData>({
+    resolver: zodResolver(duaSchema),
+    defaultValues: {
+      title: "",
+      text: "",
+    },
+  });
+  const onSubmit = async (data: DuaFormData) => {
+    console.log(data);
+    await handleSubmit(onSubmit)();
+  };
   return (
     <View className="absolute bottom-6 right-6 z-50">
-      <Pressable
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-500"
-        style={{
-          shadowColor: "#1F8F5F",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 8,
-        }}
-      >
-        <MaterialIcons
-          name="add"
-          size={30}
-          color={isDark ? "#0F1F1A" : "#FFFFFF"}
-        />
-      </Pressable>
+      <Button onPress={() => setIsModalVisible(true)} leftIcon="add" size="large" backgroundColor="primary" />
+      <ModalComponent visible={isModalVisible} onClose={() => setIsModalVisible(false)} title="Add Dua" >
+        <DuaForm control={control} />
+        <Button onPress={handleSubmit(onSubmit)} text="Add" leftIcon="add" backgroundColor="primary" size="medium" />
+      </ModalComponent>
     </View>
   );
 }

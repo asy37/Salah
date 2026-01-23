@@ -1,43 +1,43 @@
 import { LocationData } from "@/lib/hooks/qibla/useLocation";
-import { PrayerTimings } from "@/components/prayer-list/prayer-timings";
-import { createPrayerTime } from "@/components/prayer-list/utils";
+import { PrayerTimings } from "@/components/prayer-list/types/prayer-timings";
+import { createPrayerTime } from "@/components/prayer-list/utils/utils";
 
 
 export const adhanMap: Record<
-string,
-{ name: string; key: string; meaning: string; icon: string }
+  string,
+  { name: string; key: string; meaning: string; icon: string }
 > = {
-Imsak: {
-  name: "Imsak",
-  key: "Imsak",
-  meaning: "The Imsak",
-  icon: "wb-twilight",
-},
-Sunrise: {
-  name: "Sunrise",
-  key: "Sunrise",
-  meaning: "The Sunrise",
-  icon: "light-mode",
-},
-Dhuhr: {
-  name: "Dhuhr",
-  key: "Dhuhr",
-  meaning: "The Noon",
-  icon: "light-mode",
-},
-Asr: {
-  name: "Asr",
-  key: "Asr",
-  meaning: "The Afternoon",
-  icon: "wb-twilight",
-},
-Maghrib: {
-  name: "Maghrib",
-  key: "Maghrib",
-  meaning: "The Sunset",
-  icon: "nights-stay",
-},
-Isha: { name: "Isha", key: "Isha", meaning: "The Night", icon: "bedtime" },
+  Imsak: {
+    name: "Imsak",
+    key: "Imsak",
+    meaning: "The Imsak",
+    icon: "wb-twilight",
+  },
+  Sunrise: {
+    name: "Sunrise",
+    key: "Sunrise",
+    meaning: "The Sunrise",
+    icon: "light-mode",
+  },
+  Dhuhr: {
+    name: "Dhuhr",
+    key: "Dhuhr",
+    meaning: "The Noon",
+    icon: "light-mode",
+  },
+  Asr: {
+    name: "Asr",
+    key: "Asr",
+    meaning: "The Afternoon",
+    icon: "wb-twilight",
+  },
+  Maghrib: {
+    name: "Maghrib",
+    key: "Maghrib",
+    meaning: "The Sunset",
+    icon: "nights-stay",
+  },
+  Isha: { name: "Isha", key: "Isha", meaning: "The Night", icon: "bedtime" },
 };
 
 export type NextPrayerInfo = {

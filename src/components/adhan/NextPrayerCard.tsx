@@ -2,7 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Image, Text, View } from "react-native";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
-import { PrayerTimings } from "../prayer-list/prayer-timings";
+import { PrayerTimings } from "../prayer-list/types/prayer-timings";
 import { getNextPrayer, type NextPrayerInfo } from "./utils/utils-function";
 
 type NextPrayerCardProps = {

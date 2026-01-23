@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
-import { getAyahAudioUrl } from "../api/services/quranApi";
+import { getAyahAudioUrl } from "@/lib/api/services/quranApi";
 import { useAudioStore } from "@/lib/storage/useQuranStore";
 
 type OnAyahFinishCallback = () => void;

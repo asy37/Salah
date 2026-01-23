@@ -3,19 +3,25 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Pressable, Text, useColorScheme, View } from "react-native";
 import clsx from "clsx";
 import React from "react";
+import SelectButton from "@/components/button/SelectButton";
+
+type AuthMode = "login" | "register";
+
+const AUTH_BUTTONS: { key: AuthMode; label: string }[] = [
+  { key: "login", label: "Login" },
+  { key: "register", label: "Register" },
+];
 
 export default function AuthLayout() {
   const [RegisterOrLogin, setRegisterOrLogin] = React.useState<'register' | 'login'>('register');
   const router = useRouter()
   const isDark = useColorScheme() === "dark";
-  const handleRegister = () => {
-    setRegisterOrLogin('register');
-    router.replace("/auth/register");
+
+  const handleAuthChange = (mode: AuthMode) => {
+    setRegisterOrLogin(mode);
+    router.replace(`/auth/${mode}`);
   };
-  const handleLogin = () => {
-    setRegisterOrLogin('login');
-    router.replace("/auth/login");
-  };
+
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-primary-100">
       {/* Headlines */}
@@ -26,28 +32,12 @@ export default function AuthLayout() {
         <Text className={clsx("text-base font-normal leading-relaxed text-center px-4", isDark ? "text-text-secondaryDark" : "text-text-secondaryLight")}>
           Follow your prayers and find your daily motivation.
         </Text>
-        <View className={clsx("flex-row gap-2 px-2 items-center justify-between w-full rounded-2xl",
-          isDark ? "bg-background-cardDark" : "bg-background-cardLight"
-        )}>
-          <Pressable className={clsx('w-1/2 py-2 shrink-0 rounded-l-2xl',
-            RegisterOrLogin === 'login' ? "bg-primary-500 text-white" : "bg-transparent text-text-primaryLight"
-          )} onPress={handleLogin} >
-            <Text className={clsx('text-center',
-              RegisterOrLogin === 'login' ? "text-white" : "text-text-primaryLight"
-            )}>
-              Login
-            </Text>
-          </Pressable>
-          <Pressable className={clsx('text-center w-1/2 py-2 shrink-0 rounded-r-2xl',
-            RegisterOrLogin === 'register' ? "bg-primary-500 text-white" : "bg-transparent text-text-primaryLight"
-          )} onPress={handleRegister} >
-            <Text className={clsx('text-center',
-              RegisterOrLogin === 'register' ? "text-white" : "text-text-primaryLight"
-            )}>
-              Register
-            </Text>
-          </Pressable>
-        </View>
+        <SelectButton<AuthMode>
+          isDark={isDark}
+          buttonData={AUTH_BUTTONS}
+          selectedFilter={RegisterOrLogin}
+          onPress={handleAuthChange}
+        />
       </View>
       <Stack
         screenOptions={{

@@ -1,4 +1,4 @@
-import { PrayerItem, PrayerTimings } from "./prayer-timings";
+  import { PrayerItem, PrayerTimings } from "@/components/prayer-list/types/prayer-timings";
 
 /**
  * Vakit zamanını Date objesine çevirir

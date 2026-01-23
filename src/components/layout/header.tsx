@@ -7,10 +7,10 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { usePrayerStreak } from "@/lib/hooks/usePrayerTracking";
-import StreakCounter from "../tracking/StreakCounter";
+import { usePrayerStreak } from "@/lib/hooks/prayer-tracking/usePrayerTracking";
+import StreakCounter from "@/components/tracking/StreakCounter";
 import { useState } from "react";
-import Button from "../button/Button";
+import Button from "@/components/button/Button";
 import clsx from "clsx";
 
 export default function PrayerHeader() {
@@ -63,9 +63,9 @@ export default function PrayerHeader() {
           <Button
             text={`${streakData?.count ?? 0} Gün`}
             onPress={() => setIsStreakModalVisible(true)}
-            isDark={isDark}
             rightIcon="local-fire-department"
             size="small"
+            backgroundColor="primary"
           />
 
           <Modal

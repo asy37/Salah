@@ -5,7 +5,7 @@ import DateInfo from "@/components/adhan/DateInfo";
 import NextPrayerCard from "@/components/adhan/NextPrayerCard";
 import PrayerScheduleList from "@/components/prayer-list/PrayerList";
 import { PrayerDate } from "@/components/adhan/types/date-info";
-import { PrayerTimings } from "@/components/prayer-list/prayer-timings";
+import { PrayerTimings } from "@/components/prayer-list/types/prayer-timings";
 
 import { usePrayerTimesStore } from "@/lib/storage/prayerTimesStore";
 import { adhanMap } from "@/components/adhan/utils/utils-function";

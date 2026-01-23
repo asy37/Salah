@@ -1,9 +1,8 @@
 import { ModalHeader } from "@/components/modal/ModalHeader";
 import clsx from "clsx";
-import { ActivityIndicator, Modal, Pressable, View } from "react-native";
+import { ActivityIndicator, Modal, Pressable, useColorScheme, View } from "react-native";
 
 type ModalComponentProps = {
-  readonly isDark: boolean;
   readonly visible: boolean;
   readonly onClose: () => void;
   readonly children: React.ReactNode;
@@ -12,13 +11,13 @@ type ModalComponentProps = {
 };
 
 export default function ModalComponent({
-  isDark,
   visible,
   onClose,
   children,
   title,
   isLoading,
 }: ModalComponentProps) {
+  const isDark = useColorScheme() === 'dark';
   return (
     <Modal
       visible={visible}
@@ -43,7 +42,9 @@ export default function ModalComponent({
         ) : (
           <>
             <ModalHeader isDark={isDark} onClose={onClose} title={title} />
-            <View className="flex-1 items-center gap-2 px-6">{children}</View>
+            <View className="flex-1 items-center gap-2 px-6">
+              {children}
+            </View>
           </>
         )}
       </View>

@@ -6,7 +6,7 @@ type Dua = {
   id: string;
   date: string;
   text: string;
-  status: "pending" | "answered";
+  title: string;
   isFavorite: boolean;
 };
 

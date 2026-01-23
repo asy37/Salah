@@ -63,3 +63,32 @@ CREATE TABLE IF NOT EXISTS dhikr_list (
 
 CREATE INDEX IF NOT EXISTS idx_dhikr_list_user_slug ON dhikr_list(user_id, slug);
 CREATE INDEX IF NOT EXISTS idx_dhikr_list_dirty ON dhikr_list(is_dirty);
+
+-- 5️⃣ Duas Table
+-- Stores user's personal duas (offline-first)
+CREATE TABLE IF NOT EXISTS duas (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  text TEXT NOT NULL,
+  is_favorite INTEGER NOT NULL DEFAULT 0,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_duas_user_id ON duas(user_id);
+CREATE INDEX IF NOT EXISTS idx_duas_updated_at ON duas(updated_at);
+
+-- 6️⃣ Sync Queue Table
+-- Stores pending sync operations for duas
+CREATE TABLE IF NOT EXISTS sync_queue (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  dua_id TEXT NOT NULL,
+  action TEXT NOT NULL CHECK (action IN ('create', 'update', 'delete')),
+  payload TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  UNIQUE(dua_id, action)
+);
+
+CREATE INDEX IF NOT EXISTS idx_sync_queue_dua_id ON sync_queue(dua_id);
+CREATE INDEX IF NOT EXISTS idx_sync_queue_created_at ON sync_queue(created_at);

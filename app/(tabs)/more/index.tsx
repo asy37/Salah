@@ -6,28 +6,29 @@ import MenuSection from "@/components/more/MenuSection";
 import PremiumCard from "@/components/more/PremiumCard";
 import VersionInfo from "@/components/more/VersionInfo";
 import { signOut } from "@/lib/api/services/auth";
+import { supabase } from "@/lib/supabase/client";
 
 const TOOLS_ITEMS = [
   {
     key: "dhikr",
-    title: "Zikirmatik",
-    subtitle: "Günlük tesbihatlarınız",
+    title: "Dhikr Tracker",
+    subtitle: "Daily dhikr tracker",
     icon: "timer",
     iconBg: "primary" as const,
     route: "./more/dhikr",
   },
   {
     key: "daily-verse",
-    title: "Günlük Ayet",
-    subtitle: "Günün ilhamı",
+    title: "Daily Verse",
+    subtitle: "Your daily verse",
     icon: "menu-book",
     iconBg: "primary" as const,
     route: "./more/daily-verse",
   },
   {
     key: "prayers",
-    title: "Dualarım",
-    subtitle: "Kaydedilen dualar",
+    title: "My Dua Notebook",
+    subtitle: "My dua journal",
     icon: "volunteer-activism",
     iconBg: "primary" as const,
     route: "./more/duas",
@@ -57,8 +58,28 @@ export default function MoreScreen() {
             if (error) {
               Alert.alert("Hata", error.message);
             } else {
-              // Sign out successful - navigation will be handled by auth flow
-              router.replace("/auth/register");
+              // Wait for auth state to update before navigating
+              // Check session is actually cleared
+              let attempts = 0;
+              const maxAttempts = 50; // 5 seconds max wait (50 * 100ms)
+              
+              const checkSession = async () => {
+                attempts++;
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) {
+                  // Session cleared, navigate to register
+                  router.replace("/auth/register");
+                } else if (attempts < maxAttempts) {
+                  // Session still exists, wait a bit and check again
+                  setTimeout(checkSession, 100);
+                } else {
+                  // Max attempts reached, force navigation anyway
+                  console.warn("Session check timeout, forcing navigation");
+                  router.replace("/auth/register");
+                }
+              };
+              // Start checking after a short delay to allow state to update
+              setTimeout(checkSession, 100);
             }
           },
         },

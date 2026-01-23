@@ -2,7 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import clsx from "clsx";
 import { Text, View } from "react-native";
 import { colors } from "@/components/theme/colors";
-import { SurahType } from "@/components/quran-reading/types";
+import { SurahType } from "@/components/quran-reading/types/types";
 import Button from "@/components/button/Button";
 import { useSurahStore } from "@/lib/storage/useQuranStore";
 

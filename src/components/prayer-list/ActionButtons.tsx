@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity, useColorScheme } from "react-native";
 import clsx from "clsx";
 import { PrayerStatus, PrayerName } from "@/types/prayer-tracking";
 import { MaterialIcons } from "@expo/vector-icons";
-import { PrayerItem } from "./prayer-timings";
+import { PrayerItem } from "./types/prayer-timings";
 
 type ActionButtonsProps = {
   readonly updateStatus: (

@@ -1,5 +1,5 @@
 import { FlatList } from "react-native";
-import { LANGUAGE_LABELS } from "@/components/quran-reading/utils";
+import { LANGUAGE_LABELS } from "@/components/quran-reading/utils/utils";
 import ModalComponent from "@/components/modal/ModalComponent";
 import Button from "@/components/button/Button";
 import { useQuery } from "@tanstack/react-query";

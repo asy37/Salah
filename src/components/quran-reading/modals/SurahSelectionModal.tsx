@@ -3,7 +3,7 @@ import { FlatList, TextInput, useColorScheme, View } from "react-native";
 import SurahData from "@/lib/quran/surah/surah.json";
 import { useState } from "react";
 import clsx from "clsx";
-import { useFilteredSurahs, useSearchableSurahs } from "../utils";
+import { useFilteredSurahs, useSearchableSurahs } from "@/components/quran-reading/utils/utils";
 import { colors } from "@/components/theme/colors";
 import { SurahListItem } from "./SurahModalItem";
 import ModalComponent from "@/components/modal/ModalComponent";

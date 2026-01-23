@@ -2,7 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors } from "../theme/colors";
 import { useAudioStore, useSurahStore } from "@/lib/storage/useQuranStore";
-import { formatTime, progressPercentage } from "./utils";
+import { formatTime, progressPercentage } from "@/components/quran-reading/utils/utils";
 
 type QuranAudioPlayerProps = Readonly<{
   isDark: boolean;

@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useMemo, useRef, type ReactNode } from "react";
-import { useAyahPlayer } from "@/lib/hooks/useAyahPlayer";
+import { useAyahPlayer } from "@/lib/hooks/audio-player/useAyahPlayer";
 
 type QuranAudioContextValue = {
   play: (ayahNumber: number) => void;

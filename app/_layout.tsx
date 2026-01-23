@@ -10,7 +10,7 @@ import PrayerHeader from "@/components/layout/header";
 import { queryClient } from "@/lib/query/queryClient";
 import { setupQueryManagers } from "@/lib/query/setup";
 import { useAuthFlow } from "@/lib/hooks/auth/useAuth";
-import EmailConfirmationProvider from "@/components/auth/EmailConfirmationProvider";
+import EmailConfirmationProvider from "@/components/auth/email/EmailConfirmationProvider";
 import LocationPermissionProvider from "@/components/location/LocationPermissionProvider";
 import { queryKeys } from "@/lib/query/queryKeys";
 import { fetchPrayerTimes } from "@/lib/api/services/prayerTimes";
