@@ -9,10 +9,10 @@ export default function DuaForm({ control }: DuaFormProps) {
     return (
         <>
             <Controller control={control} name="title" render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput placeholder="Title" className="w-full bg-white text-text-secondaryLight p-4 rounded-lg border border-border-light" multiline={true} value={value} onChangeText={onChange} onBlur={onBlur} />
+                <TextInput placeholder="Dua Title" className="w-full bg-white text-text-secondaryLight p-4 rounded-lg border border-border-light" multiline={true} value={value} onChangeText={onChange} onBlur={onBlur} />
             )} />
             <Controller control={control} name="text" render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput placeholder="Text" className="w-full bg-white text-text-secondaryLight p-4 rounded-lg border border-border-light" multiline={true} value={value} onChangeText={onChange} onBlur={onBlur} />
+                <TextInput placeholder="Dua Text" className="w-full bg-white text-text-secondaryLight p-4 rounded-lg border border-border-light" multiline={true} value={value} onChangeText={onChange} onBlur={onBlur} />
             )} />
         </>
     );

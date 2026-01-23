@@ -26,9 +26,15 @@ class DuaRepository {
    * Get all duas for a user
    */
   async getAllDuas(userId: string): Promise<Dua[]> {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'repository.ts:getAllDuas',message:'getAllDuas entry',data:{userId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
     await this.initialize();
     if (!this.db) throw new Error('Database not initialized');
 
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'repository.ts:getAllDuas',message:'before SELECT',data:{userId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
     const results = await this.db.getAllAsync<{
       id: string;
       user_id: string;
@@ -38,6 +44,9 @@ class DuaRepository {
       created_at: number;
       updated_at: number;
     }>('SELECT * FROM duas WHERE user_id = ? ORDER BY updated_at DESC', [userId]);
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'repository.ts:getAllDuas',message:'after SELECT',data:{resultCount:results.length,resultIds:results.map(r=>r.id)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
 
     return results.map((row) => ({
       id: row.id,
@@ -99,12 +108,18 @@ class DuaRepository {
    * CREATE: Insert dua into SQLite and sync_queue (if offline)
    */
   async createDua(dua: Dua, isOnline: boolean): Promise<void> {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'repository.ts:createDua',message:'createDua entry',data:{duaId:dua.id,userId:dua.user_id,isOnline},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
     await this.initialize();
     if (!this.db) throw new Error('Database not initialized');
 
     const now = Date.now();
 
     // Insert into duas table
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'repository.ts:createDua',message:'before INSERT',data:{duaId:dua.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
     await this.db.runAsync(
       `INSERT INTO duas (id, user_id, title, text, is_favorite, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -118,6 +133,9 @@ class DuaRepository {
         dua.updated_at || now,
       ]
     );
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'repository.ts:createDua',message:'after INSERT',data:{duaId:dua.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
 
     // If offline, add to sync_queue
     if (!isOnline) {
@@ -137,6 +155,9 @@ class DuaRepository {
         [dua.id, 'create', payload, now]
       );
     }
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'repository.ts:createDua',message:'createDua exit',data:{duaId:dua.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
   }
 
   /**

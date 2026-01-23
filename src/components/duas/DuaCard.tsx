@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 import React from "react";
 import clsx from "clsx";
 import Button from "../button/Button";
@@ -20,24 +20,77 @@ type Dua = {
 type DuaCardProps = {
   readonly dua: Dua;
   readonly isDark: boolean;
+  updateDua: (duaId: string, updates: { title?: string; text?: string; is_favorite?: boolean }) => Promise<void>;
+  deleteDua: (duaId: string) => Promise<void>;
+  toggleFavorite: (duaId: string) => Promise<void>;
+  isSaving: boolean;
 };
 
-export default function DuaCard({ dua, isDark }: DuaCardProps) {
-  const [isFavorite, setIsFavorite] = React.useState(dua.isFavorite);
+export default function DuaCard({ dua, isDark, updateDua, deleteDua, toggleFavorite, isSaving }: DuaCardProps) {
   const [isMore, setIsMore] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
+  const [isFavorite, setIsFavorite] = React.useState(false);
 
   const handleEditDua = () => {
     setIsEdit(!isEdit);
   };
+
+  const handleSaveEdit = async (data: DuaFormData) => {
+    try {
+      await updateDua(dua.id, {
+        title: data.title.trim(),
+        text: data.text.trim(),
+      });
+      setIsEdit(false);
+      setIsMore(false);
+      Alert.alert("Success", "Dua updated successfully");
+    } catch (error) {
+      Alert.alert("Error", "Failed to update dua. Please try again.");
+      console.error("Error updating dua:", error);
+    }
+  };
+
+  const handleDeleteDua = () => {
+    Alert.alert(
+      "Delete Dua",
+      "Are you sure you want to delete this dua?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            deleteDua(dua.id)
+              .then(() => {
+                setIsMore(false);
+                Alert.alert("Success", "Dua deleted successfully");
+              })
+              .catch((error) => {
+                Alert.alert("Error", "Failed to delete dua. Please try again.");
+                console.error("Error deleting dua:", error);
+              });
+          },
+        },
+      ]
+    );
+  };
+
+  const handleToggleFavorite = () => {
+    toggleFavorite(dua.id).catch((error) => {
+      Alert.alert("Error", "Failed to update favorite. Please try again.");
+      console.error("Error toggling favorite:", error);
+    });
+    setIsFavorite(!isFavorite);
+  };
+
   const handleCopyDua = async () => {
     await Clipboard.setStringAsync(dua.text);
     Alert.alert("Kopyalandı", "Dua panoya kopyalandı 🤍");
   };
+
   const {
     control,
     handleSubmit,
-    formState: { errors },
   } = useForm<DuaFormData>({
     resolver: zodResolver(duaSchema),
     defaultValues: {
@@ -45,10 +98,6 @@ export default function DuaCard({ dua, isDark }: DuaCardProps) {
       text: dua.text ?? "",
     },
   });
-  const onSubmit = async (data: DuaFormData) => {
-    console.log(data);
-    await handleSubmit(onSubmit)();
-  };
   return (
     <>
       <Pressable
@@ -87,9 +136,10 @@ export default function DuaCard({ dua, isDark }: DuaCardProps) {
               backgroundColor="transparent"
               size="small"
               className="p-2 -mr-2 rounded-full"
-              onPress={() => setIsFavorite(!isFavorite)}
-              leftIcon={isFavorite ? "favorite" : "favorite-border"}
-              isIconActive={isFavorite}
+              onPress={() => handleToggleFavorite()}
+              leftIcon={dua.isFavorite ? "favorite" : "favorite-border"}
+              isIconActive={dua.isFavorite ?? isFavorite}
+              disabled={isSaving}
             />
             <Button
               backgroundColor="transparent"
@@ -113,24 +163,74 @@ export default function DuaCard({ dua, isDark }: DuaCardProps) {
       </Pressable>
       <ModalComponent
         visible={isMore}
-        onClose={() => setIsMore(false)}
-        title={dua.title}
+        onClose={() => {
+          setIsMore(false);
+          setIsEdit(false);
+        }}
+        title={isEdit ? "Edit Dua" : dua.title}
+        isLoading={isSaving}
       >
-        <DuaForm control={control} />
-        <View className="flex-row gap-2">
-          <Button
-            backgroundColor="transparent"
-            size="small"
-            onPress={handleCopyDua}
-            leftIcon='content-copy'
-          />
-          <Button
-            backgroundColor="transparent"
-            size="small"
-            onPress={() => handleEditDua()}
-            leftIcon={isEdit ? 'check' : 'edit'}
-          />
-        </View>
+        {isEdit ? (
+          <>
+            <DuaForm control={control} />
+            <View className="flex-row gap-2">
+              <Button
+                backgroundColor="transparent"
+                size="small"
+                onPress={() => {
+                  setIsEdit(false);
+                  control._reset();
+                }}
+                leftIcon="close"
+                text="Cancel"
+              />
+              <Button
+                backgroundColor="primary"
+                size="small"
+                onPress={handleSubmit(handleSaveEdit)}
+                leftIcon="check"
+                text="Save"
+                disabled={isSaving}
+              />
+            </View>
+          </>
+        ) : (
+          <>
+            <View className="w-full mb-4">
+              <Text
+                className={clsx(
+                  "text-base font-normal leading-relaxed mb-4",
+                  isDark ? "text-text-primaryDark" : "text-text-primaryLight"
+                )}
+              >
+                {dua.text}
+              </Text>
+            </View>
+            <View className="flex-row gap-2">
+              <Button
+                backgroundColor="transparent"
+                size="small"
+                onPress={handleCopyDua}
+                leftIcon="content-copy"
+                text="Copy"
+              />
+              <Button
+                backgroundColor="transparent"
+                size="small"
+                onPress={handleEditDua}
+                leftIcon="edit"
+                text="Edit"
+              />
+              <Button
+                backgroundColor="transparent"
+                size="small"
+                onPress={handleDeleteDua}
+                leftIcon="delete"
+                text="Delete"
+              />
+            </View>
+          </>
+        )}
       </ModalComponent>
     </>
   );

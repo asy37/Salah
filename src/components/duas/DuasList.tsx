@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useEffect } from "react";
 import clsx from "clsx";
 import DuaCard from "./DuaCard";
 
@@ -13,9 +14,18 @@ type Dua = {
 type DuasListProps = {
   readonly duas: readonly Dua[];
   readonly isDark: boolean;
+  updateDua: (duaId: string, updates: { title?: string; text?: string; is_favorite?: boolean }) => Promise<void>;
+  deleteDua: (duaId: string) => Promise<void>;
+  toggleFavorite: (duaId: string) => Promise<void>;
+  isSaving: boolean;
 };
 
-export default function DuasList({ duas, isDark }: DuasListProps) {
+export default function DuasList({ duas, isDark, updateDua, deleteDua, toggleFavorite, isSaving }: DuasListProps) {
+  // #region agent log
+  useEffect(() => {
+    fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DuasList.tsx:25',message:'DuasList render',data:{duasCount:duas.length,duasIds:duas.map(d=>d.id)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+  }, [duas]);
+  // #endregion
   return (
     <View className="gap-4">
       <View className="flex-row items-center justify-between mt-2 mb-1 px-1">
@@ -44,7 +54,7 @@ export default function DuasList({ duas, isDark }: DuasListProps) {
         </View>
       </View>
       {duas.map((dua) => (
-        <DuaCard key={dua.id} dua={dua} isDark={isDark} />
+        <DuaCard key={dua.id} dua={dua} isDark={isDark} updateDua={updateDua} deleteDua={deleteDua} toggleFavorite={toggleFavorite} isSaving={isSaving} />
       ))}
     </View>
   );

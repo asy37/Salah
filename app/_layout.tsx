@@ -17,6 +17,7 @@ import { fetchPrayerTimes } from "@/lib/api/services/prayerTimes";
 import { useLocationStore } from "@/lib/storage/locationStore";
 import { useMethodStore } from "@/lib/storage/useMethodStore";
 import { useDhikrSync } from "@/lib/hooks/dhikir/useDhikrSync";
+import { useDuaSync } from "@/lib/hooks/duas/useDuaSync";
 import { useTranslationStore } from "@/lib/storage/useQuranStore";
 import { getDownloadedTranslations } from "@/lib/database/sqlite/translation/repository";
 import { QuranAudioProvider } from "@/contexts/QuranAudioContext";
@@ -153,6 +154,7 @@ export default function RootLayout() {
         <EmailConfirmationProvider />
         <LocationPermissionProvider />
         <DhikrSyncProvider />
+        <DuaSyncProvider />
         {!shouldShowRegister && <PrayerHeader />}
 
         <Stack
@@ -174,5 +176,14 @@ export default function RootLayout() {
  */
 function DhikrSyncProvider() {
   useDhikrSync();
+  return null;
+}
+
+/**
+ * Provider component for dua sync
+ * Sets up automatic sync triggers
+ */
+function DuaSyncProvider() {
+  useDuaSync();
   return null;
 }
