@@ -7,7 +7,6 @@ import DhikrBottomBar from "@/components/dhikr/DhikrBottomBar";
 import type { Dhikr } from "@/types/dhikir";
 import { MaterialIcons } from "@expo/vector-icons";
 import { colors } from "@/components/theme/colors";
-import Button from "@/components/button/Button";
 import DhikrAdd from "@/components/dhikr/DhikrAdd";
 import { useDhikr } from "@/lib/hooks/dhikir/useDhikr";
 import { useDhikrSync } from "@/lib/hooks/dhikir/useDhikrSync";
