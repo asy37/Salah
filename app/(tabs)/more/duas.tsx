@@ -1,26 +1,22 @@
+import React from "react";
 import { ScrollView, useColorScheme, View, ActivityIndicator } from "react-native";
-import { useState, useEffect, useMemo } from "react";
 import clsx from "clsx";
 import DuasHeader from "@/components/duas/DuasHeader";
-import FilterTabs from "@/components/duas/FilterTabs";
 import DuasList from "@/components/duas/DuasList";
 import FloatingActionButton from "@/components/duas/FloatingActionButton";
 import { useDuas } from "@/lib/hooks/duas/useDuas";
+import SelectButton from "@/components/button/SelectButton";
+import { FILTERS } from "@/components/duas/utils/utils";
 
 export default function DuasScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
-  const [selectedFilter, setSelectedFilter] = useState<"all" | "favorites">("all");
+  const [selectedFilter, setSelectedFilter] = React.useState<"all" | "favorites">("all");
+  const [searchQuery, setSearchQuery] = React.useState("");
   const { duas, isLoading, createDua, updateDua, deleteDua, toggleFavorite, isSaving } = useDuas();
 
-  // #region agent log
-  useEffect(() => {
-    fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'duas.tsx:15',message:'DuasScreen render',data:{duasCount:duas.length,duasIds:duas.map(d=>d.id),isLoading},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-  }, [duas, isLoading]);
-  // #endregion
-
   // Convert Dua to display format and filter
-  const filteredDuas = useMemo(() => {
+  const filteredDuas = React.useMemo(() => {
     const result = duas
       .map((dua) => ({
         id: dua.id,
@@ -37,12 +33,13 @@ export default function DuasScreen() {
         if (selectedFilter === "all") return true;
         if (selectedFilter === "favorites") return dua.isFavorite;
         return true;
+      })
+      .filter((dua) => {
+        if (searchQuery === "") return true;
+        return dua.title.toLowerCase().includes(searchQuery.toLowerCase());
       });
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'duas.tsx:32',message:'filteredDuas computed',data:{filteredCount:result.length,filteredIds:result.map(d=>d.id),duasCount:duas.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
     return result;
-  }, [duas, selectedFilter]);
+  }, [duas, selectedFilter, searchQuery]);
 
   return (
     <View
@@ -51,7 +48,7 @@ export default function DuasScreen() {
         isDark ? "bg-background-dark" : "bg-background-light"
       )}
     >
-      <DuasHeader isDark={isDark} />
+      <DuasHeader setSearchQuery={setSearchQuery} />
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#1F8F5F" />
@@ -63,13 +60,13 @@ export default function DuasScreen() {
             contentContainerStyle={{ paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
           >
-            <FilterTabs
+            <SelectButton
+              buttonData={FILTERS}
               selectedFilter={selectedFilter}
-              setSelectedFilter={setSelectedFilter}
-              isDark={isDark}
+              onPress={setSelectedFilter}
             />
             <View className="flex-1 flex-col p-4 gap-4">
-              <DuasList duas={filteredDuas} isDark={isDark} updateDua={updateDua} deleteDua={deleteDua} toggleFavorite={toggleFavorite} isSaving={isSaving} />
+              <DuasList duas={filteredDuas} updateDua={updateDua} deleteDua={deleteDua} toggleFavorite={toggleFavorite} isSaving={isSaving} />
             </View>
           </ScrollView>
           <FloatingActionButton createDua={createDua} isSaving={isSaving} />

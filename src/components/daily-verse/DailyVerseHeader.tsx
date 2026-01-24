@@ -16,7 +16,7 @@ export default function DailyVerseHeader({ isDark }: DailyVerseHeaderProps) {
   const [translationModal, setTranslationModal] = React.useState(false);
   return (
     <View className="flex-row items-center p-6 justify-between z-10">
-      <Button onPress={() => router.back()} isDark={isDark} size="small">
+      <Button onPress={() => router.back()} size="small">
         <MaterialIcons
           name="arrow-back"
           size={24}
@@ -33,7 +33,7 @@ export default function DailyVerseHeader({ isDark }: DailyVerseHeaderProps) {
           Daily Reflection
         </Text>
       </View>
-      <Button onPress={() => setTranslationModal(true)} isDark={isDark} size="small">
+      <Button onPress={() => setTranslationModal(true)} size="small">
         <MaterialIcons
           name="settings"
           size={24}

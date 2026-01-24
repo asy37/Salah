@@ -1,79 +1,29 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 import React from "react";
 import clsx from "clsx";
-import Button from "../button/Button";
-import ModalComponent from "../modal/ModalComponent";
-import * as Clipboard from "expo-clipboard";
-import DuaForm from "./DuaForm";
+import Button from "@/components/button/Button";
 import { DuaFormData, duaSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-type Dua = {
-  id: string;
-  date: string;
-  text: string;
-  title: string;
-  isFavorite: boolean;
-};
+import DuaCardModal from "@/components/duas/DuaCardModal";
+import { DuaType } from "@/components/duas/types/types";
+
 
 type DuaCardProps = {
-  readonly dua: Dua;
+  readonly dua: DuaType;
   readonly isDark: boolean;
-  updateDua: (duaId: string, updates: { title?: string; text?: string; is_favorite?: boolean }) => Promise<void>;
-  deleteDua: (duaId: string) => Promise<void>;
-  toggleFavorite: (duaId: string) => Promise<void>;
-  isSaving: boolean;
+  readonly updateDua: (duaId: string, updates: { title?: string; text?: string; is_favorite?: boolean }) => Promise<void>;
+  readonly deleteDua: (duaId: string) => Promise<void>;
+  readonly toggleFavorite: (duaId: string) => Promise<void>;
+  readonly isSaving: boolean;
 };
 
 export default function DuaCard({ dua, isDark, updateDua, deleteDua, toggleFavorite, isSaving }: DuaCardProps) {
   const [isMore, setIsMore] = React.useState(false);
-  const [isEdit, setIsEdit] = React.useState(false);
   const [isFavorite, setIsFavorite] = React.useState(false);
 
-  const handleEditDua = () => {
-    setIsEdit(!isEdit);
-  };
 
-  const handleSaveEdit = async (data: DuaFormData) => {
-    try {
-      await updateDua(dua.id, {
-        title: data.title.trim(),
-        text: data.text.trim(),
-      });
-      setIsEdit(false);
-      setIsMore(false);
-      Alert.alert("Success", "Dua updated successfully");
-    } catch (error) {
-      Alert.alert("Error", "Failed to update dua. Please try again.");
-      console.error("Error updating dua:", error);
-    }
-  };
-
-  const handleDeleteDua = () => {
-    Alert.alert(
-      "Delete Dua",
-      "Are you sure you want to delete this dua?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            deleteDua(dua.id)
-              .then(() => {
-                setIsMore(false);
-                Alert.alert("Success", "Dua deleted successfully");
-              })
-              .catch((error) => {
-                Alert.alert("Error", "Failed to delete dua. Please try again.");
-                console.error("Error deleting dua:", error);
-              });
-          },
-        },
-      ]
-    );
-  };
 
   const handleToggleFavorite = () => {
     toggleFavorite(dua.id).catch((error) => {
@@ -83,10 +33,7 @@ export default function DuaCard({ dua, isDark, updateDua, deleteDua, toggleFavor
     setIsFavorite(!isFavorite);
   };
 
-  const handleCopyDua = async () => {
-    await Clipboard.setStringAsync(dua.text);
-    Alert.alert("Kopyalandı", "Dua panoya kopyalandı 🤍");
-  };
+
 
   const {
     control,
@@ -100,7 +47,7 @@ export default function DuaCard({ dua, isDark, updateDua, deleteDua, toggleFavor
   });
   return (
     <>
-      <Pressable
+      <View
         className={clsx(
           "flex-col gap-3 rounded-2xl p-5 border",
           isDark
@@ -160,78 +107,17 @@ export default function DuaCard({ dua, isDark, updateDua, deleteDua, toggleFavor
         >
           {dua.text}
         </Text>
-      </Pressable>
-      <ModalComponent
-        visible={isMore}
-        onClose={() => {
-          setIsMore(false);
-          setIsEdit(false);
-        }}
-        title={isEdit ? "Edit Dua" : dua.title}
-        isLoading={isSaving}
-      >
-        {isEdit ? (
-          <>
-            <DuaForm control={control} />
-            <View className="flex-row gap-2">
-              <Button
-                backgroundColor="transparent"
-                size="small"
-                onPress={() => {
-                  setIsEdit(false);
-                  control._reset();
-                }}
-                leftIcon="close"
-                text="Cancel"
-              />
-              <Button
-                backgroundColor="primary"
-                size="small"
-                onPress={handleSubmit(handleSaveEdit)}
-                leftIcon="check"
-                text="Save"
-                disabled={isSaving}
-              />
-            </View>
-          </>
-        ) : (
-          <>
-            <View className="w-full mb-4">
-              <Text
-                className={clsx(
-                  "text-base font-normal leading-relaxed mb-4",
-                  isDark ? "text-text-primaryDark" : "text-text-primaryLight"
-                )}
-              >
-                {dua.text}
-              </Text>
-            </View>
-            <View className="flex-row gap-2">
-              <Button
-                backgroundColor="transparent"
-                size="small"
-                onPress={handleCopyDua}
-                leftIcon="content-copy"
-                text="Copy"
-              />
-              <Button
-                backgroundColor="transparent"
-                size="small"
-                onPress={handleEditDua}
-                leftIcon="edit"
-                text="Edit"
-              />
-              <Button
-                backgroundColor="transparent"
-                size="small"
-                onPress={handleDeleteDua}
-                leftIcon="delete"
-                text="Delete"
-              />
-            </View>
-          </>
-        )}
-      </ModalComponent>
+      </View>
+      <DuaCardModal
+        control={control}
+        handleSubmit={handleSubmit}
+        dua={dua}
+        isMore={isMore}
+        updateDua={updateDua}
+        deleteDua={deleteDua}
+        isSaving={isSaving}
+        setIsMore={setIsMore}
+      />
     </>
   );
 }

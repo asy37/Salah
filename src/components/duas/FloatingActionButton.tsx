@@ -4,12 +4,13 @@ import Button from "@/components/button/Button";
 import ModalComponent from "@/components/modal/ModalComponent";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DuaFormData, duaSchema } from "./schema";
-import DuaForm from "./DuaForm";
-type FloatingActionButtonProps = {
+import { DuaFormData, duaSchema } from "@/components/duas/schema";
+import DuaForm from "@/components/duas/DuaForm";
+
+type FloatingActionButtonProps = Readonly<{
   createDua: (title: string, text: string, isFavorite?: boolean) => Promise<void>;
   isSaving: boolean;
-};
+}>;
 
 export default function FloatingActionButton({ createDua, isSaving }: FloatingActionButtonProps) {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
@@ -41,11 +42,11 @@ export default function FloatingActionButton({ createDua, isSaving }: FloatingAc
       <Button onPress={() => setIsModalVisible(true)} leftIcon="add" size="large" backgroundColor="primary" />
       <ModalComponent visible={isModalVisible} onClose={() => setIsModalVisible(false)} title="Add Dua" isLoading={isSaving}>
         <DuaForm control={control} />
-        <Button 
-          onPress={handleSubmit(onSubmit)} 
-          text="Add" 
-          leftIcon="add" 
-          backgroundColor="primary" 
+        <Button
+          onPress={handleSubmit(onSubmit)}
+          text="Add"
+          leftIcon="add"
+          backgroundColor="primary"
           size="medium"
           disabled={isSaving}
         />

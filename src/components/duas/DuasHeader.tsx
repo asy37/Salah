@@ -1,11 +1,18 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Pressable, Text, View } from "react-native";
+import { Text, TextInput, useColorScheme, View } from "react-native";
 import { useRouter } from "expo-router";
 import clsx from "clsx";
+import Button from "@/components/button/Button";
+import { colors } from "@/components/theme/colors";
+import React from "react";
 
-export default function DuasHeader({ isDark }: { isDark: boolean }) {
+type DuasHeaderProps = {
+  readonly setSearchQuery: (query: string) => void;
+};
+export default function DuasHeader({ setSearchQuery }: DuasHeaderProps) {
   const router = useRouter();
-
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
   return (
     <View
       className={clsx(
@@ -15,39 +22,27 @@ export default function DuasHeader({ isDark }: { isDark: boolean }) {
           : "bg-background-light/95 border-border-light/20"
       )}
     >
-      <View className="flex-row items-center justify-between p-4 pb-2">
-        <Pressable
-          className="flex size-10 items-center justify-center rounded-full"
-          onPress={() => router.back()}
-          hitSlop={10}
-        >
+      <View className="flex-row items-center w-full justify-between p-4 pb-2">
+        <Button onPress={() => router.back()} size="small">
           <MaterialIcons
-            name="arrow-back-ios-new"
-            size={20}
-            color={isDark ? "#EAF3F0" : "#1C2A26"}
+            name="arrow-back"
+            size={24}
+            color={isDark ? colors.text.primaryDark : colors.text.primaryLight}
           />
-        </Pressable>
-        <View className="flex-row gap-3">
-          <Pressable
-            className="flex size-10 items-center justify-center rounded-full"
-            hitSlop={10}
-          >
-            <MaterialIcons
-              name="search"
-              size={20}
-              color={isDark ? "#EAF3F0" : "#1C2A26"}
-            />
-          </Pressable>
-          <Pressable
-            className="flex size-10 items-center justify-center rounded-full"
-            hitSlop={10}
-          >
-            <MaterialIcons
-              name="settings"
-              size={20}
-              color={isDark ? "#EAF3F0" : "#1C2A26"}
-            />
-          </Pressable>
+        </Button>
+        <View className="flex-row gap-3 relative">
+          <TextInput
+            placeholder="Search"
+            onChangeText={setSearchQuery}
+            className="bg-white min-w-80 border border-border-light/20 rounded-lg pl-10 p-2"
+            placeholderTextColor={isDark ? colors.text.secondaryDark : colors.text.secondaryLight}
+          />
+          <MaterialIcons
+            className="absolute left-2 top-1/2 -translate-y-1/2"
+            name="search"
+            size={24}
+            color={isDark ? colors.text.primaryDark : colors.text.primaryLight}
+          />
         </View>
       </View>
       <View className="px-4 pb-4 pt-2">

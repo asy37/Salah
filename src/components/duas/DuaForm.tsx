@@ -1,6 +1,6 @@
-import { Control, Controller } from "react-hook-form";
 import { TextInput } from "react-native";
-import { DuaFormData } from "./schema";
+import { Control, Controller } from "react-hook-form";
+import { DuaFormData } from "@/components/duas/schema";
 
 type DuaFormProps = {
     readonly control: Control<DuaFormData>;

@@ -1,6 +1,6 @@
 import { Text, TouchableOpacity, useColorScheme, View, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState, useEffect, useCallback } from "react";
+import React from "react";
 import clsx from "clsx";
 import DhikrCounter from "@/components/dhikr/DhikrCounter";
 import DhikrBottomBar from "@/components/dhikr/DhikrBottomBar";
@@ -14,28 +14,30 @@ import { useDhikrSync } from "@/lib/hooks/dhikir/useDhikrSync";
 import { dhikrRepo } from "@/lib/database/sqlite/dhikr/repository";
 import { useAuth } from "@/lib/hooks/auth/useAuth";
 import { getDb } from "@/lib/database/sqlite/db";
+import DhikrHeader from "@/components/dhikr/DhikrHeader";
 
 export default function DhikrScreen() {
   const colorScheme = useColorScheme();
+
   const isDark = colorScheme === "dark";
   const { user } = useAuth();
   const userId = user?.id || null;
 
-  const [openAddDhikrModal, setOpenAddDhikrModal] = useState(false);
-  const [currentSlug, setCurrentSlug] = useState<string | null>(null);
-  const [isLoadingDhikrs, setIsLoadingDhikrs] = useState(true);
+  const [openAddDhikrModal, setOpenAddDhikrModal] = React.useState(false);
+  const [currentSlug, setCurrentSlug] = React.useState<string | null>(null);
+  const [isLoadingDhikrs, setIsLoadingDhikrs] = React.useState(true);
 
   // Initialize database and load available dhikrs
-  useEffect(() => {
+  React.useEffect(() => {
     const initialize = async () => {
       try {
         // Ensure database is initialized
         await getDb();
-        
+
         // Load all dhikrs for current user
         if (userId) {
           const records = await dhikrRepo.getAllDhikrs(userId);
-          
+
           // Set first dhikr as current if none selected
           if (!currentSlug && records.length > 0) {
             setCurrentSlug(records[0].slug);
@@ -59,19 +61,19 @@ export default function DhikrScreen() {
 
   const targetReached = currentDhikr ? currentDhikr.current_count >= currentDhikr.target_count : false;
 
-  const handleIncrement = useCallback(() => {
+  const handleIncrement = React.useCallback(() => {
     increment();
   }, [increment]);
 
-  const handleReset = useCallback(() => {
+  const handleReset = React.useCallback(() => {
     reset();
   }, [reset]);
 
-  const handleSelectDhikr = useCallback((dhikr: Dhikr) => {
+  const handleSelectDhikr = React.useCallback((dhikr: Dhikr) => {
     setCurrentSlug(dhikr.slug);
   }, []);
 
-  const handleDhikrAdded = useCallback(async (newDhikr: Dhikr) => {
+  const handleDhikrAdded = React.useCallback(async (newDhikr: Dhikr) => {
     // Set new dhikr as current
     setCurrentSlug(newDhikr.slug);
     // Modal is already closed by DhikrAdd component
@@ -85,9 +87,7 @@ export default function DhikrScreen() {
       )}
       edges={["top"]}
     >
-      <Button onPress={() => setOpenAddDhikrModal(true)} isDark={isDark} className="absolute top-6 left-6">
-        <MaterialIcons name="add" size={24} color={isDark ? "white" : "black"} />
-      </Button>
+      <DhikrHeader isDark={isDark} setOpenAddDhikrModal={setOpenAddDhikrModal} />
       {(() => {
         if (isLoadingDhikrs || isLoadingDhikr) {
           return (
@@ -140,8 +140,8 @@ export default function DhikrScreen() {
         onReset={handleReset}
         isDark={isDark}
       />
-      <DhikrAdd 
-        openAddDhikrModal={openAddDhikrModal} 
+      <DhikrAdd
+        openAddDhikrModal={openAddDhikrModal}
         setOpenAddDhikrModal={setOpenAddDhikrModal}
         onDhikrAdded={handleDhikrAdded}
       />

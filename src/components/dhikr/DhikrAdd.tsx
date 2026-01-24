@@ -144,7 +144,7 @@ export default function DhikrAdd({ openAddDhikrModal, setOpenAddDhikrModal, onDh
     };
 
     return (
-        <ModalComponent isDark={isDark} visible={openAddDhikrModal} onClose={handleClose} title="Add Dhikr">
+        <ModalComponent visible={openAddDhikrModal} onClose={handleClose} title="Add Dhikr">
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 className={clsx(
@@ -222,7 +222,6 @@ export default function DhikrAdd({ openAddDhikrModal, setOpenAddDhikrModal, onDh
                     <View className="mt-4">
                         <Button
                             onPress={handleSubmit}
-                            isDark={isDark}
                             disabled={isSubmitting}
                             size="large"
                             backgroundColor="primary"
