@@ -6,39 +6,13 @@ import { dhikrRepo } from "@/lib/database/sqlite/dhikr/repository";
 import { useAuth } from "@/lib/hooks/auth/useAuth";
 import type { Dhikr } from "@/types/dhikir";
 import Button from "@/components/button/Button";
+import { generateSlug, generateUUID, validate } from "./utils";
 
 type DhikrAddProps = Readonly<{
     readonly openAddDhikrModal: boolean;
     readonly setOpenAddDhikrModal: (value: boolean) => void;
     readonly onDhikrAdded?: (dhikr: Dhikr) => void;
 }>;
-
-/**
- * Generate UUID v4
- * React Native compatible UUID generator
- */
-function generateUUID(): string {
-    // eslint-disable-next-line prefer-replace-all
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-        const r = Math.trunc(Math.random() * 16);
-        const v = c === 'x' ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-    });
-}
-
-/**
- * Generate slug from label
- * - Lowercase
- * - Replace spaces with hyphens
- * - Remove special characters
- */
-function generateSlug(label: string): string {
-    return label
-        .toLowerCase()
-        .trim()
-        .replaceAll(/\s+/g, '-')
-        .replaceAll(/[^a-z0-9-]/g, '');
-}
 
 export default function DhikrAdd({ openAddDhikrModal, setOpenAddDhikrModal, onDhikrAdded }: DhikrAddProps) {
     const colorScheme = useColorScheme();
@@ -51,26 +25,10 @@ export default function DhikrAdd({ openAddDhikrModal, setOpenAddDhikrModal, onDh
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<{ label?: string; targetCount?: string }>({});
 
-    const validate = (): boolean => {
-        const newErrors: { label?: string; targetCount?: string } = {};
 
-        if (!label.trim()) {
-            newErrors.label = "Dhikr name is required";
-        }
-
-        const target = Number.parseInt(targetCount, 10);
-        if (!targetCount.trim()) {
-            newErrors.targetCount = "Target count is required";
-        } else if (Number.isNaN(target) || target <= 0) {
-            newErrors.targetCount = "Target count must be a positive number";
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
 
     const handleSubmit = async () => {
-        if (!validate()) {
+        if (!validate(label, targetCount, setErrors)) {
             return;
         }
 
