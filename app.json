@@ -53,11 +53,12 @@
       },
       "package": "com.islamicapp.app",
       "permissions": [
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION",
-        "RECEIVE_BOOT_COMPLETED",
-        "VIBRATE",
-        "SCHEDULE_EXACT_ALARM"
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE",
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -112,9 +113,11 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "your-project-id"
-      }
+        "projectId": "6437d0ae-1f94-41c8-9047-ade881444e1e"
+      },
+      "router": {}
     },
-    "scheme": "islamicapp"
+    "scheme": "islamicapp",
+    "owner": "asy37"
   }
 }
