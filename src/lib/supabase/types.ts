@@ -33,22 +33,31 @@ export interface Database {
       };
     };
     Tables: {
-      profiles: {
+      users_profile: {
         Row: {
           id: string;
-          email: string | null;
+          name: string | null;
+          surname: string | null;
+          image: string | null;
+          is_anonymous: boolean;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id: string;
-          email?: string | null;
+          name?: string | null;
+          surname?: string | null;
+          image?: string | null;
+          is_anonymous?: boolean;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
-          email?: string | null;
+          name?: string | null;
+          surname?: string | null;
+          image?: string | null;
+          is_anonymous?: boolean;
           created_at?: string;
           updated_at?: string;
         };

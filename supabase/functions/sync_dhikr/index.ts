@@ -55,15 +55,26 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    const authHeader = req.headers.get('Authorization');
+    const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : null;
+    const tokenSegmentCount = bearerToken ? bearerToken.split('.').length : 0;
+    const tokenLength = bearerToken ? bearerToken.length : 0;
+
     // Initialize Supabase client with ANON_KEY (respects RLS)
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
     
     // Get Authorization header for client creation
-    const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(
-        JSON.stringify({ error: 'Missing authorization header' }),
+        JSON.stringify({
+          error: 'Missing authorization header',
+          debug: {
+            hasAuthHeader: false,
+            tokenSegmentCount,
+            tokenLength,
+          },
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
       );
     }
@@ -82,7 +93,15 @@ Deno.serve(async (req: Request) => {
     
     if (authError || !user) {
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+        JSON.stringify({
+          error: 'Unauthorized',
+          debug: {
+            hasAuthHeader: true,
+            tokenSegmentCount,
+            tokenLength,
+            authErrorMessage: authError?.message ?? null,
+          },
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
       );
     }

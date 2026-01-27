@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as ImagePicker from "expo-image-picker";
 import clsx from "clsx";
@@ -7,16 +7,46 @@ import { router } from "expo-router";
 import { signUp, signInAnonymously } from "@/lib/api/services/auth";
 import {
     Alert,
-    Image,
     ScrollView,
     Text,
-    TextInput,
     TouchableOpacity,
     useColorScheme,
     View,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { RegisterFormData, registerSchema } from "./schema";
+import AvatarPicker from "@/components/form/AvatarPicker";
+import FormField from "@/components/form/FormField";
+
+// Helper functions
+
+const handleSignUpSuccess = () => {
+    setTimeout(() => router.replace("/(tabs)"), 500);
+};
+
+const handleSignUpError = (error: Error) => {
+    Alert.alert("Kayıt Hatası", error.message);
+};
+
+const handleSignUpFailure = () => {
+    Alert.alert("Hata", "Kayıt olurken bir sorun oluştu. Lütfen tekrar deneyin.");
+};
+
+const handleGuestSuccess = () => {
+    setTimeout(() => router.replace("/(tabs)"), 500);
+};
+
+const handleGuestError = (error: Error) => {
+    Alert.alert("Hata", error.message);
+};
+
+const handleGuestFailure = () => {
+    Alert.alert("Hata", "Misafir girişi yapılırken bir sorun oluştu. Lütfen tekrar deneyin.");
+};
+
+
+
+
 
 export default function RegisterForm() {
     const isDark = useColorScheme() === "dark";
@@ -46,7 +76,7 @@ export default function RegisterForm() {
         }
 
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: 'images',
             allowsEditing: true,
             aspect: [1, 1],
             quality: 0.8,
@@ -69,14 +99,14 @@ export default function RegisterForm() {
             });
 
             if (result.error) {
-                Alert.alert("Kayıt Hatası", result.error.message);
+                handleSignUpError(result.error);
                 return;
             }
 
             if (result.user) {
-                setTimeout(() => router.replace("/(tabs)"), 500);
+                handleSignUpSuccess();
             } else {
-                Alert.alert("Hata", "Kayıt olurken bir sorun oluştu. Lütfen tekrar deneyin.");
+                handleSignUpFailure();
             }
         } catch {
             Alert.alert("Hata", "Kayıt olurken bir hata oluştu");
@@ -90,13 +120,13 @@ export default function RegisterForm() {
         try {
             const result = await signInAnonymously();
             if (result.error) {
-                Alert.alert("Hata", result.error.message);
+                handleGuestError(result.error);
                 return;
             }
             if (result.user || result.session) {
-                setTimeout(() => router.replace("/(tabs)"), 500);
+                handleGuestSuccess();
             } else {
-                Alert.alert("Hata", "Misafir girişi yapılırken bir sorun oluştu. Lütfen tekrar deneyin.");
+                handleGuestFailure();
             }
         } catch {
             Alert.alert("Hata", "Misafir girişi başarısız");
@@ -105,157 +135,62 @@ export default function RegisterForm() {
         }
     };
 
+    const passwordRightIcon = (
+        <TouchableOpacity
+            onPress={() => setShowPassword(!showPassword)}
+        >
+            <MaterialIcons name={showPassword ? "visibility-off" : "visibility"} size={20} color={isDark ? "#8FA6A0" : "#6B7F78"} />
+        </TouchableOpacity>
+    );
+
     return (
         <ScrollView className="flex-1 px-6" contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
             <View className="px-6 pt-4">
+                <AvatarPicker avatar={avatar} onPickImage={pickImage} />
 
-                {/* Avatar */}
-                <View className="items-center py-6" style={{ gap: 16 }}>
-                    <TouchableOpacity
-                        onPress={pickImage}
-                        className={clsx(
-                            "w-28 h-28 rounded-full border-2 border-dashed items-center justify-center",
-                            isDark ? "bg-background-cardDark border-border-dark" : "bg-white border-gray-300"
-                        )}
-                    >
-                        {avatar ? (
-                            <Image source={{ uri: avatar }} className="w-full h-full rounded-full" />
-                        ) : (
-                            <MaterialIcons name="add-a-photo" size={32} color={isDark ? "#8FA6A0" : "#6B7F78"} />
-                        )}
-                    </TouchableOpacity>
-                    <Text className={clsx("text-sm font-medium", isDark ? "text-text-secondaryDark" : "text-text-secondaryLight")}>
-                        Fotoğraf ekle (isteğe bağlı)
-                    </Text>
-                </View>
-                {/* Form */}
                 <View style={{ gap: 20 }}>
-                    {/* Name */}
-                    <View style={{ gap: 8 }}>
-                        <Text className={clsx("text-sm font-medium ml-1", isDark ? "text-text-secondaryDark" : "text-text-primaryLight")}>
-                            Ad (isteğe bağlı)
-                        </Text>
-                        <Controller
-                            control={control}
-                            name="name"
-                            render={({ field: { onChange, onBlur, value } }) => (
-                                <TextInput
-                                    className={clsx(
-                                        "w-full h-14 rounded-xl border px-4 text-base",
-                                        isDark ? "bg-background-cardDark border-border-dark text-text-primaryDark" : "bg-white border-gray-200 text-text-primaryLight"
-                                    )}
-                                    placeholder="Adınız"
-                                    placeholderTextColor={isDark ? "#8FA6A0" : "#6B7F78"}
-                                    value={value}
-                                    onChangeText={onChange}
-                                    onBlur={onBlur}
-                                    autoCapitalize="words"
-                                    editable={!isLoading}
-                                />
-                            )}
-                        />
-                    </View>
+                    <FormField
+                        label="Ad (isteğe bağlı)"
+                        name="name"
+                        control={control}
+                        placeholder="Adınız"
+                        isLoading={isLoading}
+                        autoCapitalize="words"
+                    />
 
-                    {/* Surname */}
-                    <View style={{ gap: 8 }}>
-                        <Text className={clsx("text-sm font-medium ml-1", isDark ? "text-text-secondaryDark" : "text-text-primaryLight")}>
-                            Soyad (isteğe bağlı)
-                        </Text>
-                        <Controller
-                            control={control}
-                            name="surname"
-                            render={({ field: { onChange, onBlur, value } }) => (
-                                <TextInput
-                                    className={clsx(
-                                        "w-full h-14 rounded-xl border px-4 text-base",
-                                        isDark ? "bg-background-cardDark border-border-dark text-text-primaryDark" : "bg-white border-gray-200 text-text-primaryLight"
-                                    )}
-                                    placeholder="Soyadınız"
-                                    placeholderTextColor={isDark ? "#8FA6A0" : "#6B7F78"}
-                                    value={value}
-                                    onChangeText={onChange}
-                                    onBlur={onBlur}
-                                    autoCapitalize="words"
-                                    editable={!isLoading}
-                                />
-                            )}
-                        />
-                    </View>
+                    <FormField
+                        label="Soyad (isteğe bağlı)"
+                        name="surname"
+                        control={control}
+                        placeholder="Soyadınız"
+                        isLoading={isLoading}
+                        autoCapitalize="words"
+                    />
 
-                    {/* Email */}
-                    <View style={{ gap: 8 }}>
-                        <Text className={clsx("text-sm font-medium ml-1", isDark ? "text-text-secondaryDark" : "text-text-primaryLight")}>
-                            Email Adresi
-                        </Text>
-                        <Controller
-                            control={control}
-                            name="email"
-                            render={({ field: { onChange, onBlur, value } }) => (
-                                <View style={{ position: "relative" }}>
-                                    <TextInput
-                                        className={clsx(
-                                            "w-full h-14 rounded-xl border px-4 pr-12 text-base",
-                                            isDark ? "bg-background-cardDark border-border-dark text-text-primaryDark" : "bg-white border-gray-200 text-text-primaryLight",
-                                            errors.email && "border-red-500"
-                                        )}
-                                        placeholder="ornek@email.com"
-                                        placeholderTextColor={isDark ? "#8FA6A0" : "#6B7F78"}
-                                        value={value}
-                                        onChangeText={onChange}
-                                        onBlur={onBlur}
-                                        keyboardType="email-address"
-                                        autoCapitalize="none"
-                                        autoComplete="email"
-                                        editable={!isLoading}
-                                    />
-                                    <View style={{ position: "absolute", right: 16, top: "50%", marginTop: -10 }}>
-                                        <MaterialIcons name="mail" size={20} color={isDark ? "#8FA6A0" : "#6B7F78"} />
-                                    </View>
-                                </View>
-                            )}
-                        />
-                        {errors.email && <Text className="text-red-500 text-sm ml-1">{errors.email.message}</Text>}
-                    </View>
+                    <FormField
+                        label="Email Adresi"
+                        name="email"
+                        control={control}
+                        placeholder="ornek@email.com"
+                        error={errors.email?.message}
+                        isLoading={isLoading}
+                        keyboardType="email-address"
+                        autoComplete="email"
+                        rightIcon={<MaterialIcons name="mail" size={20} color={isDark ? "#8FA6A0" : "#6B7F78"} />}
+                    />
 
-                    {/* Password */}
-                    <View style={{ gap: 8 }}>
-                        <Text className={clsx("text-sm font-medium ml-1", isDark ? "text-text-secondaryDark" : "text-text-primaryLight")}>
-                            Şifre
-                        </Text>
-                        <Controller
-                            control={control}
-                            name="password"
-                            render={({ field: { onChange, onBlur, value } }) => (
-                                <View style={{ position: "relative" }}>
-                                    <TextInput
-                                        className={clsx(
-                                            "w-full h-14 rounded-xl border px-4 pr-12 text-base",
-                                            isDark ? "bg-background-cardDark border-border-dark text-text-primaryDark" : "bg-white border-gray-200 text-text-primaryLight",
-                                            errors.password && "border-red-500"
-                                        )}
-                                        placeholder="••••••••"
-                                        placeholderTextColor={isDark ? "#8FA6A0" : "#6B7F78"}
-                                        value={value}
-                                        onChangeText={onChange}
-                                        onBlur={onBlur}
-                                        secureTextEntry={!showPassword}
-                                        autoCapitalize="none"
-                                        autoComplete="password"
-                                        editable={!isLoading}
-                                    />
-                                    <TouchableOpacity
-                                        onPress={() => setShowPassword(!showPassword)}
-                                        style={{ position: "absolute", right: 16, top: "50%", marginTop: -10 }}
-                                    >
-                                        <MaterialIcons name={showPassword ? "visibility-off" : "visibility"} size={20} color={isDark ? "#8FA6A0" : "#6B7F78"} />
-                                    </TouchableOpacity>
-                                </View>
-                            )}
-                        />
-                        {errors.password && <Text className="text-red-500 text-sm ml-1">{errors.password.message}</Text>}
-                    </View>
+                    <FormField
+                        label="Şifre"
+                        name="password"
+                        control={control}
+                        placeholder="••••••••"
+                        error={errors.password?.message}
+                        isLoading={isLoading}
+                        autoComplete="password"
+                        secureTextEntry={!showPassword}
+                        rightIcon={passwordRightIcon}
+                    />
 
-                    {/* Kayıt Ol */}
                     <TouchableOpacity
                         onPress={handleSubmit(onSubmit)}
                         disabled={isLoading}

@@ -1,5 +1,6 @@
-import { View, Text, useColorScheme } from "react-native";
+import { View, useColorScheme } from "react-native";
 import clsx from "clsx";
+import ProfileForm from "@/components/profile/ProfileForm/ProfileForm";
 
 export default function ProfileScreen() {
   const colorScheme = useColorScheme();
@@ -8,26 +9,11 @@ export default function ProfileScreen() {
   return (
     <View
       className={clsx(
-        "flex-1 items-center justify-center p-4",
+        "flex-1 items-center justify-center p-4 w-full",
         isDark ? "bg-background-dark" : "bg-background-light"
       )}
     >
-      <Text
-        className={clsx(
-          "text-lg",
-          isDark ? "text-text-primaryDark" : "text-text-primaryLight"
-        )}
-      >
-        Profile Screen
-      </Text>
-      <Text
-        className={clsx(
-          "mt-2 text-sm",
-          isDark ? "text-text-secondaryDark" : "text-text-secondaryLight"
-        )}
-      >
-        Coming soon...
-      </Text>
+      <ProfileForm />
     </View>
   );
 }
