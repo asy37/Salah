@@ -288,6 +288,75 @@ class PrayerTrackingRepository {
       created_at: result.created_at,
     };
   }
+
+  /**
+   * Calculate local streak from SQLite
+   * Returns consecutive days with ALL prayers prayed
+   */
+  async calculateLocalStreak(): Promise<number> {
+    await this.initialize();
+    if (!this.db) throw new Error('Database not initialized');
+
+    try {
+      // Get current prayer state
+      const currentState = await this.getCurrentPrayerState();
+      if (!currentState) return 0;
+
+      // Check if all prayers today are prayed
+      const allPrayedToday =
+        currentState.fajr === 'prayed' &&
+        currentState.dhuhr === 'prayed' &&
+        currentState.asr === 'prayed' &&
+        currentState.maghrib === 'prayed' &&
+        currentState.isha === 'prayed';
+
+      if (!allPrayedToday) return 0;
+
+      // Get sync queue items (past days)
+      const queueItems = await this.getPendingQueueItems();
+      
+      // Sort by date descending
+      queueItems.sort((a, b) => b.date.localeCompare(a.date));
+
+      let streak = 1; // Today counts as 1
+
+      // Check consecutive days from sync queue
+      const today = new Date().toISOString().slice(0, 10);
+      let checkDate = new Date(today);
+      checkDate.setDate(checkDate.getDate() - 1);
+
+      for (let i = 0; i < 365; i++) {
+        const dateString = checkDate.toISOString().slice(0, 10);
+        const queueItem = queueItems.find((item) => item.date === dateString);
+
+        if (!queueItem) {
+          // No data for this date, stop counting
+          break;
+        }
+
+        // Check if all prayers were prayed
+        const allPrayed =
+          queueItem.payload.fajr &&
+          queueItem.payload.dhuhr &&
+          queueItem.payload.asr &&
+          queueItem.payload.maghrib &&
+          queueItem.payload.isha;
+
+        if (!allPrayed) {
+          // Streak broken
+          break;
+        }
+
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      }
+
+      return streak;
+    } catch (error) {
+      console.error('[PrayerTrackingRepository] Failed to calculate streak:', error);
+      return 0;
+    }
+  }
 }
 
 // Singleton instance

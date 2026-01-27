@@ -193,9 +193,6 @@ export default function ProfileForm() {
 
             Alert.alert("Başarılı", "Profilin güncellendi.");
         } catch (e) {
-            // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'avatar-run1',hypothesisId:'U3',location:'src/components/profile/ProfileForm/ProfileForm.tsx:onSubmit',message:'profile save failed',data:{errorMessage:e instanceof Error ? e.message : 'unknown'},timestamp:Date.now()})}).catch(()=>{});
-            // #endregion
             Alert.alert("Hata", e instanceof Error ? e.message : "Profil güncellenirken bir hata oluştu");
         }
     };

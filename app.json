@@ -70,7 +70,11 @@
           "icon": "./assets/notification-icon.png",
           "color": "#2D5016",
           "sounds": [
-            "./assets/sounds/adhan.mp3"
+            "./assets/sounds/fajr-ezan.mp3",
+            "./assets/sounds/dhuhr-ezan.mp3",
+            "./assets/sounds/asr-ezan.mp3",
+            "./assets/sounds/maghrib-ezan.mp3",
+            "./assets/sounds/isha-ezan.mp3"
           ]
         }
       ],

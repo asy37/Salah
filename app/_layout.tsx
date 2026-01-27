@@ -1,8 +1,9 @@
 import { Stack, useRouter, useSegments } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { QueryClientProvider } from "@tanstack/react-query";
+import * as Notifications from "expo-notifications";
 import "../global.css";
 // Note: NotificationService is lazy-loaded to avoid Expo Go compatibility issues
 // It will be imported only when needed, not at app startup
@@ -22,6 +23,9 @@ import { useTranslationStore } from "@/lib/storage/useQuranStore";
 import { getDownloadedTranslations } from "@/lib/database/sqlite/translation/repository";
 import { QuranAudioProvider } from "@/contexts/QuranAudioContext";
 import { useTranslationByIdentifier } from "@/lib/hooks/quran/useTranslationByIdentifier";
+import { notificationService, NOTIFICATION_ACTIONS } from "@/lib/notifications/NotificationService";
+import { notificationScheduler } from "@/lib/services/notificationScheduler";
+import { useNotificationSettings } from "@/lib/storage/notificationSettings";
 
 // Keep splash screen visible while loading fonts
 SplashScreen.preventAutoHideAsync();
@@ -82,6 +86,102 @@ export default function RootLayout() {
   // Prefetch prayer times on app start and when location changes
   const location = useLocationStore((state) => state.location);
   const method = useMethodStore((state) => state.method?.id);
+  const notificationSettings = useNotificationSettings();
+
+  // Notification response handler
+  const notificationListener = useRef<{ remove: () => void } | null>(null);
+  const responseListener = useRef<{ remove: () => void } | null>(null);
+
+  useEffect(() => {
+    // Request notification permissions
+    notificationService.requestPermissions();
+
+    // Set up notification listeners
+    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
+      // Handle foreground notifications if needed
+      console.log('[Notification] Received:', notification);
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(
+      async (response) => {
+        const actionIdentifier = response.actionIdentifier;
+        const data = response.notification.request.content.data;
+
+        // Handle action button clicks
+        if (actionIdentifier === NOTIFICATION_ACTIONS.PRAYER_MARKED_PRAYED) {
+          const { prayerTrackingRepo } = await import('@/lib/database/sqlite/prayer-tracking/repository');
+          const { getTodayDateString } = await import('@/lib/services/dailyReset');
+          
+          if (data?.prayerName && typeof data.prayerName === 'string') {
+            const prayerName = data.prayerName.toLowerCase();
+            const today = getTodayDateString();
+            await prayerTrackingRepo.upsertPrayerState(today, prayerName as any, 'prayed');
+            
+            // Cancel related reminder notifications
+            await notificationService.cancelNotificationsByType('prayer_reminder');
+            
+            // Invalidate prayer tracking query
+            queryClient.invalidateQueries({
+              queryKey: ['prayerTracking', 'local', today],
+            });
+          }
+          return;
+        }
+
+        if (actionIdentifier === NOTIFICATION_ACTIONS.PRAYER_REMIND_LATER) {
+          // Schedule reminder for next prayer
+          if (data?.prayerName && typeof data.prayerName === 'string') {
+            // Get prayer times to find next prayer
+            const latitude = location?.latitude ?? 41.0082;
+            const longitude = location?.longitude ?? 28.9784;
+            
+            try {
+              const prayerTimesResponse = await fetchPrayerTimes({
+                latitude,
+                longitude,
+                method: method ?? 13,
+              });
+              
+              await notificationScheduler.scheduleReminderForNextPrayer(
+                data.prayerName,
+                prayerTimesResponse
+              );
+            } catch (error) {
+              console.error('[Notification] Failed to schedule reminder:', error);
+            }
+          }
+          return;
+        }
+
+        // Handle notification tap (not action button)
+        if (actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
+          // Handle deep linking
+          if (data?.deepLink) {
+            // Navigate based on deep link
+            if (data.deepLink === 'islamicapp://daily-verse') {
+              router.push('/(tabs)/more/daily-verse');
+            }
+          } else if (data?.type === 'prayer_time') {
+            router.push('/(tabs)/adhan');
+          } else if (data?.type === 'streak') {
+            router.push('/(tabs)');
+          }
+        }
+
+        // Call service handler
+        await notificationService.handleNotificationResponse(response as any);
+      }
+    );
+
+    return () => {
+      if (notificationListener.current) {
+        notificationListener.current.remove();
+      }
+      if (responseListener.current) {
+        responseListener.current.remove();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     // Method is always available (has default value), but we need to wait for it
@@ -91,17 +191,30 @@ export default function RootLayout() {
     const latitude = location?.latitude ?? 41.0082;
     const longitude = location?.longitude ?? 28.9784;
 
-    queryClient.prefetchQuery({
-      queryKey: queryKeys.prayerTimes.byLocation(latitude, longitude, method.toString()),
-      queryFn: () =>
-        fetchPrayerTimes({
+    const prefetchAndSchedule = async () => {
+      try {
+        const prayerTimesResponse = await fetchPrayerTimes({
           latitude,
           longitude,
           method,
-        }),
-      staleTime: 24 * 60 * 60 * 1000, // 24 saat
-    });
-  }, [location, method]);
+        });
+
+        // Prefetch for query cache
+        queryClient.prefetchQuery({
+          queryKey: queryKeys.prayerTimes.byLocation(latitude, longitude, method.toString()),
+          queryFn: () => prayerTimesResponse,
+          staleTime: 24 * 60 * 60 * 1000, // 24 saat
+        });
+
+        // Schedule notifications
+        await notificationScheduler.scheduleAllNotifications(prayerTimesResponse, 7);
+      } catch (error) {
+        console.error('[Layout] Failed to schedule notifications:', error);
+      }
+    };
+
+    prefetchAndSchedule();
+  }, [location, method, notificationSettings]);
 
   const { selectedTranslation, setSelectedTranslation, setTranslationData } =
     useTranslationStore();
