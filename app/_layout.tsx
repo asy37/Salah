@@ -33,6 +33,22 @@ export default function RootLayout() {
   const { shouldShowRegister, canAccessApp, isLoading } = useAuthFlow();
   const [isNavigationReady, setIsNavigationReady] = useState(false);
 
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sessionId: 'debug-session',
+      runId: 'initial',
+      hypothesisId: 'H1',
+      location: 'app/_layout.tsx:RootLayout',
+      message: 'RootLayout mounted',
+      data: {},
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+  // #endregion
+
   // Fonts are optional - app will work without them
   const [fontsLoaded] = useFonts({
     // Comment out if font files are not available yet
@@ -58,6 +74,29 @@ export default function RootLayout() {
     const inAuthGroup = segments[0] === "auth";
     const inTabsGroup = segments[0] === "(tabs)";
 
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'debug-session',
+        runId: 'initial',
+        hypothesisId: 'H2',
+        location: 'app/_layout.tsx:auth-navigation-effect',
+        message: 'Auth navigation effect running',
+        data: {
+          isLoading,
+          isNavigationReady,
+          shouldShowRegister,
+          canAccessApp,
+          inAuthGroup,
+          inTabsGroup,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+
     if (shouldShowRegister && !inAuthGroup) {
       // No session, redirect to register
       router.replace("/auth/register");
@@ -75,11 +114,65 @@ export default function RootLayout() {
   ]);
 
   useEffect(() => {
-    if (fontsLoaded) {
-      SplashScreen.hideAsync().finally(() => {
+    if (!fontsLoaded) {
+      return;
+    }
+
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'debug-session',
+        runId: 'initial',
+        hypothesisId: 'H3',
+        location: 'app/_layout.tsx:fonts-effect',
+        message: 'Fonts loaded, attempting to hide splash',
+        data: { fontsLoaded },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+
+    SplashScreen.hideAsync()
+      .then(() => {
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: 'debug-session',
+            runId: 'initial',
+            hypothesisId: 'H4',
+            location: 'app/_layout.tsx:fonts-effect',
+            message: 'SplashScreen.hideAsync resolved',
+            data: {},
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
+
+        setIsNavigationReady(true);
+      })
+      .catch((error) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: 'debug-session',
+            runId: 'initial',
+            hypothesisId: 'H5',
+            location: 'app/_layout.tsx:fonts-effect',
+            message: 'SplashScreen.hideAsync rejected',
+            data: { errorMessage: String(error) },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
+
         setIsNavigationReady(true);
       });
-    }
   }, [fontsLoaded]);
 
   // Prefetch prayer times on app start and when location changes
