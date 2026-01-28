@@ -27,9 +27,6 @@ import { notificationService, NOTIFICATION_ACTIONS } from "@/lib/notifications/N
 import { notificationScheduler } from "@/lib/services/notificationScheduler";
 import { useNotificationSettings } from "@/lib/storage/notificationSettings";
 
-// Keep splash screen visible while loading fonts
-SplashScreen.preventAutoHideAsync();
-
 export default function RootLayout() {
   const router = useRouter();
   const segments = useSegments();
@@ -44,6 +41,10 @@ export default function RootLayout() {
     // 'ScheherazadeNew-Regular': require('../assets/fonts/ScheherazadeNew-Regular.ttf'),
     // 'ScheherazadeNew-Bold': require('../assets/fonts/ScheherazadeNew-Bold.ttf'),
   });
+
+  useEffect(() => {
+    SplashScreen.preventAutoHideAsync();
+  }, []);
 
   // Setup TanStack Query managers (focus & online)
   useEffect(() => {
@@ -74,12 +75,10 @@ export default function RootLayout() {
   ]);
 
   useEffect(() => {
-    // Hide splash screen immediately if fonts are not used
-    // or after fonts are loaded
-    if (fontsLoaded !== undefined) {
-      SplashScreen.hideAsync();
-      // Small delay to ensure navigation is ready
-      setTimeout(() => setIsNavigationReady(true), 100);
+    if (fontsLoaded) {
+      SplashScreen.hideAsync().finally(() => {
+        setIsNavigationReady(true);
+      });
     }
   }, [fontsLoaded]);
 
@@ -248,10 +247,6 @@ export default function RootLayout() {
     }
   }, [quran, setTranslationData]);
 
-
-  if (!fontsLoaded && fontsLoaded !== undefined) {
-    return null;
-  }
 
   // Show loading screen while checking auth
   // if (isLoading || !isNavigationReady) {
