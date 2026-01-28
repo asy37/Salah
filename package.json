@@ -55,7 +55,8 @@
     "react-native-screens": "~4.16.0",
     "react-native-svg": "^15.12.1",
     "zod": "^3.22.0",
-    "zustand": "^4.5.0"
+    "zustand": "^4.5.0",
+    "expo": "~54.0.32"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
