@@ -71,11 +71,11 @@
           "icon": "./assets/notification-icon.png",
           "color": "#2D5016",
           "sounds": [
-            "./assets/sounds/fajr-ezan.mp3",
-            "./assets/sounds/dhuhr-ezan.mp3",
-            "./assets/sounds/asr-ezan.mp3",
-            "./assets/sounds/maghrib-ezan.mp3",
-            "./assets/sounds/isha-ezan.mp3"
+            "./assets/sounds/fajr_ezan.mp3",
+            "./assets/sounds/dhuhr_ezan.mp3",
+            "./assets/sounds/asr_ezan.mp3",
+            "./assets/sounds/maghrib_ezan.mp3",
+            "./assets/sounds/isha_ezan.mp3"
           ]
         }
       ],
