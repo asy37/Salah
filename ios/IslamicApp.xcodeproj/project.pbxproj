@@ -7,47 +7,47 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		004C447EB3FD4615B03396D5 /* isha_ezan.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 6015C294E2744A958826E6C6 /* isha_ezan.mp3 */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		180FA304A8694922A9A3A33B /* Amiri-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 53A11E3A785D4FA5B389B4FF /* Amiri-Bold.ttf */; };
-		1C53885B6491FADAAEC6246F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 639DEF2EDC8B79FC85456E2A /* PrivacyInfo.xcprivacy */; };
-		29BA332FFFDA444F8BDA050B /* dhuhr_ezan.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 020A93649413489B9EC90AA9 /* dhuhr_ezan.mp3 */; };
-		3457DDB9C2494433B6499AAC /* ScheherazadeNew-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CA1BA1E2972440E18B7E8EB6 /* ScheherazadeNew-Bold.ttf */; };
+		13FDDD7B9E2C4EB4A2302AB8 /* dhuhr_ezan.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 6CA60E6179F342EB8C8BB31C /* dhuhr_ezan.mp3 */; };
+		15320B7019B89B41AEAFBFE7 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C88BE54596AEF27EE8B5557 /* ExpoModulesProvider.swift */; };
+		2E930060D7BE4776920B734E /* maghrib_ezan.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BEE4718C2D3D4AB48AB33A43 /* maghrib_ezan.mp3 */; };
+		3393102410AC43F0AC7E1AC5 /* ScheherazadeNew-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B775BFF182EF4A31943A0F5C /* ScheherazadeNew-Regular.ttf */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		44A8C820714B4A2E9B6F2245 /* Amiri-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 126647B125644AE1AE7F0593 /* Amiri-Regular.ttf */; };
-		44E8C273BEDF4EDEA75EB5F6 /* isha_ezan.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 86D358EA12E04FAE838EA424 /* isha_ezan.mp3 */; };
-		495ECFA698E14F2B85A37C30 /* ScheherazadeNew-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 39971BA53CE14879BD805E17 /* ScheherazadeNew-Regular.ttf */; };
-		5F7858B36811429DBC311243 /* maghrib_ezan.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1BE252B1683E485BB9E1DA8C /* maghrib_ezan.mp3 */; };
-		77CD43914A27F565C967739C /* libPods-IslamicApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 361B42D9470EABC6C9FD001A /* libPods-IslamicApp.a */; };
-		B7DED960D7E34C109520C3E7 /* asr_ezan.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7FBCD58ECDA045BD8C7F89DC /* asr_ezan.mp3 */; };
+		770725510847A1A6C6D57099 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 6BA0C4E10C4B69357EAA57B1 /* PrivacyInfo.xcprivacy */; };
+		7E9B1B1F33504BC6A84B83CC /* ScheherazadeNew-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 268CE55A017149609DAD2A4B /* ScheherazadeNew-Bold.ttf */; };
+		805FDC8D6E544DA69419B922 /* Amiri-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 30FDA7DE42894C9286FFA120 /* Amiri-Regular.ttf */; };
+		84EDC86B6739D57948DAA3C3 /* libPods-IslamicApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 12C3DF302CAC61F3475C1712 /* libPods-IslamicApp.a */; };
+		971049B6D18448E9983E749C /* fajr_ezan.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 349F9936754E45BFB529A2D5 /* fajr_ezan.mp3 */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		D9E4002743829A769C3BAC2F /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF13A7A7170F793C05E10FD6 /* ExpoModulesProvider.swift */; };
+		D58E8EBAA7BA43008EA3501F /* asr_ezan.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = DB1F48643C1F44DC8DC5338A /* asr_ezan.mp3 */; };
+		E66C136E7EC440758B3135EA /* Amiri-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D29D8BB89E0348F9B9CBA4BD /* Amiri-Bold.ttf */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-		F6317793D4F24BF8B9F6F879 /* fajr_ezan.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 6856865B28FA44BD8C6B9DAD /* fajr_ezan.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		020A93649413489B9EC90AA9 /* dhuhr_ezan.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = dhuhr_ezan.mp3; path = IslamicApp/dhuhr_ezan.mp3; sourceTree = "<group>"; };
-		126647B125644AE1AE7F0593 /* Amiri-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Amiri-Regular.ttf"; path = "../assets/fonts/Amiri-Regular.ttf"; sourceTree = "<group>"; };
+		0A1F29E0BFEF40EC02200A19 /* Pods-IslamicApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IslamicApp.release.xcconfig"; path = "Target Support Files/Pods-IslamicApp/Pods-IslamicApp.release.xcconfig"; sourceTree = "<group>"; };
+		12C3DF302CAC61F3475C1712 /* libPods-IslamicApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-IslamicApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* IslamicApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IslamicApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = IslamicApp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = IslamicApp/Info.plist; sourceTree = "<group>"; };
-		1BE252B1683E485BB9E1DA8C /* maghrib_ezan.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = maghrib_ezan.mp3; path = IslamicApp/maghrib_ezan.mp3; sourceTree = "<group>"; };
-		361B42D9470EABC6C9FD001A /* libPods-IslamicApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-IslamicApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		39971BA53CE14879BD805E17 /* ScheherazadeNew-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "ScheherazadeNew-Regular.ttf"; path = "../assets/fonts/ScheherazadeNew-Regular.ttf"; sourceTree = "<group>"; };
-		53A11E3A785D4FA5B389B4FF /* Amiri-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Amiri-Bold.ttf"; path = "../assets/fonts/Amiri-Bold.ttf"; sourceTree = "<group>"; };
-		639DEF2EDC8B79FC85456E2A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = IslamicApp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		6856865B28FA44BD8C6B9DAD /* fajr_ezan.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = fajr_ezan.mp3; path = IslamicApp/fajr_ezan.mp3; sourceTree = "<group>"; };
-		7FBCD58ECDA045BD8C7F89DC /* asr_ezan.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = asr_ezan.mp3; path = IslamicApp/asr_ezan.mp3; sourceTree = "<group>"; };
-		86D358EA12E04FAE838EA424 /* isha_ezan.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = isha_ezan.mp3; path = IslamicApp/isha_ezan.mp3; sourceTree = "<group>"; };
-		A2337C8A9F011E0D2B7AE2D5 /* Pods-IslamicApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IslamicApp.debug.xcconfig"; path = "Target Support Files/Pods-IslamicApp/Pods-IslamicApp.debug.xcconfig"; sourceTree = "<group>"; };
+		268CE55A017149609DAD2A4B /* ScheherazadeNew-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "ScheherazadeNew-Bold.ttf"; path = "../assets/fonts/ScheherazadeNew-Bold.ttf"; sourceTree = "<group>"; };
+		30FDA7DE42894C9286FFA120 /* Amiri-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Amiri-Regular.ttf"; path = "../assets/fonts/Amiri-Regular.ttf"; sourceTree = "<group>"; };
+		349F9936754E45BFB529A2D5 /* fajr_ezan.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = fajr_ezan.mp3; path = IslamicApp/fajr_ezan.mp3; sourceTree = "<group>"; };
+		3C88BE54596AEF27EE8B5557 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-IslamicApp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		6015C294E2744A958826E6C6 /* isha_ezan.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = isha_ezan.mp3; path = IslamicApp/isha_ezan.mp3; sourceTree = "<group>"; };
+		61D8C62E3DC871534C1BD23B /* Pods-IslamicApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IslamicApp.debug.xcconfig"; path = "Target Support Files/Pods-IslamicApp/Pods-IslamicApp.debug.xcconfig"; sourceTree = "<group>"; };
+		6BA0C4E10C4B69357EAA57B1 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = IslamicApp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		6CA60E6179F342EB8C8BB31C /* dhuhr_ezan.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = dhuhr_ezan.mp3; path = IslamicApp/dhuhr_ezan.mp3; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = IslamicApp/SplashScreen.storyboard; sourceTree = "<group>"; };
+		B775BFF182EF4A31943A0F5C /* ScheherazadeNew-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "ScheherazadeNew-Regular.ttf"; path = "../assets/fonts/ScheherazadeNew-Regular.ttf"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		BF13A7A7170F793C05E10FD6 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-IslamicApp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		CA1BA1E2972440E18B7E8EB6 /* ScheherazadeNew-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "ScheherazadeNew-Bold.ttf"; path = "../assets/fonts/ScheherazadeNew-Bold.ttf"; sourceTree = "<group>"; };
+		BEE4718C2D3D4AB48AB33A43 /* maghrib_ezan.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = maghrib_ezan.mp3; path = IslamicApp/maghrib_ezan.mp3; sourceTree = "<group>"; };
+		D29D8BB89E0348F9B9CBA4BD /* Amiri-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Amiri-Bold.ttf"; path = "../assets/fonts/Amiri-Bold.ttf"; sourceTree = "<group>"; };
+		DB1F48643C1F44DC8DC5338A /* asr_ezan.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = asr_ezan.mp3; path = IslamicApp/asr_ezan.mp3; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = IslamicApp/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* IslamicApp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "IslamicApp-Bridging-Header.h"; path = "IslamicApp/IslamicApp-Bridging-Header.h"; sourceTree = "<group>"; };
-		FBE21F4EF7C4845441A8E9D2 /* Pods-IslamicApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IslamicApp.release.xcconfig"; path = "Target Support Files/Pods-IslamicApp/Pods-IslamicApp.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,30 +55,18 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				77CD43914A27F565C967739C /* libPods-IslamicApp.a in Frameworks */,
+				84EDC86B6739D57948DAA3C3 /* libPods-IslamicApp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0AC62FFAE8EB477292E3443C /* Resources */ = {
+		04F3FEF772ED27F0DDC754CF /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				126647B125644AE1AE7F0593 /* Amiri-Regular.ttf */,
-				53A11E3A785D4FA5B389B4FF /* Amiri-Bold.ttf */,
-				39971BA53CE14879BD805E17 /* ScheherazadeNew-Regular.ttf */,
-				CA1BA1E2972440E18B7E8EB6 /* ScheherazadeNew-Bold.ttf */,
-			);
-			name = Resources;
-			path = "";
-			sourceTree = "<group>";
-		};
-		0F9466FFFCAD0D12325FA1EE /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				A2337C8A9F011E0D2B7AE2D5 /* Pods-IslamicApp.debug.xcconfig */,
-				FBE21F4EF7C4845441A8E9D2 /* Pods-IslamicApp.release.xcconfig */,
+				61D8C62E3DC871534C1BD23B /* Pods-IslamicApp.debug.xcconfig */,
+				0A1F29E0BFEF40EC02200A19 /* Pods-IslamicApp.release.xcconfig */,
 			);
 			name = Pods;
 			path = Pods;
@@ -93,31 +81,43 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				6856865B28FA44BD8C6B9DAD /* fajr_ezan.mp3 */,
-				020A93649413489B9EC90AA9 /* dhuhr_ezan.mp3 */,
-				7FBCD58ECDA045BD8C7F89DC /* asr_ezan.mp3 */,
-				1BE252B1683E485BB9E1DA8C /* maghrib_ezan.mp3 */,
-				86D358EA12E04FAE838EA424 /* isha_ezan.mp3 */,
-				639DEF2EDC8B79FC85456E2A /* PrivacyInfo.xcprivacy */,
+				349F9936754E45BFB529A2D5 /* fajr_ezan.mp3 */,
+				6CA60E6179F342EB8C8BB31C /* dhuhr_ezan.mp3 */,
+				DB1F48643C1F44DC8DC5338A /* asr_ezan.mp3 */,
+				BEE4718C2D3D4AB48AB33A43 /* maghrib_ezan.mp3 */,
+				6015C294E2744A958826E6C6 /* isha_ezan.mp3 */,
+				6BA0C4E10C4B69357EAA57B1 /* PrivacyInfo.xcprivacy */,
 			);
 			name = IslamicApp;
 			sourceTree = "<group>";
 		};
-		1885612CF271AC5A3ED179A4 /* IslamicApp */ = {
+		1CDD6976B3F647B8BFE6894E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				BF13A7A7170F793C05E10FD6 /* ExpoModulesProvider.swift */,
+				30FDA7DE42894C9286FFA120 /* Amiri-Regular.ttf */,
+				D29D8BB89E0348F9B9CBA4BD /* Amiri-Bold.ttf */,
+				B775BFF182EF4A31943A0F5C /* ScheherazadeNew-Regular.ttf */,
+				268CE55A017149609DAD2A4B /* ScheherazadeNew-Bold.ttf */,
 			);
-			name = IslamicApp;
+			name = Resources;
+			path = "";
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				361B42D9470EABC6C9FD001A /* libPods-IslamicApp.a */,
+				12C3DF302CAC61F3475C1712 /* libPods-IslamicApp.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		8299F94E9906AB596DBC8E40 /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				E6B648181D84E6781D5D097E /* IslamicApp */,
+			);
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -134,9 +134,9 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				0AC62FFAE8EB477292E3443C /* Resources */,
-				0F9466FFFCAD0D12325FA1EE /* Pods */,
-				C457825255A047D016DAA07C /* ExpoModulesProviders */,
+				1CDD6976B3F647B8BFE6894E /* Resources */,
+				04F3FEF772ED27F0DDC754CF /* Pods */,
+				8299F94E9906AB596DBC8E40 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -160,12 +160,12 @@
 			path = IslamicApp/Supporting;
 			sourceTree = "<group>";
 		};
-		C457825255A047D016DAA07C /* ExpoModulesProviders */ = {
+		E6B648181D84E6781D5D097E /* IslamicApp */ = {
 			isa = PBXGroup;
 			children = (
-				1885612CF271AC5A3ED179A4 /* IslamicApp */,
+				3C88BE54596AEF27EE8B5557 /* ExpoModulesProvider.swift */,
 			);
-			name = ExpoModulesProviders;
+			name = IslamicApp;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -176,13 +176,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "IslamicApp" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				7375A6AEF6D36F87076DEB31 /* [Expo] Configure project */,
+				0E4788D2D89CCD3A1E5B4E71 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				1D55E2DD0B52F34AF30FCA06 /* [CP] Embed Pods Frameworks */,
+				9BAE66E6C0A846A1F2865143 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -232,16 +232,16 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				44A8C820714B4A2E9B6F2245 /* Amiri-Regular.ttf in Resources */,
-				180FA304A8694922A9A3A33B /* Amiri-Bold.ttf in Resources */,
-				495ECFA698E14F2B85A37C30 /* ScheherazadeNew-Regular.ttf in Resources */,
-				3457DDB9C2494433B6499AAC /* ScheherazadeNew-Bold.ttf in Resources */,
-				F6317793D4F24BF8B9F6F879 /* fajr_ezan.mp3 in Resources */,
-				29BA332FFFDA444F8BDA050B /* dhuhr_ezan.mp3 in Resources */,
-				B7DED960D7E34C109520C3E7 /* asr_ezan.mp3 in Resources */,
-				5F7858B36811429DBC311243 /* maghrib_ezan.mp3 in Resources */,
-				44E8C273BEDF4EDEA75EB5F6 /* isha_ezan.mp3 in Resources */,
-				1C53885B6491FADAAEC6246F /* PrivacyInfo.xcprivacy in Resources */,
+				805FDC8D6E544DA69419B922 /* Amiri-Regular.ttf in Resources */,
+				E66C136E7EC440758B3135EA /* Amiri-Bold.ttf in Resources */,
+				3393102410AC43F0AC7E1AC5 /* ScheherazadeNew-Regular.ttf in Resources */,
+				7E9B1B1F33504BC6A84B83CC /* ScheherazadeNew-Bold.ttf in Resources */,
+				971049B6D18448E9983E749C /* fajr_ezan.mp3 in Resources */,
+				13FDDD7B9E2C4EB4A2302AB8 /* dhuhr_ezan.mp3 in Resources */,
+				D58E8EBAA7BA43008EA3501F /* asr_ezan.mp3 in Resources */,
+				2E930060D7BE4776920B734E /* maghrib_ezan.mp3 in Resources */,
+				004C447EB3FD4615B03396D5 /* isha_ezan.mp3 in Resources */,
+				770725510847A1A6C6D57099 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -287,29 +287,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		1D55E2DD0B52F34AF30FCA06 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-IslamicApp/Pods-IslamicApp-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-IslamicApp/Pods-IslamicApp-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		7375A6AEF6D36F87076DEB31 /* [Expo] Configure project */ = {
+		0E4788D2D89CCD3A1E5B4E71 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -369,6 +347,28 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-IslamicApp/Pods-IslamicApp-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		9BAE66E6C0A846A1F2865143 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-IslamicApp/Pods-IslamicApp-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-IslamicApp/Pods-IslamicApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -377,7 +377,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				D9E4002743829A769C3BAC2F /* ExpoModulesProvider.swift in Sources */,
+				15320B7019B89B41AEAFBFE7 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -386,7 +386,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A2337C8A9F011E0D2B7AE2D5 /* Pods-IslamicApp.debug.xcconfig */;
+			baseConfigurationReference = 61D8C62E3DC871534C1BD23B /* Pods-IslamicApp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -422,7 +422,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FBE21F4EF7C4845441A8E9D2 /* Pods-IslamicApp.release.xcconfig */;
+			baseConfigurationReference = 0A1F29E0BFEF40EC02200A19 /* Pods-IslamicApp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
