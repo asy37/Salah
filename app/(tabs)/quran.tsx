@@ -92,7 +92,6 @@ export default function QuranScreen() {
       />
 
       <QuranContent
-        isDark={isDark}
         ayahs={ayahs}
         goNext={goNext}
         goPrev={goPrev}
@@ -102,7 +101,6 @@ export default function QuranScreen() {
         onAyahPress={handleAyahPress}
       />
       <QuranAudioPlayer
-        isDark={isDark}
       />
       <SurahSelectionModal
         setCurrentPage={setCurrentSurahNumber}

@@ -8,7 +8,6 @@ import { useSwipeScroll } from "@/lib/hooks/quran/useSwipeScroll";
 
 type QuranContentProps = Readonly<{
   ayahs: Ayah[];
-  isDark: boolean;
   goNext: () => void;
   goPrev: () => void;
   activeAyahNumber?: number | null;
@@ -18,7 +17,6 @@ type QuranContentProps = Readonly<{
 }>;
 
 export default function QuranContent({
-  isDark,
   ayahs,
   goNext,
   goPrev,
@@ -51,11 +49,10 @@ export default function QuranContent({
       <PageIndicator
         goPrev={goPrev}
         goNext={goNext}
-        isDark={isDark}
         numberOfSurah={surahNumber}
       />
     ),
-    [goPrev, goNext, isDark, surahNumber]
+    [goPrev, goNext, surahNumber]
   );
 
   return (
@@ -73,7 +70,6 @@ export default function QuranContent({
           renderItem={({ item }) => (
             <AyahBlock
               ayah={item}
-              isDark={isDark}
               activeWordIndex={
                 activeAyahNumber === item.number ? activeWordIndex : -1
               }

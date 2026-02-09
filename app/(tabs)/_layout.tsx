@@ -1,17 +1,20 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { View } from "react-native";
+import { colors } from "@/components/theme/colors";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 export default function TabLayout() {
+  const { isDark } = useTheme();
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#2D5016",
-        tabBarInactiveTintColor: "#666666",
+        tabBarActiveTintColor: isDark ? colors.primary[500] : colors.primary[500],
+        tabBarInactiveTintColor: isDark ? colors.text.secondaryDark : colors.text.secondaryLight,
         tabBarStyle: {
-          backgroundColor: "#FFFFFF",
-          borderTopColor: "#E5E5E5",
+          backgroundColor: isDark ? colors.background.dark : colors.background.light,
+          borderTopColor: isDark ? colors.border.dark : colors.border.light,
         },
       }}
     >

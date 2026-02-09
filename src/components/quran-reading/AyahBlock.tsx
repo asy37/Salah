@@ -6,20 +6,20 @@ import clsx from "clsx";
 import { useAudioStore } from "@/lib/storage/useQuranStore";
 import { splitAyahText } from "@/lib/quran/utils/wordSplitter";
 import { useMemo } from "react";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type AyahBlockProps = Readonly<{
   ayah: Ayah;
-  isDark: boolean;
   activeWordIndex?: number; // Aktif kelime index'i (highlight için)
   onAyahPress?: (ayahNumber: number) => void; // Ayet tıklandığında çağrılacak callback
 }>;
 
 export default function AyahBlock({
   ayah,
-  isDark,
   activeWordIndex = -1,
   onAyahPress,
 }: AyahBlockProps) {
+  const { isDark } = useTheme();
   
   const {
     activeAyahNumber,
@@ -70,12 +70,12 @@ export default function AyahBlock({
           className={
             "flex p-2 items-center justify-center rounded-full text-sm font-bold shadow-sm " +
             (isDark
-              ? "bg-background-cardDark text-text-secondaryDark"
+              ? "bg-primary-500/20"
               : "bg-primary-400 text-white")
           }
         >
           <Text
-            className={clsx(isDark ? colors.background.light : "text-white")}
+            className={clsx(isDark ? colors.text.primaryDark : colors.text.primaryLight)}
           >
             {ayah.number}
           </Text>
@@ -91,7 +91,7 @@ export default function AyahBlock({
             <MaterialIcons
               name={isCurrentAyahPlaying ? "pause" : "play-arrow"}
               size={20}
-              color={colors.success}
+              color={isDark ? colors.text.primaryDark : colors.text.primaryLight}
             />
           </TouchableOpacity>
           <Pressable className="rounded-full p-2">
