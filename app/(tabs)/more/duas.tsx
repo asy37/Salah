@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, useColorScheme, View, ActivityIndicator } from "react-native";
+import { ScrollView, View, ActivityIndicator } from "react-native";
 import clsx from "clsx";
 import DuasHeader from "@/components/duas/DuasHeader";
 import DuasList from "@/components/duas/DuasList";
@@ -7,10 +7,10 @@ import FloatingActionButton from "@/components/duas/FloatingActionButton";
 import { useDuas } from "@/lib/hooks/duas/useDuas";
 import SelectButton from "@/components/button/SelectButton";
 import { FILTERS } from "@/components/duas/utils/utils";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 export default function DuasScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
   const [selectedFilter, setSelectedFilter] = React.useState<"all" | "favorites">("all");
   const [searchQuery, setSearchQuery] = React.useState("");
   const { duas, isLoading, createDua, updateDua, deleteDua, toggleFavorite, isSaving } = useDuas();

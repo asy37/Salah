@@ -1,4 +1,4 @@
-import { Alert, Text, useColorScheme, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 import ModalComponent from "@/components/modal/ModalComponent";
 import Button from "@/components/button/Button";
 import DuaForm from "@/components/duas/DuaForm";
@@ -8,7 +8,7 @@ import { Control, UseFormHandleSubmit } from "react-hook-form";
 import clsx from "clsx";
 import * as Clipboard from "expo-clipboard";
 import { DuaType } from "@/components/duas/types/types";
-
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type DuaCardModalProps = {
     readonly dua: DuaType;
@@ -21,8 +21,7 @@ type DuaCardModalProps = {
     readonly handleSubmit: UseFormHandleSubmit<DuaFormData>
 };
 export default function DuaCardModal({ control, handleSubmit, dua, isMore, updateDua, deleteDua, isSaving, setIsMore }: DuaCardModalProps) {
-    const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
+    const { isDark } = useTheme();
     const [isEdit, setIsEdit] = React.useState(false);
 
     const handleEditDua = () => {

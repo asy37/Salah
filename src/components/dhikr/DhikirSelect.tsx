@@ -1,4 +1,4 @@
-import { FlatList, Text, useColorScheme } from "react-native";
+import { FlatList, Text } from "react-native";
 import ModalComponent from "../modal/ModalComponent";
 import Button from "../button/Button";
 import React from "react";
@@ -7,6 +7,7 @@ import { dhikrRepo } from "@/lib/database/sqlite/dhikr/repository";
 import { useAuth } from "@/lib/hooks/auth/useAuth";
 import { DHIKR_PRESETS } from "@/constants/dhikr-presets";
 import clsx from "clsx";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 /**
  * Generate UUID v4
@@ -29,8 +30,7 @@ type DhikirSelectProps = Readonly<{
 }>
 
 export default function DhikirSelect({ currentDhikr, openDhikrSelect, setCurrentDhikr, setOpenDhikrSelect }: DhikirSelectProps) {
-    const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
+    const { isDark } = useTheme();
     const { user } = useAuth();
     const userId = user?.id || null;
     const [availableDhikrs, setAvailableDhikrs] = React.useState<Dhikr[]>([]);
@@ -119,7 +119,6 @@ export default function DhikirSelect({ currentDhikr, openDhikrSelect, setCurrent
 
     return (
         <ModalComponent
-            isDark={isDark}
             visible={openDhikrSelect}
             onClose={() => setOpenDhikrSelect(false)}
             title="Select Dhikr"
@@ -142,7 +141,6 @@ export default function DhikirSelect({ currentDhikr, openDhikrSelect, setCurrent
                             isActive={currentDhikr?.id === item.id} 
                             size="large" 
                             onPress={() => handleSelectDhikr(item)} 
-                            isDark={isDark}
                         >
                             <Text>{item.label}</Text>
                         </Button>

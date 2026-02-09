@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, Text, View, useColorScheme } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 import clsx from "clsx";
 import * as Haptics from "expo-haptics";
 import QiblaHeader from "@/components/qibla/QiblaHeader";
@@ -13,11 +13,12 @@ import { useLocationStore } from "@/lib/storage/locationStore";
 import { useDeviceHeading } from "@/lib/hooks/useDeviceHeading";
 import { useQiblaBearing } from "@/lib/hooks/qibla/useQiblaBearing";
 import { useQiblaGuide } from "@/lib/hooks/qibla/useQiblaGuide";
+import { useTheme } from "@/lib/storage/useThemeStore";
+
 export default function QiblaTabScreen() {
   const BAD_ACCURACY_THRESHOLD = 1; // MVP: gerçek platform accuracy yoksa null döneriz
 
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
 
   const storedLocation = useLocationStore((s) => s.location);
   const {

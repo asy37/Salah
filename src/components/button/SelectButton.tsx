@@ -1,5 +1,6 @@
 import clsx from "clsx";
-import { Pressable, Text, useColorScheme, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type SelectButtonProps<T extends string> = {
   readonly buttonData: {
@@ -17,8 +18,7 @@ export default function SelectButton<T extends string>({
   selectedFilter,
   onPress,
 }: SelectButtonProps<T>) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
   return (
     <View
       className={clsx(

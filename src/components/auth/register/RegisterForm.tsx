@@ -10,13 +10,13 @@ import {
     ScrollView,
     Text,
     TouchableOpacity,
-    useColorScheme,
     View,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { RegisterFormData, registerSchema } from "./schema";
 import AvatarPicker from "@/components/form/AvatarPicker";
 import FormField from "@/components/form/FormField";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 // Helper functions
 
@@ -49,7 +49,7 @@ const handleGuestFailure = () => {
 
 
 export default function RegisterForm() {
-    const isDark = useColorScheme() === "dark";
+    const { isDark } = useTheme();
     const [isLoading, setIsLoading] = useState(false);
     const [avatar, setAvatar] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);

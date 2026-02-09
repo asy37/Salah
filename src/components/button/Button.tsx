@@ -1,7 +1,8 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Pressable, Text, useColorScheme, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import clsx from "clsx";
 import { backgroundColorClass, getIconColor, sizeClass, textColorClass } from "./utils";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type ButtonProps = {
   readonly text?: string | number;
@@ -30,7 +31,7 @@ export default function Button({
   backgroundColor = "white",
 }: ButtonProps) {
 
-  const isDark = useColorScheme() === "dark";
+  const { isDark } = useTheme();
 
   return (
     <Pressable

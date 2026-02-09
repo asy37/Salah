@@ -70,7 +70,6 @@ export default function AdhanHeader({ isDark }: AdhanHeaderProps) {
               {locationText}
             </Text>
             <Button
-              isDark={isDark}
               rightIcon="settings"
               backgroundColor="transparent"
               onPress={handleSelectCalculationMethod}

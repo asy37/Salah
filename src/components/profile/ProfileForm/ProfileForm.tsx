@@ -8,7 +8,6 @@ import {
     ScrollView,
     Text,
     TouchableOpacity,
-    useColorScheme,
     View,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -24,10 +23,10 @@ import {
     useUserProfile,
 } from "@/lib/hooks/profile/useUserProfile";
 import { getAvatarSignedUrl } from "@/lib/api/services/profile";
-
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 export default function ProfileForm() {
-    const isDark = useColorScheme() === "dark";
+    const { isDark } = useTheme();
     const { user, isLoading: authLoading, isAnonymous } = useAuth();
     const { data: profile, isLoading: profileLoading, error: profileError } = useUserProfile();
     const updateProfileMutation = useUpdateUserProfile();

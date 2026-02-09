@@ -18,7 +18,7 @@ export const DailyVerseAudio = ({ dailyAyah, isDark, handleAyahPress }: DailyVer
                 <MaterialIcons name="share" size={24} color="primary-500" />
                 <Text className="text-sm font-bold">Share</Text>
             </View>
-            <Button onPress={() => handleAyahPress(dailyAyah.number)} isDark={isDark} className="p-5">
+            <Button onPress={() => handleAyahPress(dailyAyah.number)} className="p-5">
                 <MaterialIcons name={isPlaying ? "pause" : "play-arrow"} size={24} color={colors.primary[500]} />
             </Button>
             <View className=" items-center gap-2">

@@ -18,13 +18,11 @@ import Button from "@/components/button/Button";
 
 type DownloadModalType = {
   readonly visible: boolean;
-  readonly isDark: boolean;
   readonly onClose: () => void;
 };
 export const DownloadModal = ({
   visible,
   onClose,
-  isDark,
 }: DownloadModalType) => {
   const [editionsData, setEditionsData] = useState<QuranEdition[]>();
   const [openEditions, setOpenEditions] = useState(false);
@@ -90,7 +88,6 @@ export const DownloadModal = ({
 
   return (
     <ModalComponent
-      isDark={isDark}
       visible={visible}
       onClose={onClose}
       title="Download Translation"
@@ -99,14 +96,12 @@ export const DownloadModal = ({
         <Button
           text={languageText ?? "Select Language"}
           onPress={() => setOpenLanguage(true)}
-          isDark={isDark}
           rightIcon="chevron-right"
           size="large"
         />
         <Button
           text={editionsText ?? "Select Author"}
           onPress={handleGetTranslation}
-          isDark={isDark}
           rightIcon="chevron-right"
           size="large"
         />
@@ -128,7 +123,6 @@ export const DownloadModal = ({
       </View>
       {openLanguage && (
         <LanguageSelect
-          isDark={isDark}
           openLanguage={openLanguage}
           setOpenLanguage={setOpenLanguage}
           handleSelectLanguage={handleSelectLanguage}
@@ -136,7 +130,6 @@ export const DownloadModal = ({
       )}
       {openEditions && (
         <EditionsSelect
-          isDark={isDark}
           isLoading={isPending}
           openEditions={openEditions}
           setOpenEditions={setOpenEditions}

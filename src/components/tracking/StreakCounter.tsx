@@ -3,18 +3,18 @@
  * Displays consecutive days with ALL prayers prayed
  */
 
-import { View, Text, useColorScheme } from "react-native";
+import { View, Text } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import clsx from "clsx";
 import type { PrayerStreak } from "@/types/prayer-tracking";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type StreakCounterProps = {
   readonly streak: PrayerStreak;
 };
 
 export default function StreakCounter({ streak }: StreakCounterProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
 
   return (
     <View

@@ -4,7 +4,6 @@ import ModalComponent from "@/components/modal/ModalComponent";
 import Button from "@/components/button/Button";
 
 type EditionsSelectType = {
-  isDark: boolean;
   isLoading: boolean;
   editionsData: QuranEdition[] | undefined;
   openEditions: boolean;
@@ -12,17 +11,14 @@ type EditionsSelectType = {
   handleSelectIde: (item: QuranEdition) => void;
 };
 export const EditionsSelect = ({
-  isDark,
   isLoading,
   openEditions,
   setOpenEditions,
   editionsData,
   handleSelectIde,
 }: EditionsSelectType) => {
-  
   return (
     <ModalComponent
-      isDark={isDark}
       visible={openEditions}
       onClose={() => setOpenEditions(false)}
       title="Select Author"
@@ -36,7 +32,6 @@ export const EditionsSelect = ({
           <Button
             text={item.name}
             onPress={() => handleSelectIde(item)}
-            isDark={isDark}
             rightIcon="chevron-right"
             size="large"
           />

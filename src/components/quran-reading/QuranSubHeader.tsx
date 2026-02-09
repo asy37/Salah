@@ -4,18 +4,18 @@ import QuranSettings from "./modals/QuranSettings";
 import Button from "../button/Button";
 import clsx from "clsx";
 import { useAudioStore, useSurahStore } from "@/lib/storage/useQuranStore";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type QuranSubHeaderProps = {
-  readonly isDark: boolean;
   readonly onOpenSurahModal: () => void;
   readonly onPlaySurah?: (surahNumber: number) => void; // Sure okuma başlatma callback'i
 };
 
 export default function QuranSubHeader({
-  isDark,
   onOpenSurahModal,
   onPlaySurah,
 }: QuranSubHeaderProps) {
+  const { isDark } = useTheme();
   const [settingsModal, setSettingsModal] = useState(false);
   const { surahName, surahEnglishName, juz, surahNumber } = useSurahStore();
   const { isSurahPlaybackActive, isPlaying } = useAudioStore();
@@ -37,7 +37,6 @@ export default function QuranSubHeader({
       >
         <Button
           onPress={onOpenSurahModal}
-          isDark={isDark}
           leftIcon="menu-open"
           size="small"
           backgroundColor="primary"
@@ -57,7 +56,6 @@ export default function QuranSubHeader({
           {!isSurahPlaybackActive && (
             <Button
               onPress={handlePlaySurah}
-              isDark={isDark}
               leftIcon="play-arrow"
               size="small"
               backgroundColor="primary"
@@ -66,7 +64,6 @@ export default function QuranSubHeader({
           {isSurahPlaybackActive && (
           <Button
               onPress={handlePlaySurah}
-            isDark={isDark}
               leftIcon={isPlaying ? "pause" : "play-arrow"}
             size="small"
             backgroundColor="primary"
@@ -75,14 +72,12 @@ export default function QuranSubHeader({
         </View>
         <Button
           onPress={() => setSettingsModal(true)}
-          isDark={isDark}
           leftIcon="settings"
           size="small"
           backgroundColor="primary"
         />
       </View>
       <QuranSettings
-        isDark={isDark}
         visible={settingsModal}
         onClose={() => setSettingsModal(false)}
       />

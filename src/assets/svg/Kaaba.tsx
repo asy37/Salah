@@ -1,13 +1,11 @@
 import * as React from "react";
 import Svg, { Path, G } from "react-native-svg";
-const SvgKabaa = (props) => (
+import type { SvgProps } from "react-native-svg";
+
+const SvgKabaa = (props: SvgProps) => (
   <Svg
-    xmlns="http://www.w3.org/2000/svg"
     fillRule="evenodd"
     clipRule="evenodd"
-    imageRendering="optimizeQuality"
-    shapeRendering="geometricPrecision"
-    textRendering="geometricPrecision"
     viewBox="0 0 1707 1707"
     {...props}
   >
@@ -18,9 +16,7 @@ const SvgKabaa = (props) => (
     <G fill="#1d1d1d">
       <Path
         d="M16 1297v-42l840 239 39-10v41l-34 9c-2 1-4 1-5 1-2 0-4 0-6-1zM16 736V518l839 232 12-3 28-7v218l-28 7-7 2c-2 1-3 1-5 1s-4 0-5-1zM16 914v-58l180 49 659 177 40-10v56l-40 10z"
-        style={{
-          fill: "#000",
-        }}
+        fill="#000"
       />
     </G>
     <Path
@@ -28,26 +24,18 @@ const SvgKabaa = (props) => (
       d="M875 1707c-4 0-9-2-12-4-5-4-8-10-8-16V502c0-9 6-17 14-19l796-224c6-2 12-1 17 3s8 10 8 16v1176c0 8-5 16-14 19l-796 233c-1 0-3 1-5 1"
     />
     <Path
-      fill="#131313"
+      fill="#1a1a1a"
       d="m1539 1513-251 73v-410c0-13 9-25 22-29l192-51c9-2 18 0 26 5 7 6 11 15 11 24z"
-      style={{
-        fill: "#1a1a1a",
-      }}
     />
     <G fill="#131313">
       <Path
+        fill="#1a1a1a"
         d="M855 1535v-41h1l457-122c11-3 21 3 24 14s-3 22-14 24l-462 124c-2 1-4 1-5 1zm835-264v41l-176 47c-1 1-3 1-5 1-9 0-17-6-19-15-3-11 3-22 14-24zM855 968V750l12-3 823-213v218L867 965l-7 2c-2 1-3 1-5 1M855 1138v-56l809-202 26-7v41l-21 6z"
-        style={{
-          fill: "#1a1a1a",
-        }}
       />
     </G>
     <Path
-      fill="#65696a"
+      fill="#9e9e9e"
       d="M855 522c-2 0-4 0-5-1L31 297c-8-2-14-9-15-18 0-9 6-17 14-20L836 1c4-1 9-1 13 0l827 258c9 3 15 11 14 19 0 9-6 17-14 19L860 521c-2 1-3 1-5 1"
-      style={{
-        fill: "#9e9e9e",
-      }}
     />
     <Path
       fill="#d79d22"
@@ -63,18 +51,12 @@ const SvgKabaa = (props) => (
       d="M855 1123v-56l809-202 26-7v41l-21 6zM1529 1516l-231 67v-407c0-9 6-17 15-19l191-51c6-2 13-1 17 3 5 4 8 10 8 16z"
     />
     <Path
-      fill="#b3b3b3"
+      fill="#fff"
       d="m107 276 748 205 745-204L843 41z"
-      style={{
-        fill: "#fff",
-      }}
     />
     <Path
-      fill="#a4a4a4"
+      fill="#dbdbdb"
       d="m843 59 698 217-686 188-689-189zm0-18L107 276l748 205 745-204z"
-      style={{
-        fill: "#dbdbdb",
-      }}
     />
   </Svg>
 );

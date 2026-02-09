@@ -1,15 +1,15 @@
-import { Text, useColorScheme, View } from "react-native";
+import { Text, View } from "react-native";
 import clsx from "clsx";
 import ProgressCircle from "./ProgressCircle";
 import type { PrayerTrackingData } from "@/types/prayer-tracking";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type TodayJourneyCardProps = {
   readonly data: PrayerTrackingData;
 };
 
 export default function TodayJourneyCard({ data }: TodayJourneyCardProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
 
   const completionPercentage = data.percent || 0;
   const totalPrayed = Object.values(data.prayers).filter((s) => s === 'prayed').length;

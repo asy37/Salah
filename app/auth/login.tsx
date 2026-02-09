@@ -5,7 +5,6 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    useColorScheme,
     KeyboardAvoidingView,
     Platform,
     Alert,
@@ -21,6 +20,7 @@ import {
     resetPasswordForEmail,
 } from "@/lib/api/services/auth";
 import { loginSchema, type LoginFormValues } from "@/components/auth/login/schema";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 async function doSignIn(email: string, password: string) {
     const result = await signInWithPassword(email, password);
@@ -82,8 +82,7 @@ async function doGuestSignIn() {
 }
 
 export default function LoginScreen() {
-    const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 

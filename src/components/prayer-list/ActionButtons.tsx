@@ -1,8 +1,9 @@
-import { View, Text, TouchableOpacity, useColorScheme } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import clsx from "clsx";
 import { PrayerStatus, PrayerName } from "@/types/prayer-tracking";
 import { MaterialIcons } from "@expo/vector-icons";
 import { PrayerItem } from "./types/prayer-timings";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type ActionButtonsProps = {
   readonly updateStatus: (
@@ -29,8 +30,7 @@ export const ActionButtons = ({
   isPast,
   isActive,
 }: ActionButtonsProps) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
 
   const handleStatusUpdate = (newStatus: PrayerStatus) => {
     updateStatus(

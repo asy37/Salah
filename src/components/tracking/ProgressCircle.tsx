@@ -1,14 +1,14 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useColorScheme, View, Text } from "react-native";
+import { View, Text } from "react-native";
 import { colors } from "../theme/colors";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type ProgressCircleProps = {
   readonly percentage: number;
 };
 
 export default function ProgressCircle({ percentage }: ProgressCircleProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
   
   // Calculate rotation angle (0-360 degrees)
   const rotation = (percentage / 100) * 360;

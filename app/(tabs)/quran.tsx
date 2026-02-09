@@ -1,5 +1,5 @@
 import React from "react";
-import { View, useColorScheme } from "react-native";
+import { View } from "react-native";
 import clsx from "clsx";
 import QuranSubHeader from "@/components/quran-reading/QuranSubHeader";
 import QuranContent from "@/components/quran-reading/QuranContent";
@@ -10,10 +10,10 @@ import SurahSelectionModal from "@/components/quran-reading/modals/SurahSelectio
 import { useSurahPlayer } from "@/lib/hooks/audio-player/useSurahPlayer";
 import { useAudioStore } from "@/lib/storage/useQuranStore";
 import { useAyahWordSync } from "@/lib/hooks/quran/useAyahWordSync";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 export default function QuranScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
   const [isSurahModalVisible, setIsSurahModalVisible] = React.useState(false);
 
   const { surah, ayahs, goNext, goPrev, setCurrentSurahNumber } = useQuran(
@@ -87,7 +87,6 @@ export default function QuranScreen() {
       )}
     >
       <QuranSubHeader
-        isDark={isDark}
         onOpenSurahModal={() => setIsSurahModalVisible(true)}
         onPlaySurah={handlePlaySurah}
       />

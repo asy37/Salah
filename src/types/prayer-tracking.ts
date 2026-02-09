@@ -29,3 +29,11 @@ export interface UpdatePrayerStatusRequest {
   status: PrayerStatus;
 }
 
+export interface PrayerWithTime {
+  prayer_name: PrayerName;
+  scheduledTime: string;
+  displayName?: string;
+  time?: string;
+  icon?: string;
+}
+

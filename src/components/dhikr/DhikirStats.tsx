@@ -1,8 +1,9 @@
-import { FlatList, Text, View, useColorScheme, ActivityIndicator } from "react-native";
+import { FlatList, Text, View, ActivityIndicator } from "react-native";
 import ModalComponent from "../modal/ModalComponent";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useDhikrStats } from "@/lib/hooks/dhikir/useDhikirStats";
 import clsx from "clsx";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type DhikirStatsProps = Readonly<{
     readonly visible: boolean;
@@ -10,8 +11,7 @@ type DhikirStatsProps = Readonly<{
 }>;
 
 export default function DhikirStats({ visible, onClose }: DhikirStatsProps) {
-    const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
+    const { isDark } = useTheme();
     const { stats, loading } = useDhikrStats();
 
     const statsList = stats
@@ -42,7 +42,6 @@ export default function DhikirStats({ visible, onClose }: DhikirStatsProps) {
 
     return (
         <ModalComponent
-            isDark={isDark}
             visible={visible}
             onClose={onClose}
             title="Dhikir Stats"

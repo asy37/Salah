@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, useColorScheme, View, ActivityIndicator } from "react-native";
+import { Text, TouchableOpacity, View, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React from "react";
 import clsx from "clsx";
@@ -14,11 +14,10 @@ import { dhikrRepo } from "@/lib/database/sqlite/dhikr/repository";
 import { useAuth } from "@/lib/hooks/auth/useAuth";
 import { getDb } from "@/lib/database/sqlite/db";
 import DhikrHeader from "@/components/dhikr/DhikrHeader";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 export default function DhikrScreen() {
-  const colorScheme = useColorScheme();
-
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
   const { user } = useAuth();
   const userId = user?.id || null;
 

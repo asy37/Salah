@@ -41,8 +41,8 @@ export function useAuth(): AuthState {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
       
-      // For SIGNED_IN and SIGNED_UP events, ensure we have the latest session
-      if (event === 'SIGNED_IN' || event === 'SIGNED_UP' || event === 'TOKEN_REFRESHED') {
+      // For SIGNED_IN, SIGNED_UP and TOKEN_REFRESHED events, ensure we have the latest session
+      if (['SIGNED_IN', 'SIGNED_UP', 'TOKEN_REFRESHED'].includes(event)) {
         // Double-check session to ensure it's up to date
         const { data: { session: latestSession } } = await supabase.auth.getSession();
         setSession(latestSession);

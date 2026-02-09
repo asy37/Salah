@@ -1,10 +1,10 @@
-import { View, useColorScheme } from "react-native";
+import { View } from "react-native";
 import clsx from "clsx";
 import ProfileForm from "@/components/profile/ProfileForm/ProfileForm";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 export default function ProfileScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
 
   return (
     <View

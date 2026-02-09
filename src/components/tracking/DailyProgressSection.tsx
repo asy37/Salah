@@ -3,12 +3,13 @@
  * Shows prayer statuses and completion percentage
  */
 
-import { View, Text, useColorScheme } from "react-native";
+import { View, Text } from "react-native";
 import clsx from "clsx";
 import type { PrayerTrackingData } from "@/types/prayer-tracking";
 import { usePrayerTimesStore } from "@/lib/storage/prayerTimesStore";
 import PrayerList from "@/components/prayer-list/PrayerList";
 import { prayerMap } from "./utils";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type DailyProgressSectionProps = {
   readonly data: PrayerTrackingData;
@@ -17,8 +18,7 @@ type DailyProgressSectionProps = {
 export default function DailyProgressSection({
   data,
 }: DailyProgressSectionProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
 
   const prayerTimesData = usePrayerTimesStore((state) => state.cache);
 

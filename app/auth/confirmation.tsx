@@ -1,14 +1,14 @@
-import { View, Text, TouchableOpacity, useColorScheme, Alert } from "react-native";
+import { View, Text, TouchableOpacity, Alert } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import clsx from "clsx";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/hooks/auth/useAuth";
 import { resendConfirmationEmail } from "@/lib/api/services/auth";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 export default function RegistrationConfirmationScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
   const { user } = useAuth();
   const [isResending, setIsResending] = useState(false);
 

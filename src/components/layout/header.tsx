@@ -3,7 +3,6 @@ import {
   Modal,
   Pressable,
   Text,
-  useColorScheme,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -12,12 +11,12 @@ import StreakCounter from "@/components/tracking/StreakCounter";
 import { useState } from "react";
 import Button from "@/components/button/Button";
 import clsx from "clsx";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 export default function PrayerHeader() {
   const [isStreakModalVisible, setIsStreakModalVisible] = useState(false);
   const AVATAR_URL = "https://github.com/shadcn.png";
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
   const { data: streakData } = usePrayerStreak();
 
   return (

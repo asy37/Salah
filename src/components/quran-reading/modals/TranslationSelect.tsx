@@ -10,12 +10,10 @@ import { useQuery } from "@tanstack/react-query";
 import { FlatList, View } from "react-native";
 
 type TranslationSelectProps = {
-  readonly isDark: boolean;
   readonly visible: boolean;
   readonly onClose: () => void;
 };
 export default function TranslationSelect({
-  isDark,
   visible,
   onClose,
 }: TranslationSelectProps) {
@@ -31,7 +29,6 @@ export default function TranslationSelect({
   };
   return (
     <ModalComponent
-      isDark={isDark}
       visible={visible}
       onClose={onClose}
       title="Translation Select"
@@ -47,7 +44,6 @@ export default function TranslationSelect({
             <View className="w-full">
               <Button
                 onPress={() => handleSelect(item)}
-                isDark={isDark}
                 rightIcon={isSelected ? "check" : "chevron-right"}
                 text={item.name}
                 size="large"

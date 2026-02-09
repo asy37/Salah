@@ -70,7 +70,7 @@ class DuaSyncService {
               is_favorite: payload.is_favorite,
               created_at: new Date(payload.created_at).toISOString(),
               updated_at: new Date(payload.updated_at).toISOString(),
-            });
+            } as never);
 
           if (error) {
             console.error(`[DuaSync] Create error for ${item.dua_id}:`, error);
@@ -87,7 +87,7 @@ class DuaSyncService {
               text: payload.text,
               is_favorite: payload.is_favorite,
               updated_at: new Date(payload.updated_at).toISOString(),
-            })
+            } as never)
             .eq('id', item.dua_id)
             .eq('user_id', userId);
 

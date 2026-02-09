@@ -15,23 +15,6 @@ export type Json =
 
 export interface Database {
   public: {
-    Functions: {
-      get_today_prayer_log: {
-        Args: Record<PropertyKey, never>;
-        Returns: Json;
-      };
-      update_prayer_status: {
-        Args: {
-          p_prayer_name: string;
-          p_status: string;
-        };
-        Returns: void;
-      };
-      get_prayer_streak: {
-        Args: Record<PropertyKey, never>;
-        Returns: number;
-      };
-    };
     Tables: {
       users_profile: {
         Row: {
@@ -113,6 +96,35 @@ export interface Database {
           user_id?: string;
           token?: string;
           platform?: 'ios' | 'android';
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      duas: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          text: string;
+          is_favorite: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          user_id: string;
+          title: string;
+          text: string;
+          is_favorite: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          text?: string;
+          is_favorite?: boolean;
           created_at?: string;
           updated_at?: string;
         };

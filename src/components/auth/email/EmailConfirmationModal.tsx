@@ -9,13 +9,13 @@ import {
   View,
   Text,
   TouchableOpacity,
-  useColorScheme,
   Alert,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import clsx from "clsx";
 import { useAuth } from "@/lib/hooks/auth/useAuth";
 import { resendConfirmationEmail } from "@/lib/api/services/auth";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 interface EmailConfirmationModalProps {
   visible: boolean;
@@ -26,8 +26,7 @@ export default function EmailConfirmationModal({
   visible,
   onClose,
 }: EmailConfirmationModalProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
   const { user, isEmailConfirmed, isAnonymous } = useAuth();
   const [isResending, setIsResending] = useState(false);
 

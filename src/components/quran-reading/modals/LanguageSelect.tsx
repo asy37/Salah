@@ -7,13 +7,11 @@ import { getLanguages } from "@/lib/api/services/quranApi";
 import { queryKeys } from "@/lib/query/queryKeys";
 
 type LanguageSelectType = {
-  isDark: boolean;
   openLanguage: boolean;
   setOpenLanguage: (value: boolean) => void;
   handleSelectLanguage: (item: { code: string; label: string }) => void;
 };
 export const LanguageSelect = ({
-  isDark,
   openLanguage,
   setOpenLanguage,
   handleSelectLanguage,
@@ -30,7 +28,6 @@ export const LanguageSelect = ({
     })) ?? [];
   return (
     <ModalComponent
-      isDark={isDark}
       visible={openLanguage}
       onClose={() => setOpenLanguage(false)}
       title="Select Language"
@@ -45,7 +42,6 @@ export const LanguageSelect = ({
           <Button
             text={item.label}
             onPress={() => handleSelectLanguage(item)}
-            isDark={isDark}
             rightIcon="chevron-right"
             size="large"
           />

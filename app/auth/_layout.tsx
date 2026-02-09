@@ -1,9 +1,10 @@
 import { Stack, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Pressable, Text, useColorScheme, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import clsx from "clsx";
 import React from "react";
 import SelectButton from "@/components/button/SelectButton";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type AuthMode = "login" | "register";
 
@@ -15,7 +16,7 @@ const AUTH_BUTTONS: { key: AuthMode; label: string }[] = [
 export default function AuthLayout() {
   const [RegisterOrLogin, setRegisterOrLogin] = React.useState<'register' | 'login'>('register');
   const router = useRouter()
-  const isDark = useColorScheme() === "dark";
+  const { isDark } = useTheme();
 
   const handleAuthChange = (mode: AuthMode) => {
     setRegisterOrLogin(mode);
@@ -33,7 +34,6 @@ export default function AuthLayout() {
           Follow your prayers and find your daily motivation.
         </Text>
         <SelectButton<AuthMode>
-          isDark={isDark}
           buttonData={AUTH_BUTTONS}
           selectedFilter={RegisterOrLogin}
           onPress={handleAuthChange}

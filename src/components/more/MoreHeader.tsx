@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Pressable, Text, useColorScheme, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import clsx from "clsx";
 
 export default function MoreHeader({ isDark }: { isDark: boolean }) {

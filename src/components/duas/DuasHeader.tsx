@@ -1,18 +1,18 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Text, TextInput, useColorScheme, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
 import { useRouter } from "expo-router";
 import clsx from "clsx";
 import Button from "@/components/button/Button";
 import { colors } from "@/components/theme/colors";
 import React from "react";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type DuasHeaderProps = {
   readonly setSearchQuery: (query: string) => void;
 };
 export default function DuasHeader({ setSearchQuery }: DuasHeaderProps) {
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
   return (
     <View
       className={clsx(

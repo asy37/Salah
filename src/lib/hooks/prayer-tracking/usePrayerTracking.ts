@@ -14,6 +14,7 @@ import type {
   PrayerTrackingData,
   PrayerStreak,
   UpdatePrayerStatusRequest,
+  PrayerName,
 } from '@/types/prayer-tracking';
 import { useAuth } from '@/lib/hooks/auth/useAuth';
 
@@ -66,5 +67,34 @@ export function usePrayerStreak() {
     enabled: !!session,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
+}
+
+/**
+ * Mark prayer as completed
+ */
+export function useMarkPrayerCompleted() {
+  const mutation = useUpdatePrayerStatus();
+  return {
+    ...mutation,
+    mutateAsync: ({
+      prayerName,
+      prayerTime,
+    }: {
+      prayerName: PrayerName;
+      prayerTime: string;
+    }) => mutation.mutateAsync({ prayer: prayerName, status: 'prayed' }),
+  };
+}
+
+/**
+ * Set remind later for prayer
+ */
+export function useSetRemindLater() {
+  const mutation = useUpdatePrayerStatus();
+  return {
+    ...mutation,
+    mutateAsync: (prayerName: PrayerName) =>
+      mutation.mutateAsync({ prayer: prayerName, status: 'later' }),
+  };
 }
 

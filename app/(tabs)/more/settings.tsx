@@ -1,4 +1,4 @@
-import { ScrollView, useColorScheme, View, Text } from "react-native";
+import { ScrollView, View, Text } from "react-native";
 import clsx from "clsx";
 import * as Notifications from "expo-notifications";
 import { useEffect, useState } from "react";
@@ -16,10 +16,18 @@ import { useMethodStore } from "@/lib/storage/useMethodStore";
 import { queryClient } from "@/lib/query/queryClient";
 import { queryKeys } from "@/lib/query/queryKeys";
 import { syncPushTokenAndSettings } from "@/lib/services/pushTokenSync";
+import { useTheme } from "@/lib/storage/useThemeStore";
+import CalculationMethodModal from "@/components/adhan/CalculationMethodModal";
+import { PrayerCalculationMethod } from "@/constants/prayer-method";
+
 
 export default function SettingsScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
+  const [showCalculationMethodModal, setShowCalculationMethodModal] =
+    useState(false);
+  const setMethod = useMethodStore((state) => state.setMethod);
+  const method = useMethodStore((state) => state.method);
+
   const [notificationPermission, setNotificationPermission] = useState<boolean | null>(null);
 
   const autoLocation = useLocationStore((s) => s.autoLocation);
@@ -68,6 +76,14 @@ export default function SettingsScreen() {
     }
   };
 
+  const handleSelectCalculationMethod = () => {
+    setShowCalculationMethodModal(true);
+  };
+
+  const handleCalculationMethodSelect = (method: PrayerCalculationMethod) => {
+    setMethod(method);
+    setShowCalculationMethodModal(false);
+  };
   return (
     <View
       className={clsx(
@@ -99,24 +115,11 @@ export default function SettingsScreen() {
           >
             <SettingsItem
               title="Calculation Method"
-              value="ISNA"
+              value={method?.label ?? "Diyanet"}
               isDark={isDark}
-              onPress={() => {}}
+              onPress={handleSelectCalculationMethod}
             />
-            <View
-              className="h-px"
-              style={{
-                backgroundColor: isDark
-                  ? "rgba(34, 56, 51, 0.5)"
-                  : "#E2ECE8",
-              }}
-            />
-            <SettingsItem
-              title="Asr Juristic Method"
-              value="Standard"
-              isDark={isDark}
-              onPress={() => {}}
-            />
+
             <View
               className="h-px"
               style={{
@@ -251,7 +254,7 @@ export default function SettingsScreen() {
               elevation: 1,
             }}
           >
-            <ThemeSelector isDark={isDark} />
+            <ThemeSelector />
           </View>
 
           {/* Support & About */}
@@ -272,7 +275,7 @@ export default function SettingsScreen() {
             <SettingsItem
               title="Help Center"
               isDark={isDark}
-              onPress={() => {}}
+              onPress={() => { }}
             />
             <View
               className="h-px"
@@ -285,7 +288,7 @@ export default function SettingsScreen() {
             <SettingsItem
               title="Privacy Policy"
               isDark={isDark}
-              onPress={() => {}}
+              onPress={() => { }}
             />
             <View
               className="h-px"
@@ -299,13 +302,18 @@ export default function SettingsScreen() {
               title="Rate the App"
               isDark={isDark}
               isPrimary
-              onPress={() => {}}
+              onPress={() => { }}
             />
           </View>
 
           <VersionInfo isDark={isDark} />
         </View>
       </ScrollView>
+      <CalculationMethodModal
+        visible={showCalculationMethodModal}
+        onClose={() => setShowCalculationMethodModal(false)}
+        onSelect={handleCalculationMethodSelect}
+      />
     </View>
   );
 }

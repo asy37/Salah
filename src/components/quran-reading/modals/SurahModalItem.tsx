@@ -5,10 +5,10 @@ import { colors } from "@/components/theme/colors";
 import { SurahType } from "@/components/quran-reading/types/types";
 import Button from "@/components/button/Button";
 import { useSurahStore } from "@/lib/storage/useQuranStore";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type SurahListItemProps = {
   readonly surah: SurahType;
-  readonly isDark: boolean;
   readonly setCurrentPage: (page: number) => void;
   readonly onClose: () => void;
   readonly setSearch: (value: string) => void;
@@ -16,11 +16,11 @@ type SurahListItemProps = {
 
 export function SurahListItem({
   surah,
-  isDark,
   setCurrentPage,
   onClose,
   setSearch,
 }: SurahListItemProps) {
+  const { isDark } = useTheme();
   const { surahNumber } = useSurahStore();
 
   const isActive = surah.surahNumber === surahNumber;
@@ -33,7 +33,6 @@ export function SurahListItem({
   return (
     <Button
       onPress={handlePress}
-      isDark={isDark}
       size="large"
       isActive={isActive}
     >

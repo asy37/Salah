@@ -1,14 +1,14 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Text, useColorScheme, View } from "react-native";
+import { Text, View } from "react-native";
 import type { PrayerWithTime } from "@/types/prayer-tracking";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type UpcomingPrayerRowProps = {
   readonly prayer: PrayerWithTime;
 };
 
 export default function UpcomingPrayerRow({ prayer }: UpcomingPrayerRowProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
   
   return (
     <View

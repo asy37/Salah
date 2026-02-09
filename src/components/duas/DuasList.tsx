@@ -1,6 +1,7 @@
-import { Text, useColorScheme, View } from "react-native";
+import { Text, View } from "react-native";
 import clsx from "clsx";
 import DuaCard from "./DuaCard";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type Dua = {
   id: string;
@@ -19,8 +20,7 @@ type DuasListProps = {
 };
 
 export default function DuasList({ duas, updateDua, deleteDua, toggleFavorite, isSaving }: DuasListProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
   return (
     <View className="gap-4">
       <View className="flex-row items-center justify-between mt-2 mb-1 px-1">

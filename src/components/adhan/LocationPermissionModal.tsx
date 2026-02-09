@@ -1,4 +1,4 @@
-import { Image, Text, View, useColorScheme } from "react-native";
+import { Image, Text, View } from "react-native";
 import clsx from "clsx";
 import { useLocation } from "@/lib/hooks/qibla/useLocation";
 import ModalComponent from "@/components/modal/ModalComponent";
@@ -9,6 +9,7 @@ import { useLocationStore, UserLocation } from "@/lib/storage/locationStore";
 import React from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { storage } from "@/lib/storage/mmkv";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type LocationPermissionModalProps = {
   readonly visible: boolean;
@@ -24,8 +25,7 @@ export default function LocationPermissionModal({
   onClose,
   onPermissionGranted,
 }: LocationPermissionModalProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
   const setLocation = useLocationStore((state) => state.setLocation);
   const queryClient = useQueryClient();
   const [showManualModal, setShowManualModal] = React.useState(false);
@@ -54,7 +54,6 @@ export default function LocationPermissionModal({
   };
   return (
     <ModalComponent
-      isDark={isDark}
       visible={visible}
       onClose={onClose}
       title="Location Permission"
@@ -81,7 +80,6 @@ export default function LocationPermissionModal({
         leftIcon="near-me"
         size="medium"
         onPress={handleRequestPermission}
-        isDark={isDark}
         text="Konum Erişimine İzin Ver"
         backgroundColor="primary"
       />
@@ -89,7 +87,6 @@ export default function LocationPermissionModal({
         onPress={handleManualEntry}
         size="medium"
         leftIcon="near-me"
-        isDark={isDark}
         text="Şehrimi manuel olarak gireceğim"
         backgroundColor="primary"
       />

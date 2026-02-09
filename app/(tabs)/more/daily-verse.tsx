@@ -1,11 +1,11 @@
-import { ScrollView, useColorScheme } from "react-native";
+import { ScrollView } from "react-native";
 import clsx from "clsx";
 import DailyVerseHeader from "@/components/daily-verse/DailyVerseHeader";
 import DailyVerseCard from "@/components/daily-verse/DailyVerseCard";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 export default function DailyVerseScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
 
   return (
     <ScrollView

@@ -1,4 +1,4 @@
-import { ScrollView, useColorScheme, View, Alert } from "react-native";
+import { ScrollView, View, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import clsx from "clsx";
 import MoreHeader from "@/components/more/MoreHeader";
@@ -7,6 +7,7 @@ import PremiumCard from "@/components/more/PremiumCard";
 import VersionInfo from "@/components/more/VersionInfo";
 import { signOut } from "@/lib/api/services/auth";
 import { supabase } from "@/lib/supabase/client";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 const TOOLS_ITEMS = [
   {
@@ -37,8 +38,7 @@ const TOOLS_ITEMS = [
 
 
 export default function MoreScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
   const router = useRouter();
 
   const handleLogout = async () => {

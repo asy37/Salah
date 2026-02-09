@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { SurahType } from "./types/types";
+import { SurahType } from "../types/types";
 
 export const normalizeText = (text: string) =>
   text

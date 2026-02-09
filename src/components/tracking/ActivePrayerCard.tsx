@@ -1,17 +1,17 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Pressable, Text, useColorScheme, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { colors } from "../theme/colors";
 import type { PrayerWithTime } from "@/types/prayer-tracking";
-import { useMarkPrayerCompleted, useSetRemindLater } from "@/lib/hooks/usePrayerTracking";
+import { useMarkPrayerCompleted, useSetRemindLater } from "@/lib/hooks/prayer-tracking/usePrayerTracking";
 import { useState } from "react";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type ActivePrayerCardProps = {
   readonly prayer: PrayerWithTime;
 };
 
 export default function ActivePrayerCard({ prayer }: ActivePrayerCardProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
   const markCompleted = useMarkPrayerCompleted();
   const setRemindLater = useSetRemindLater();
   const [isProcessing, setIsProcessing] = useState(false);

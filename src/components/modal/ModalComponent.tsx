@@ -1,6 +1,7 @@
 import { ModalHeader } from "@/components/modal/ModalHeader";
 import clsx from "clsx";
-import { ActivityIndicator, Modal, Pressable, useColorScheme, View } from "react-native";
+import { ActivityIndicator, Modal, Pressable, View } from "react-native";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type ModalComponentProps = {
   readonly visible: boolean;
@@ -17,7 +18,7 @@ export default function ModalComponent({
   title,
   isLoading,
 }: ModalComponentProps) {
-  const isDark = useColorScheme() === 'dark';
+  const { isDark } = useTheme();
   return (
     <Modal
       visible={visible}

@@ -3,12 +3,12 @@ import {
   Pressable,
   ScrollView,
   Text,
-  useColorScheme,
   View,
 } from "react-native";
 import { PRAYER_CALCULATION_METHODS, PrayerCalculationMethod } from "@/constants/prayer-method";
 import { MaterialIcons } from "@expo/vector-icons";
 import clsx from "clsx";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type CalculationMethodModalProps = {
   readonly visible: boolean;
@@ -165,8 +165,7 @@ export default function CalculationMethodModal({
   onClose,
   onSelect,
 }: CalculationMethodModalProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
 
   const handleSelect = (method: PrayerCalculationMethod) => {
     onSelect(method);

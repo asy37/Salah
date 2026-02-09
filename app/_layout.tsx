@@ -27,6 +27,7 @@ import { notificationService, NOTIFICATION_ACTIONS } from "@/lib/notifications/N
 import { notificationScheduler } from "@/lib/services/notificationScheduler";
 import { useNotificationSettings } from "@/lib/storage/notificationSettings";
 import { syncPushTokenAndSettings } from "@/lib/services/pushTokenSync";
+import { useThemeStore } from "@/lib/storage/useThemeStore";
 
 export default function RootLayout() {
   const router = useRouter();
@@ -45,6 +46,11 @@ export default function RootLayout() {
 
   useEffect(() => {
     SplashScreen.preventAutoHideAsync();
+  }, []);
+
+  // Apply saved theme on mount (persisted preference)
+  useEffect(() => {
+    useThemeStore.getState().applyTheme();
   }, []);
 
   // Setup TanStack Query managers (focus & online)

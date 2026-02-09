@@ -1,15 +1,13 @@
 import {
-  useColorScheme,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
 import clsx from "clsx";
 import RegisterForm from "@/components/auth/register/RegisterForm";
-
-
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 export default function RegisterScreen() {
-  const isDark = useColorScheme() === "dark";
+  const { isDark } = useTheme();
 
 
   return (

@@ -1,6 +1,7 @@
 import { Controller, Control, FieldValues, Path } from "react-hook-form";
-import { Text, TextInput, useColorScheme, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
 import { getLabelClassName, getTextInputClassName } from "./utils";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 // Form Field Component
 type FormFieldProps<T extends FieldValues = FieldValues> = Readonly<{
@@ -30,8 +31,7 @@ export default function FormField<T extends FieldValues = FieldValues>({
     secureTextEntry = false,
     rightIcon,
 }: Readonly<FormFieldProps<T>>) {
-    const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
+    const { isDark } = useTheme();
     return (
         <View className="w-full" style={{ gap: 8 }}>
             <Text className={getLabelClassName(isDark)}>{label}</Text>

@@ -41,7 +41,6 @@ export default function DailyVerseHeader({ isDark }: DailyVerseHeaderProps) {
         />
       </Button>
       <TranslationSelect
-        isDark={isDark}
         visible={translationModal}
         onClose={() => setTranslationModal(false)}
       />

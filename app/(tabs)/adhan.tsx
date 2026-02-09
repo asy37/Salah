@@ -1,4 +1,4 @@
-import { ScrollView, useColorScheme, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import clsx from "clsx";
 import AdhanHeader from "@/components/adhan/AdhanHeader";
 import DateInfo from "@/components/adhan/DateInfo";
@@ -9,11 +9,10 @@ import { PrayerTimings } from "@/components/prayer-list/types/prayer-timings";
 
 import { usePrayerTimesStore } from "@/lib/storage/prayerTimesStore";
 import { adhanMap } from "@/components/adhan/utils/utils-function";
-
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 export default function AdhanScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
 
   const data = usePrayerTimesStore((state) => state.cache);
 

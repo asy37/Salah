@@ -1,11 +1,11 @@
 import { Pressable, Text, View } from "react-native";
-import { useState } from "react";
 import clsx from "clsx";
+import { useThemeStore, useTheme, type ThemeOption } from "@/lib/storage/useThemeStore";
 
-type ThemeOption = "light" | "dark" | "system";
-
-export default function ThemeSelector({ isDark }: { isDark: boolean }) {
-  const [selectedTheme, setSelectedTheme] = useState<ThemeOption>("system");
+export default function ThemeSelector() {
+  const { isDark } = useTheme();
+  const selectedTheme = useThemeStore((s) => s.theme);
+  const setTheme = useThemeStore((s) => s.setTheme);
 
   const themes: { key: ThemeOption; label: string }[] = [
     { key: "light", label: "Light" },
@@ -36,7 +36,7 @@ export default function ThemeSelector({ isDark }: { isDark: boolean }) {
           return (
             <Pressable
               key={theme.key}
-              onPress={() => setSelectedTheme(theme.key)}
+              onPress={() => setTheme(theme.key)}
               className={clsx(
                 "px-4 py-1.5 rounded-md",
                 isActive

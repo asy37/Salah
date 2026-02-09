@@ -6,7 +6,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchPrayerTimes, type PrayerTimesParams } from '@/lib/api/services/prayerTimes';
 import { queryKeys } from '@/lib/query/queryKeys';
-import { useLocationStore } from '../storage/locationStore';
+import { useLocationStore } from '../../storage/locationStore';
 
 export function usePrayerTimes(params: PrayerTimesParams) {
     const location = useLocationStore((state) => state.location);

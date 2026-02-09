@@ -1,6 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import clsx from "clsx";
-import { Image, Text, TouchableOpacity, useColorScheme, View } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 // Avatar Picker Component
 type AvatarPickerProps = Readonly<{
@@ -9,8 +10,7 @@ type AvatarPickerProps = Readonly<{
 }>;
 
 export default function AvatarPicker({ avatar, onPickImage }: AvatarPickerProps) {
-    const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
+    const { isDark } = useTheme();
     return (
         <View className="items-center py-6" style={{ gap: 16 }}>
             <TouchableOpacity

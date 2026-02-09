@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, Platform, Text, TextInput, View, useColorScheme, Alert, ActivityIndicator } from "react-native";
+import { KeyboardAvoidingView, Platform, Text, TextInput, View, Alert, ActivityIndicator } from "react-native";
 import ModalComponent from "@/components/modal/ModalComponent";
 import clsx from "clsx";
 import { useState } from "react";
@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/hooks/auth/useAuth";
 import type { Dhikr } from "@/types/dhikir";
 import Button from "@/components/button/Button";
 import { generateSlug, generateUUID, validate } from "./utils";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type DhikrAddProps = Readonly<{
     readonly openAddDhikrModal: boolean;
@@ -15,8 +16,7 @@ type DhikrAddProps = Readonly<{
 }>;
 
 export default function DhikrAdd({ openAddDhikrModal, setOpenAddDhikrModal, onDhikrAdded }: DhikrAddProps) {
-    const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
+    const { isDark } = useTheme();
     const { user } = useAuth();
     const userId = user?.id || null;
 

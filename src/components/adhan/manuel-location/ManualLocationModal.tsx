@@ -1,10 +1,11 @@
-import { FlatList, Text, useColorScheme } from "react-native";
+import { FlatList, Text } from "react-native";
 import { useState, useMemo } from "react";
 import clsx from "clsx";
 import { searchCities, type City } from "@/constants/popular-cities";
 import { UserLocation } from "@/lib/storage/locationStore";
 import ModalComponent from "@/components/modal/ModalComponent";
 import Button from "@/components/button/Button";
+import { useTheme } from "@/lib/storage/useThemeStore";
 
 type ManualLocationModalProps = {
   readonly visible: boolean;
@@ -17,9 +18,8 @@ export default function ManualLocationModal({
   onSelectLocation,
   onClose,
 }: ManualLocationModalProps) {
-  const colorScheme = useColorScheme();
+  const { isDark } = useTheme();
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
-  const isDark = colorScheme === "dark";
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredCities = useMemo(() => {
@@ -40,7 +40,6 @@ export default function ManualLocationModal({
 
   return (
     <ModalComponent
-      isDark={isDark}
       visible={visible}
       onClose={onClose}
       title="Select Location"
@@ -56,7 +55,6 @@ export default function ManualLocationModal({
           return (
             <Button
               onPress={() => handleSelectCity(item)}
-              isDark={isDark}
               leftIcon="location-on"
               rightIcon={isActive ? "check" : "chevron-right"}
               size="large"
