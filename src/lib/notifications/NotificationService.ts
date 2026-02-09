@@ -11,6 +11,7 @@
  */
 
 import type { PrayerName } from '@/types/prayer-tracking';
+import { Platform } from 'react-native';
 
 // Conditional import for Expo Go compatibility
 // Use lazy loading to avoid errors in Expo Go
@@ -217,6 +218,11 @@ export class NotificationService {
         // Only schedule for actual prayer times (not Imsak, Sunrise, etc.)
         const prayerKey = prayer.name.toLowerCase();
         if (!['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].includes(prayerKey)) {
+          continue;
+        }
+
+        // Skip past times (iOS can assert on past date triggers)
+        if (prayer.time.getTime() <= Date.now()) {
           continue;
         }
 

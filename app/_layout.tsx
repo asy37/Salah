@@ -302,6 +302,24 @@ export default function RootLayout() {
         await notificationScheduler.scheduleAllNotifications(prayerTimesResponse, 7);
       } catch (error) {
         console.error('[Layout] Failed to schedule notifications:', error);
+
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: 'debug-session',
+            runId: 'ios-notif',
+            hypothesisId: 'N3',
+            location: 'app/_layout.tsx:prefetchAndSchedule',
+            message: 'Failed to schedule notifications',
+            data: {
+              errorMessage: String(error),
+            },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
       }
     };
 
