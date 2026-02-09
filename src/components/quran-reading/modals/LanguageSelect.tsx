@@ -41,6 +41,7 @@ export const LanguageSelect = ({
         renderItem={({ item }) => (
           <Button
             text={item.label}
+            backgroundColor="primary"
             onPress={() => handleSelectLanguage(item)}
             rightIcon="chevron-right"
             size="large"

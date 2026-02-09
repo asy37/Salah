@@ -25,12 +25,14 @@ export default function QuranSettings({
       <Button
         className="w-full p-4"
         text="Download Translation"
+        backgroundColor="primary"
         onPress={() => setShowDownloadModal(true)}
         rightIcon="chevron-right"
       />
       <Button
         className="w-full p-4"
         text="Select Translation"
+        backgroundColor="primary"
         onPress={() => setShowTranslationSelect(true)}
         rightIcon="chevron-right"
       />

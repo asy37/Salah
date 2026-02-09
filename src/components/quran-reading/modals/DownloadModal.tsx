@@ -6,8 +6,9 @@ import {
   View,
 } from "react-native";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getEditions, getCompleteQuran } from "@/lib/api/services/quranApi";
+import { queryKeys } from "@/lib/query/queryKeys";
 import { QuranEdition } from "@/types/quran";
 import { LanguageSelect } from "@/components/quran-reading/modals/LanguageSelect";
 import { EditionsSelect } from "@/components/quran-reading/modals/EditionsSelect";
@@ -24,6 +25,7 @@ export const DownloadModal = ({
   visible,
   onClose,
 }: DownloadModalType) => {
+  const queryClient = useQueryClient();
   const [editionsData, setEditionsData] = useState<QuranEdition[]>();
   const [openEditions, setOpenEditions] = useState(false);
   const [editionsText, setEditionsText] = useState<string | null>(null);
@@ -43,6 +45,10 @@ export const DownloadModal = ({
           name: res.data.edition.name,
           direction: res.data.edition.direction ?? "ltr",
           data: res.data, // surahs array
+        });
+
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.translation.downloaded(),
         });
 
         Alert.alert("Başarılı", "Meal indirildi");
@@ -96,6 +102,7 @@ export const DownloadModal = ({
         <Button
           text={languageText ?? "Select Language"}
           onPress={() => setOpenLanguage(true)}
+          backgroundColor="primary"
           rightIcon="chevron-right"
           size="large"
         />
@@ -103,6 +110,7 @@ export const DownloadModal = ({
           text={editionsText ?? "Select Author"}
           onPress={handleGetTranslation}
           rightIcon="chevron-right"
+          backgroundColor="primary"
           size="large"
         />
 
@@ -117,7 +125,7 @@ export const DownloadModal = ({
           {isQuranPending ? (
             <ActivityIndicator />
           ) : (
-            <Text className="text-white text-center">İndir</Text>
+            <Text className="text-white text-center">Download</Text>
           )}
         </TouchableOpacity>
       </View>

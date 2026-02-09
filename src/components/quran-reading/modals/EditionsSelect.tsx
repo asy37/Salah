@@ -32,6 +32,7 @@ export const EditionsSelect = ({
           <Button
             text={item.name}
             onPress={() => handleSelectIde(item)}
+            backgroundColor="primary"
             rightIcon="chevron-right"
             size="large"
           />
