@@ -10,6 +10,9 @@
 -- 3. Create streak function
 \i get_prayer_streak.sql
 
+-- 3b. Create streak-for-user (for Edge Functions)
+\i get_prayer_streak_for_user.sql
+
 -- 4. Enable RLS
 \i rls.sql
 

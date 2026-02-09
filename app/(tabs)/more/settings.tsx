@@ -1,23 +1,72 @@
-import { ScrollView, useColorScheme, View } from "react-native";
-import { useState } from "react";
+import { ScrollView, useColorScheme, View, Text } from "react-native";
 import clsx from "clsx";
+import * as Notifications from "expo-notifications";
+import { useEffect, useState } from "react";
 import SettingsHeader from "@/components/settings/SettingsHeader";
 import SettingsSection from "@/components/settings/SettingsSection";
 import SettingsItem from "@/components/settings/SettingsItem";
 import SettingsToggle from "@/components/settings/SettingsToggle";
 import ThemeSelector from "@/components/settings/ThemeSelector";
 import VersionInfo from "@/components/settings/VersionInfo";
+import { useNotificationSettings } from "@/lib/storage/notificationSettings";
+import { useLocationStore } from "@/lib/storage/locationStore";
+import { notificationScheduler } from "@/lib/services/notificationScheduler";
+import { fetchPrayerTimes } from "@/lib/api/services/prayerTimes";
+import { useMethodStore } from "@/lib/storage/useMethodStore";
+import { queryClient } from "@/lib/query/queryClient";
+import { queryKeys } from "@/lib/query/queryKeys";
+import { syncPushTokenAndSettings } from "@/lib/services/pushTokenSync";
 
 export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+  const [notificationPermission, setNotificationPermission] = useState<boolean | null>(null);
 
-  // Toggle states
-  const [autoLocation, setAutoLocation] = useState(true);
-  const [adhanNotifications, setAdhanNotifications] = useState(true);
-  const [prePrayerAlerts, setPrePrayerAlerts] = useState(false);
-  const [playAdhanAudio, setPlayAdhanAudio] = useState(true);
-  const [vibration, setVibration] = useState(true);
+  const autoLocation = useLocationStore((s) => s.autoLocation);
+  const setAutoLocation = useLocationStore((s) => s.setAutoLocation);
+
+  const adhanNotifications = useNotificationSettings((s) => s.adhanNotifications);
+  const setAdhanNotifications = useNotificationSettings((s) => s.setAdhanNotifications);
+  const prePrayerAlerts = useNotificationSettings((s) => s.prePrayerAlerts);
+  const setPrePrayerAlerts = useNotificationSettings((s) => s.setPrePrayerAlerts);
+  const playAdhanAudio = useNotificationSettings((s) => s.playAdhanAudio);
+  const setPlayAdhanAudio = useNotificationSettings((s) => s.setPlayAdhanAudio);
+  const vibration = useNotificationSettings((s) => s.vibration);
+  const setVibration = useNotificationSettings((s) => s.setVibration);
+  const dailyVerseEnabled = useNotificationSettings((s) => s.dailyVerseEnabled);
+  const setDailyVerseEnabled = useNotificationSettings((s) => s.setDailyVerseEnabled);
+
+  useEffect(() => {
+    Notifications.getPermissionsAsync().then(({ status }) => {
+      setNotificationPermission(status === "granted");
+    });
+  }, []);
+
+  const handleToggleChange = async (
+    setter: (v: boolean) => void,
+    value: boolean,
+    key: string
+  ) => {
+    setter(value);
+    if (key === "adhan" || key === "prePrayer" || key === "playAdhan" || key === "vibration" || key === "dailyVerse") {
+      try {
+        const method = useMethodStore.getState().method?.id ?? 13;
+        const location = useLocationStore.getState().location;
+        const lat = location?.latitude ?? 41.0082;
+        const lng = location?.longitude ?? 28.9784;
+        const res = await fetchPrayerTimes({
+          latitude: lat,
+          longitude: lng,
+          method,
+        });
+        await notificationScheduler.scheduleAllNotifications(res, 7);
+        queryClient.invalidateQueries({ queryKey: queryKeys.prayerTimes.all });
+        syncPushTokenAndSettings();
+      } catch (e) {
+        console.error("[Settings] Reschedule failed:", e);
+      }
+    }
+  };
 
   return (
     <View
@@ -80,7 +129,7 @@ export default function SettingsScreen() {
               title="Auto Location"
               subtitle="Use GPS for accurate times"
               value={autoLocation}
-              onValueChange={setAutoLocation}
+              onValueChange={(v) => setAutoLocation(v)}
               isDark={isDark}
             />
           </View>
@@ -100,10 +149,22 @@ export default function SettingsScreen() {
               elevation: 1,
             }}
           >
+            {notificationPermission === false && (
+              <View className="px-4 py-2">
+                <Text
+                  className={clsx(
+                    "text-sm",
+                    isDark ? "text-text-secondaryDark" : "text-text-secondaryLight"
+                  )}
+                >
+                  Bildirimler kapalı. Sistem ayarlarından açabilirsiniz.
+                </Text>
+              </View>
+            )}
             <SettingsToggle
               title="Adhan Notifications"
               value={adhanNotifications}
-              onValueChange={setAdhanNotifications}
+              onValueChange={(v) => handleToggleChange(setAdhanNotifications, v, "adhan")}
               isDark={isDark}
             />
             <View
@@ -118,7 +179,22 @@ export default function SettingsScreen() {
               title="Pre-Prayer Alerts"
               subtitle="Remind 15 mins before"
               value={prePrayerAlerts}
-              onValueChange={setPrePrayerAlerts}
+              onValueChange={(v) => handleToggleChange(setPrePrayerAlerts, v, "prePrayer")}
+              isDark={isDark}
+            />
+            <View
+              className="h-px"
+              style={{
+                backgroundColor: isDark
+                  ? "rgba(34, 56, 51, 0.5)"
+                  : "#E2ECE8",
+              }}
+            />
+            <SettingsToggle
+              title="Daily Verse Notification"
+              subtitle="Günlük rastgele ayet bildirimi"
+              value={dailyVerseEnabled}
+              onValueChange={(v) => handleToggleChange(setDailyVerseEnabled, v, "dailyVerse")}
               isDark={isDark}
             />
           </View>
@@ -141,7 +217,7 @@ export default function SettingsScreen() {
             <SettingsToggle
               title="Play Adhan Audio"
               value={playAdhanAudio}
-              onValueChange={setPlayAdhanAudio}
+              onValueChange={(v) => handleToggleChange(setPlayAdhanAudio, v, "playAdhan")}
               isDark={isDark}
             />
             <View
@@ -155,7 +231,7 @@ export default function SettingsScreen() {
             <SettingsToggle
               title="Vibration"
               value={vibration}
-              onValueChange={setVibration}
+              onValueChange={(v) => handleToggleChange(setVibration, v, "vibration")}
               isDark={isDark}
             />
           </View>

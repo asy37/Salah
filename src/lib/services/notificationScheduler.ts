@@ -99,45 +99,24 @@ class NotificationSchedulerService {
     const settings = useNotificationSettings.getState();
     const prayerTimes = convertPrayerTimesToData(prayerTimesResponse, days);
 
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessionId: 'debug-session',
-        runId: 'ios-notif',
-        hypothesisId: 'N1',
-        location: 'notificationScheduler.ts:scheduleAllNotifications',
-        message: 'Scheduling all notifications - initial state',
-        data: {
-          platform: Platform.OS,
-          requestedDays: days,
-          settings: {
-            prayerTimeNotificationsEnabled: settings.prayerTimeNotificationsEnabled,
-            prayerReminderEnabled: settings.prayerReminderEnabled,
-            dailyVerseEnabled: settings.dailyVerseEnabled,
-            streakEnabled: settings.streakEnabled,
-          },
-          totalPrayerDays: prayerTimes.length,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
-
     // Calculate approximate total number of notifications we plan to schedule (for iOS 64 limit)
     let totalPrayerCount = 0;
     for (const day of prayerTimes) {
       totalPrayerCount += day.prayers.length;
     }
     const estimatedPrayerTimeNotifs =
-      settings.prayerTimeNotificationsEnabled ? totalPrayerCount : 0;
+      settings.adhanNotifications ? totalPrayerCount : 0;
     const estimatedReminderNotifs =
       settings.prayerReminderEnabled ? totalPrayerCount : 0;
+    const estimatedPrePrayerNotifs =
+      settings.prePrayerAlerts ? totalPrayerCount : 0;
     const estimatedOtherNotifs =
       (settings.dailyVerseEnabled ? 1 : 0) + (settings.streakEnabled ? 1 : 0);
     const estimatedTotal =
-      estimatedPrayerTimeNotifs + estimatedReminderNotifs + estimatedOtherNotifs;
+      estimatedPrayerTimeNotifs +
+      estimatedReminderNotifs +
+      estimatedPrePrayerNotifs +
+      estimatedOtherNotifs;
 
     // On iOS, cap total scheduled notifications to avoid UNNotificationTrigger assertion
     let effectiveDays = days;
@@ -151,45 +130,35 @@ class NotificationSchedulerService {
         ? prayerTimes.slice(0, effectiveDays)
         : prayerTimes;
 
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessionId: 'debug-session',
-        runId: 'ios-notif',
-        hypothesisId: 'N2',
-        location: 'notificationScheduler.ts:scheduleAllNotifications',
-        message: 'Estimated notification counts with effective days',
-        data: {
-          estimatedPrayerTimeNotifs,
-          estimatedReminderNotifs,
-          estimatedOtherNotifs,
-          estimatedTotal,
-          effectiveDays,
-          limitedPrayerDays: limitedPrayerTimes.length,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
-
-    // Schedule prayer time notifications
-    if (settings.prayerTimeNotificationsEnabled) {
+    // Schedule prayer time notifications (ezan)
+    if (settings.adhanNotifications) {
       await notificationService.schedulePrayerTimeNotifications(
         limitedPrayerTimes,
         effectiveDays,
-        settings.prayerTimeSoundEnabled
+        settings.playAdhanAudio,
+        settings.vibration
       );
     } else {
       await notificationService.cancelNotificationsByType('prayer_time');
+    }
+
+    // Schedule pre-prayer alerts (15 minutes before)
+    if (settings.prePrayerAlerts) {
+      await notificationService.schedulePrePrayerAlerts(
+        limitedPrayerTimes,
+        effectiveDays,
+        settings.vibration
+      );
+    } else {
+      await notificationService.cancelNotificationsByType('pre_prayer');
     }
 
     // Schedule prayer reminder notifications (30 minutes after)
     if (settings.prayerReminderEnabled) {
       await notificationService.schedulePrayerReminderNotifications(
         limitedPrayerTimes,
-        effectiveDays
+        effectiveDays,
+        settings.vibration
       );
     } else {
       await notificationService.cancelNotificationsByType('prayer_reminder');

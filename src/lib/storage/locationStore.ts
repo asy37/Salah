@@ -11,15 +11,18 @@ export type UserLocation = {
 
 type LocationState = {
   location: UserLocation | null;
+  autoLocation: boolean;
 
   setLocation: (location: UserLocation) => void;
   clearLocation: () => void;
+  setAutoLocation: (enabled: boolean) => void;
 };
 
 export const useLocationStore = create<LocationState>()(
   persist(
     (set) => ({
       location: null,
+      autoLocation: true,
 
       setLocation: (location) =>
         set({
@@ -29,6 +32,11 @@ export const useLocationStore = create<LocationState>()(
       clearLocation: () =>
         set({
           location: null,
+        }),
+
+      setAutoLocation: (enabled) =>
+        set({
+          autoLocation: enabled,
         }),
     }),
     {

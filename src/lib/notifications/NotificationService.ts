@@ -11,7 +11,6 @@
  */
 
 import type { PrayerName } from '@/types/prayer-tracking';
-import { Platform } from 'react-native';
 
 // Conditional import for Expo Go compatibility
 // Use lazy loading to avoid errors in Expo Go
@@ -57,6 +56,7 @@ function getPrayerSound(prayerName: string): string | false {
 // Notification categories
 export const NOTIFICATION_CATEGORIES = {
   PRAYER_TIME: 'PRAYER_TIME',
+  PRE_PRAYER: 'PRE_PRAYER',
   PRAYER_REMINDER: 'PRAYER_REMINDER',
   PRAYER_REMINDER_LATER: 'PRAYER_REMINDER_LATER',
   DAILY_VERSE: 'DAILY_VERSE',
@@ -199,7 +199,8 @@ export class NotificationService {
       prayers: Array<{ name: string; time: Date }>;
     }>,
     days: number = 7,
-    soundEnabled: boolean = true
+    soundEnabled: boolean = true,
+    vibrationEnabled: boolean = true
   ): Promise<void> {
     const NotificationsModule = getNotifications();
     if (!NotificationsModule) {
@@ -228,39 +229,27 @@ export class NotificationService {
 
         const prayerNameTurkish = getPrayerNameTurkish(prayer.name);
         const soundFile = soundEnabled ? getPrayerSound(prayer.name) : false;
-        
-        // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'NotificationService.ts:225',message:'Before scheduling prayer notification',data:{prayerName:prayer.name,prayerTime:prayer.time.toString(),prayerTimeType:typeof prayer.time,soundFile},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
-        
-        const triggerObj = {
-          type: 'date',
-          date: prayer.time,
-        };
-        
-        // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'NotificationService.ts:232',message:'Trigger object created',data:{triggerObj:JSON.stringify(triggerObj),hasType:!!triggerObj.type,hasDate:!!triggerObj.date},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
-        
+
         await NotificationsModule.scheduleNotificationAsync({
           content: {
             title: `${prayerNameTurkish} Namazı Vakti`,
             body: `${prayerNameTurkish} namazı için ezan okundu`,
             sound: soundFile,
+            vibrate: vibrationEnabled ? [0, 250, 250, 250] : undefined,
             categoryIdentifier: NOTIFICATION_CATEGORIES.PRAYER_TIME,
             data: {
               type: 'prayer_time',
               prayerName: prayer.name,
               prayerNameTurkish,
               date: day.date,
+              deepLink: 'islamicapp://adhan',
             },
           },
-          trigger: triggerObj as any,
+          trigger: {
+            type: 'date',
+            date: prayer.time,
+          } as any,
         });
-        
-        // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'NotificationService.ts:252',message:'After scheduling prayer notification',data:{prayerName:prayer.name,success:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
       }
     }
   }
@@ -274,6 +263,68 @@ export class NotificationService {
   }
 
   /**
+   * Schedule pre-prayer alerts (15 minutes before prayer time)
+   */
+  async schedulePrePrayerAlerts(
+    prayerTimes: Array<{
+      date: string;
+      prayers: Array<{ name: string; time: Date }>;
+    }>,
+    days: number = 7,
+    vibrationEnabled: boolean = true
+  ): Promise<void> {
+    const NotificationsModule = getNotifications();
+    if (!NotificationsModule) {
+      console.warn('[NotificationService] Notifications not available');
+      return;
+    }
+
+    configureNotifications(); // Ensure handler is set
+
+    await this.cancelNotificationsByType('pre_prayer');
+
+    const PRE_PRAYER_MINUTES = 15;
+
+    for (const day of prayerTimes.slice(0, days)) {
+      for (const prayer of day.prayers) {
+        const prayerKey = prayer.name.toLowerCase();
+        if (!['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].includes(prayerKey)) {
+          continue;
+        }
+
+        const prayerNameTurkish = getPrayerNameTurkish(prayer.name);
+        const alertTime = new Date(prayer.time);
+        alertTime.setMinutes(alertTime.getMinutes() - PRE_PRAYER_MINUTES);
+
+        if (alertTime.getTime() <= Date.now()) {
+          continue;
+        }
+
+        await NotificationsModule.scheduleNotificationAsync({
+          content: {
+            title: 'Namaz Hatırlatıcı',
+            body: `${prayerNameTurkish} namazına 15 dakika kaldı`,
+            sound: true,
+            vibrate: vibrationEnabled ? [0, 250, 250, 250] : undefined,
+            categoryIdentifier: NOTIFICATION_CATEGORIES.PRE_PRAYER,
+            data: {
+              type: 'pre_prayer',
+              prayerName: prayer.name,
+              prayerNameTurkish,
+              date: day.date,
+              deepLink: 'islamicapp://adhan',
+            },
+          },
+          trigger: {
+            type: 'date',
+            date: alertTime,
+          } as any,
+        });
+      }
+    }
+  }
+
+  /**
    * Schedule prayer reminder notifications (30 minutes after prayer time)
    */
   async schedulePrayerReminderNotifications(
@@ -281,7 +332,8 @@ export class NotificationService {
       date: string;
       prayers: Array<{ name: string; time: Date }>;
     }>,
-    days: number = 7
+    days: number = 7,
+    vibrationEnabled: boolean = true
   ): Promise<void> {
     const NotificationsModule = getNotifications();
     if (!NotificationsModule) {
@@ -307,34 +359,29 @@ export class NotificationService {
         const reminderTime = new Date(prayer.time);
         reminderTime.setMinutes(reminderTime.getMinutes() + 30);
 
-        // Only schedule if reminder time is in the future
         if (reminderTime.getTime() <= Date.now()) {
           continue;
         }
-
-        // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'NotificationService.ts:290',message:'Before scheduling reminder notification',data:{prayerName:prayer.name,reminderTime:reminderTime.toString()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-        // #endregion
-
-        const reminderTrigger = {
-          type: 'date',
-          date: reminderTime,
-        };
 
         await NotificationsModule.scheduleNotificationAsync({
           content: {
             title: 'Namaz Hatırlatıcı',
             body: `${prayerNameTurkish} namazını kıldın mı?`,
             sound: true,
+            vibrate: vibrationEnabled ? [0, 250, 250, 250] : undefined,
             categoryIdentifier: NOTIFICATION_CATEGORIES.PRAYER_REMINDER,
             data: {
               type: 'prayer_reminder',
               prayerName: prayer.name,
               prayerNameTurkish,
               date: day.date,
+              deepLink: 'islamicapp://tracking',
             },
           },
-          trigger: reminderTrigger as any,
+          trigger: {
+            type: 'date',
+            date: reminderTime,
+          } as any,
         });
       }
     }
@@ -376,6 +423,7 @@ export class NotificationService {
           prayerName,
           prayerNameTurkish,
           date,
+          deepLink: 'islamicapp://adhan',
         },
       },
       trigger: {
@@ -427,7 +475,7 @@ export class NotificationService {
           type: 'daily_verse',
           ayahNumber,
           surahNumber,
-          deepLink: 'islamicapp://daily-verse',
+          deepLink: 'islamicapp://more/daily-verse',
         },
       },
       trigger: {
@@ -481,6 +529,7 @@ export class NotificationService {
         data: {
           type: 'streak',
           count: streakCount,
+          deepLink: 'islamicapp://tracking',
         },
       },
       trigger: {
@@ -547,7 +596,7 @@ export class NotificationService {
 
     try {
       const token = await NotificationsModule.getExpoPushTokenAsync({
-        projectId: 'your-project-id', // TODO: Replace with actual project ID
+        projectId: process.env.EXPO_PUBLIC_EAS_PROJECT_ID ?? '6437d0ae-1f94-41c8-9047-ade881444e1e',
       });
       return token.data;
     } catch (error) {
