@@ -1,4 +1,4 @@
-  import { PrayerItem, PrayerTimings } from "@/components/prayer-list/types/prayer-timings";
+import { PrayerItem, PrayerTimings } from "@/components/prayer-list/types/prayer-timings";
 
 /**
  * Vakit zamanını Date objesine çevirir
@@ -55,9 +55,9 @@ export function getTodayPrayerTimes(
   } else {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowImsak = sortedPrayers.find((p) => p.key === "Imsak");
-    if (tomorrowImsak) {
-      nextPrayerTime = createPrayerTime(tomorrowImsak.time, tomorrow);
+    const tomorrowFirstPrayer = sortedPrayers[0];
+    if (tomorrowFirstPrayer) {
+      nextPrayerTime = createPrayerTime(tomorrowFirstPrayer.time, tomorrow);
     } else {
       nextPrayerTime = new Date(currentPrayerTime);
       nextPrayerTime.setDate(nextPrayerTime.getDate() + 1);
@@ -67,6 +67,17 @@ export function getTodayPrayerTimes(
   return { currentPrayerTime, nextPrayerTime };
 }
 
+/** Namaz sırası - listede olan ana vakitler */
+const PRAYER_ORDER = [
+  "Imsak",
+  "Fajr",
+  "Sunrise",
+  "Dhuhr",
+  "Asr",
+  "Maghrib",
+  "Isha",
+] as const;
+
 /**
  * Şu anki saatin hangi namaz vakti aralığında olduğunu ve vakitlerin geçip geçmediğini belirler
  */
@@ -75,28 +86,23 @@ export function getPrayerStatus(
   allPrayers: PrayerItem[]
 ): { isPast: boolean; isActive: boolean } {
   const now = new Date();
-  const prayerOrder = ["Imsak", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
-  const sortedPrayers = prayerOrder
-    .map((key) => allPrayers.find((p) => p.key === key))
-    .filter((p): p is PrayerItem => p !== undefined);
+  const sortedPrayers = PRAYER_ORDER.map((key) =>
+    allPrayers.find((p) => p.key === key)
+  ).filter((p): p is PrayerItem => p !== undefined);
 
   if (sortedPrayers.length === 0) {
     return { isPast: false, isActive: false };
   }
 
-  const imsakPrayer = sortedPrayers.find((p) => p.key === "Imsak");
-  if (!imsakPrayer) {
-    return { isPast: false, isActive: false };
-  }
-
+  const firstPrayer = sortedPrayers[0];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   today.setSeconds(0);
   today.setMilliseconds(0);
 
-  const imsakTime = createPrayerTime(imsakPrayer.time, today);
-  const isBeforeImsak = now.getTime() < imsakTime.getTime();
+  const firstPrayerTime = createPrayerTime(firstPrayer.time, today);
+  const isBeforeFirstPrayer = now.getTime() < firstPrayerTime.getTime();
 
   const currentPrayerIndex = sortedPrayers.findIndex(
     (p) => p.key === prayerKey
@@ -109,7 +115,7 @@ export function getPrayerStatus(
   let currentPrayerTime: Date;
   let nextPrayerTime: Date;
 
-  if (isBeforeImsak) {
+  if (isBeforeFirstPrayer) {
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
     const times = getYesterdayPrayerTimes(
@@ -117,7 +123,7 @@ export function getPrayerStatus(
       currentPrayerIndex,
       sortedPrayers,
       yesterday,
-      imsakTime
+      firstPrayerTime
     );
     currentPrayerTime = times.currentPrayerTime;
     nextPrayerTime = times.nextPrayerTime;
