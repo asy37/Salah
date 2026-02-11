@@ -1,3 +1,4 @@
+import "@/lib/utils/debugLogInit";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect, useState, useRef } from "react";
 import { useFonts } from "expo-font";
