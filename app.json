@@ -3,6 +3,7 @@
     "name": "IslamicApp",
     "slug": "islamic-app",
     "version": "1.0.0",
+    "newArchEnabled": false,
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "splash": {
