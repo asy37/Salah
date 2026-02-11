@@ -28,8 +28,11 @@ import { notificationScheduler } from "@/lib/services/notificationScheduler";
 import { useNotificationSettings } from "@/lib/storage/notificationSettings";
 import { syncPushTokenAndSettings } from "@/lib/services/pushTokenSync";
 import { useThemeStore } from "@/lib/storage/useThemeStore";
+import { debugLog } from "@/lib/utils/debugLog";
+import { DebugErrorBoundary } from "@/components/DebugErrorBoundary";
 
 export default function RootLayout() {
+  debugLog("_layout.tsx:RootLayout", "RootLayout mounting", {});
   const router = useRouter();
   const segments = useSegments();
   const { shouldShowRegister, canAccessApp, isLoading } = useAuthFlow();
@@ -45,6 +48,7 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
+    debugLog("_layout.tsx:SplashScreen", "before preventAutoHideAsync", {});
     SplashScreen.preventAutoHideAsync();
   }, []);
 
@@ -105,8 +109,10 @@ export default function RootLayout() {
   const responseListener = useRef<{ remove: () => void } | null>(null);
 
   useEffect(() => {
-    notificationService.requestPermissions();
-    syncPushTokenAndSettings();
+    debugLog("_layout.tsx:notificationEffect", "before requestPermissions", {});
+    notificationService.requestPermissions().catch(() => {});
+    debugLog("_layout.tsx:notificationEffect", "before syncPushTokenAndSettings", {});
+    syncPushTokenAndSettings().catch(() => {});
 
     // Set up notification listeners
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
@@ -243,7 +249,16 @@ export default function RootLayout() {
 
   // İndirilmiş çevirileri yükle (seçili yoksa data[0] ile varsayılan atamak için)
   useEffect(() => {
-    getDownloadedTranslations().then(setDownloadedList);
+    debugLog("_layout.tsx:getDownloadedTranslations", "before", {});
+    getDownloadedTranslations()
+      .then((list) => {
+        debugLog("_layout.tsx:getDownloadedTranslations", "success", { count: list?.length ?? 0 });
+        setDownloadedList(list);
+      })
+      .catch((err) => {
+        debugLog("_layout.tsx:getDownloadedTranslations", "error", { error: String(err) });
+        setDownloadedList([]);
+      });
   }, []);
 
   // Öncelik: 1) Daha önce seçilmiş, 2) Seçili yok ve data varsa data[0]
@@ -277,6 +292,7 @@ export default function RootLayout() {
   //   );
   // }
   return (
+    <DebugErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <QuranAudioProvider>
         <EmailConfirmationProvider />
@@ -295,6 +311,7 @@ export default function RootLayout() {
         </Stack>
       </QuranAudioProvider>
     </QueryClientProvider>
+    </DebugErrorBoundary>
   );
 }
 

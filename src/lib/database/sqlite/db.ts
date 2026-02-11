@@ -1,4 +1,5 @@
 import * as SQLite from "expo-sqlite";
+import { debugLog } from "@/lib/utils/debugLog";
 
 let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
@@ -98,11 +99,20 @@ CREATE INDEX IF NOT EXISTS idx_sync_queue_created_at ON sync_queue(created_at);
  * - Only async Expo SQLite API is used
  */
 export async function getDb(): Promise<SQLite.SQLiteDatabase> {
+  debugLog("db.ts:getDb", "entry", { hasPromise: !!dbPromise });
   dbPromise ??= (async () => {
-    // Using a more general name since this DB contains both prayer tracking, Quran translations and dhikr
-    const db = await SQLite.openDatabaseAsync("islamic_app.db");
-    await db.execAsync(SCHEMA_SQL);
-    return db;
+    try {
+      debugLog("db.ts:getDb", "before openDatabaseAsync", {});
+      const db = await SQLite.openDatabaseAsync("islamic_app.db");
+      debugLog("db.ts:getDb", "before execAsync schema", {});
+      await db.execAsync(SCHEMA_SQL);
+      debugLog("db.ts:getDb", "SQLite init done", {});
+      return db;
+    } catch (err) {
+      debugLog("db.ts:getDb", "SQLite init failed", { error: String(err) });
+      dbPromise = null;
+      throw err;
+    }
   })();
 
   return dbPromise;

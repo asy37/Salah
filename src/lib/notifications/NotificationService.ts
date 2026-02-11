@@ -157,23 +157,32 @@ export class NotificationService {
    * Request notification permissions
    */
   async requestPermissions(): Promise<boolean> {
+    const { debugLog } = require('@/lib/utils/debugLog');
+    debugLog('NotificationService.ts:requestPermissions', 'entry', {});
     const NotificationsModule = getNotifications();
     if (!NotificationsModule) {
+      debugLog('NotificationService.ts:requestPermissions', 'Notifications module null', {});
       console.warn('[NotificationService] Notifications not available');
       return false;
     }
 
-    configureNotifications(); // Ensure handler is set
+    try {
+      configureNotifications(); // Ensure handler is set
 
-    const { status: existingStatus } = await NotificationsModule.getPermissionsAsync();
-    let finalStatus = existingStatus;
+      const { status: existingStatus } = await NotificationsModule.getPermissionsAsync();
+      let finalStatus = existingStatus;
 
-    if (existingStatus !== 'granted') {
-      const { status } = await NotificationsModule.requestPermissionsAsync();
-      finalStatus = status;
+      if (existingStatus !== 'granted') {
+        const { status } = await NotificationsModule.requestPermissionsAsync();
+        finalStatus = status;
+      }
+
+      debugLog('NotificationService.ts:requestPermissions', 'done', { finalStatus });
+      return finalStatus === 'granted';
+    } catch (err) {
+      debugLog('NotificationService.ts:requestPermissions', 'error', { error: String(err) });
+      return false;
     }
-
-    return finalStatus === 'granted';
   }
 
   /**

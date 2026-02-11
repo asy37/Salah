@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
 import { isAnonymousUser, isEmailConfirmed } from '@/lib/api/services/auth';
+import { debugLog } from '@/lib/utils/debugLog';
 
 export interface AuthState {
   user: User | null;
@@ -26,14 +27,20 @@ export function useAuth(): AuthState {
 
   useEffect(() => {
     let mounted = true;
-
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!mounted) return;
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-    });
+    debugLog('useAuth.ts', 'before getSession', {});
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        debugLog('useAuth.ts', 'getSession success', { hasSession: !!session });
+        if (!mounted) return;
+        setSession(session);
+        setUser(session?.user ?? null);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        debugLog('useAuth.ts', 'getSession error', { error: String(err) });
+        if (!mounted) return;
+        setIsLoading(false);
+      });
 
     // Listen for auth changes
     const {
