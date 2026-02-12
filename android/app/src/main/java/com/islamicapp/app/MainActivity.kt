@@ -27,8 +27,7 @@ class MainActivity : ReactActivity() {
    * Defers onNewIntent to avoid "Tried to access onNewIntent while context is not ready"
    * in Bridgeless/New Architecture when the app is still starting (splash).
    */
-  override fun onNewIntent(intent: Intent?) {
-    if (intent == null) return
+  override fun onNewIntent(intent: Intent) {
     setIntent(intent)
     pendingNewIntentRunnable?.let { mainHandler.removeCallbacks(it) }
     val intentToDeliver = intent
