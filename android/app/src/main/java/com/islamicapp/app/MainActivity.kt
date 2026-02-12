@@ -1,8 +1,11 @@
 package com.islamicapp.app
 import expo.modules.splashscreen.SplashScreenManager
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -12,6 +15,29 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate
 import expo.modules.ReactActivityDelegateWrapper
 
 class MainActivity : ReactActivity() {
+
+  private companion object {
+    const val NEW_INTENT_DELAY_MS = 3000L
+  }
+
+  private val mainHandler = Handler(Looper.getMainLooper())
+  private var pendingNewIntentRunnable: Runnable? = null
+
+  /**
+   * Defers onNewIntent to avoid "Tried to access onNewIntent while context is not ready"
+   * in Bridgeless/New Architecture when the app is still starting (splash).
+   */
+  override fun onNewIntent(intent: Intent?) {
+    if (intent == null) return
+    setIntent(intent)
+    pendingNewIntentRunnable?.let { mainHandler.removeCallbacks(it) }
+    val intentToDeliver = intent
+    pendingNewIntentRunnable = Runnable {
+      pendingNewIntentRunnable = null
+      super.onNewIntent(intentToDeliver)
+    }.also { mainHandler.postDelayed(it, NEW_INTENT_DELAY_MS) }
+  }
+
   override fun onCreate(savedInstanceState: Bundle?) {
     // Set the theme to AppTheme BEFORE onCreate to support
     // coloring the background, status bar, and navigation bar.
