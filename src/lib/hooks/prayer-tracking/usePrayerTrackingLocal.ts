@@ -1,24 +1,32 @@
 /**
  * Local-First Prayer Tracking Hooks
- * Uses SQLite as source of truth for daily state
+ * Uses SQLite as source of truth for daily state.
+ * Daily reset uses imsak time when prayer times are available (reset after imsak, not at midnight).
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { prayerTrackingRepo } from '@/lib/database/sqlite/prayer-tracking/repository';
 import { dailyResetService, getTodayDateString } from '@/lib/services/dailyReset';
+import { usePrayerTimesStore } from '@/lib/storage/prayerTimesStore';
 import type { PrayerStatus, PrayerName } from '@/types/prayer-tracking';
 
 /**
- * Get today's prayer state from SQLite
+ * Get today's prayer state from SQLite.
+ * When prayer times cache is available, daily reset runs after imsak (not at midnight).
  */
 export function usePrayerTrackingLocal() {
   const today = getTodayDateString();
+  const prayerTimesCache = usePrayerTimesStore((s) => s.cache);
 
   return useQuery({
-    queryKey: ['prayerTracking', 'local', today],
+    queryKey: ['prayerTracking', 'local', today, prayerTimesCache?.cachedAt ?? 0],
     queryFn: async () => {
-      // Initialize daily reset if needed
-      await dailyResetService.initialize();
+      // Initialize daily reset: use imsak if we have prayer times, else fallback to date change
+      const prayerTimesResponse =
+        prayerTimesCache?.data == null
+          ? undefined
+          : ({ data: prayerTimesCache.data } as Parameters<typeof dailyResetService.initialize>[0]);
+      await dailyResetService.initialize(prayerTimesResponse);
 
       // Get current state (single row)
       const state = await prayerTrackingRepo.getCurrentPrayerState();
@@ -69,7 +77,7 @@ export function useUpdatePrayerStatusLocal() {
     }) => {
       // Update local state only (offline-first)
       await prayerTrackingRepo.upsertPrayerState(today, prayer, status);
-      
+
       // Sync queue is handled by daily reset service at imsak time
       // Previous day's state is automatically queued for sync
     },
