@@ -20,6 +20,10 @@ react {
     cliFile = new File(["node", "--print", "require.resolve('@expo/cli', { paths: [require.resolve('expo/package.json')] })"].execute(null, rootDir).text.trim())
     bundleCommand = "export:embed"
 
+    // EAS preview / assembleDebug ile üretilen APK'nın Metro olmadan çalışması için
+    // debug varyantında da JS bundle'ı gömüyoruz (yoksa "Unable to load script" alınır).
+    debuggableVariants = []
+
     /* Folders */
      //   The root of your project, i.e. where "package.json" lives. Default is '../..'
     // root = file("../../")
