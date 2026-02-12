@@ -12,13 +12,27 @@ import { useState } from "react";
 import Button from "@/components/button/Button";
 import clsx from "clsx";
 import { useTheme } from "@/lib/storage/useThemeStore";
+import { usePrayerTimesStore } from "@/lib/storage/prayerTimesStore";
+import { PrayerDate } from "../adhan/types/date-info";
+import { useAuth } from "@/lib/hooks/auth/useAuth";
+import { useUserProfile, useAvatarUrl } from "@/lib/hooks/profile/useUserProfile";
+
+const PLACEHOLDER_AVATAR = "https://github.com/shadcn.png";
 
 export default function PrayerHeader() {
   const [isStreakModalVisible, setIsStreakModalVisible] = useState(false);
-  const AVATAR_URL = "https://github.com/shadcn.png";
+
   const { isDark } = useTheme();
   const { data: streakData } = usePrayerStreak();
-
+  const data = usePrayerTimesStore((state) => state.cache);
+  const { user } = useAuth();
+  const { data: profile } = useUserProfile();
+  const avatarUrl = useAvatarUrl();
+  const displayName = profile?.name ?? user?.user_metadata?.name ?? "";
+  const AVATAR_URL = avatarUrl ?? PLACEHOLDER_AVATAR;
+  const prayerDate = data?.data.date as PrayerDate;
+  const hijriDate = `${prayerDate?.hijri?.day} ${prayerDate?.hijri?.weekday.en} ${prayerDate?.hijri?.month.en} ${prayerDate?.hijri?.year}`;
+  const gregorianDate = `${prayerDate?.gregorian?.day} ${prayerDate?.gregorian?.weekday.en} ${prayerDate?.gregorian?.month.en} ${prayerDate?.gregorian?.year}`;
   return (
     <SafeAreaView
       edges={["top"]}
@@ -45,18 +59,30 @@ export default function PrayerHeader() {
                   isDark ? "text-text-primaryDark" : "text-text-primaryLight"
                 )}
               >
-                Selam, Ahmet
+                {displayName}
               </Text>
-              <Text
-                className={clsx(
-                  "text-xs ",
-                  isDark
-                    ? "text-text-secondaryDark"
-                    : "text-text-secondaryLight"
-                )}
-              >
-                14 Ramazan 1445
-              </Text>
+              <View>
+                <Text
+                  className={clsx(
+                    "text-xs ",
+                    isDark
+                      ? "text-text-secondaryDark"
+                      : "text-text-secondaryLight"
+                  )}
+                >
+                  {hijriDate}
+                </Text>
+                <Text
+                  className={clsx(
+                    "text-xs ",
+                    isDark
+                      ? "text-text-secondaryDark"
+                      : "text-text-secondaryLight"
+                  )}
+                >
+                  {gregorianDate}
+                </Text>
+              </View>
             </View>
           </View>
           <Button
@@ -78,7 +104,7 @@ export default function PrayerHeader() {
               onPress={() => setIsStreakModalVisible(false)}
             >
               <Pressable
-                onPress={() => {}}
+                onPress={() => { }}
                 className={clsx(
                   "w-[90%] max-w-sm rounded-2xl p-4 shadow-lg ",
                   isDark ? "bg-background-cardDark" : "bg-background-cardLight"

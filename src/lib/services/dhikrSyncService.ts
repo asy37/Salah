@@ -11,9 +11,12 @@
  * - Fails silently and retries later
  */
 
+import Constants from 'expo-constants';
 import { supabase } from '@/lib/supabase/client';
 import { dhikrRepo, type DhikrRecord } from '@/lib/database/sqlite/dhikr/repository';
 import { storage } from '@/lib/storage/mmkv';
+
+const getExtra = () => (Constants.expoConfig?.extra as { supabaseUrl?: string; supabaseAnonKey?: string } | undefined);
 
 const LAST_SYNC_KEY = 'dhikr_last_sync_timestamp';
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
@@ -39,12 +42,12 @@ class DhikrSyncService {
   }
 
   private getSupabaseUrlForFetch(): string | null {
-    const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
+    const url = getExtra()?.supabaseUrl ?? process.env.EXPO_PUBLIC_SUPABASE_URL;
     return url && typeof url === 'string' ? url : null;
   }
 
   private getSupabaseAnonKeyForFetch(): string | null {
-    const key = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+    const key = getExtra()?.supabaseAnonKey ?? process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
     return key && typeof key === 'string' ? key : null;
   }
 

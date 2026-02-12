@@ -3,18 +3,54 @@ import { queryKeys } from '@/lib/query/queryKeys';
 import { queryClient } from '@/lib/query/queryClient';
 import {
   getMyProfile,
+  getAvatarSignedUrl,
   updateMyProfile,
   uploadAvatarFromUri,
   upgradeAnonymousUser,
   type UpdateUserProfileInput,
   type UpgradeAnonymousUserInput,
 } from '@/lib/api/services/profile';
+import { useAuth } from '@/lib/hooks/auth/useAuth';
 
 export function useUserProfile() {
   return useQuery({
     queryKey: queryKeys.user.profile(),
     queryFn: getMyProfile,
   });
+}
+
+/**
+ * Geçerli storage path mi? file:// ve http(s) URL'leri kabul etmiyoruz; sadece bucket path (örn. userId/avatar.jpg).
+ */
+function isStoragePath(path: string | null | undefined): path is string {
+  if (!path || typeof path !== 'string') return false;
+  const t = path.trim();
+  if (t === '') return false;
+  if (t.startsWith('file://')) return false;
+  if (t.startsWith('http://') || t.startsWith('https://')) return false;
+  return true;
+}
+
+/**
+ * Profil fotoğrafı için gösterilebilir URL (signed).
+ * Path önce users_profile.image'dan, yoksa auth user_metadata.image'dan alınır (Supabase'de "users" tablosunda gördüğünüz).
+ */
+export function useAvatarUrl() {
+  const { data: profile } = useUserProfile();
+  const { user } = useAuth();
+  const pathFromProfile = profile?.image ?? null;
+  const pathFromAuth = (user?.user_metadata?.image as string) ?? null;
+  const path = pathFromProfile ?? pathFromAuth;
+
+  const storagePath = isStoragePath(path) ? path : null;
+  const { data: signedUrl } = useQuery({
+    queryKey: [...queryKeys.user.profile(), 'avatarUrl', storagePath] as const,
+    queryFn: () => getAvatarSignedUrl(storagePath as string),
+    enabled: !!storagePath,
+    staleTime: 50 * 60 * 1000, // 50 dk (signed URL 1 saat geçerli)
+  });
+
+  return storagePath ? signedUrl ?? null : null;
 }
 
 export function useUpdateUserProfile() {
