@@ -6,7 +6,6 @@
 import { supabase } from '@/lib/supabase/client';
 import type {
   PrayerTrackingData,
-  PrayerStreak,
   UpdatePrayerStatusRequest,
 } from '@/types/prayer-tracking';
 
@@ -61,30 +60,6 @@ export async function updatePrayerStatus(
     throw error instanceof Error
       ? error
       : new Error('Failed to update prayer status');
-  }
-}
-
-/**
- * Get prayer streak count
- * Returns consecutive days with ALL prayers prayed
- */
-export async function getPrayerStreak(): Promise<PrayerStreak> {
-  try {
-    const { data, error } = await supabase.rpc('get_prayer_streak');
-
-    if (error) {
-      console.error('[getPrayerStreak] RPC Error:', error);
-      throw new Error(`Failed to get prayer streak: ${error.message}`);
-    }
-
-    return {
-      count: data || 0,
-    };
-  } catch (error) {
-    console.error('[getPrayerStreak] Error:', error);
-    throw error instanceof Error
-      ? error
-      : new Error('Failed to get prayer streak');
   }
 }
 

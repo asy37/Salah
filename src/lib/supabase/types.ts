@@ -180,10 +180,6 @@ export interface Database {
         };
         Returns: void;
       };
-      get_prayer_streak: {
-        Args: Record<PropertyKey, never>;
-        Returns: number;
-      };
     };
     Enums: {
       [_ in never]: never;

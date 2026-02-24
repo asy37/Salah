@@ -8,7 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { prayerTrackingRepo } from '@/lib/database/sqlite/prayer-tracking/repository';
 import { dailyResetService, getTodayDateString } from '@/lib/services/dailyReset';
 import { usePrayerTimesStore } from '@/lib/storage/prayerTimesStore';
-import type { PrayerStatus, PrayerName } from '@/types/prayer-tracking';
+import type { PrayerStatus, PrayerName, PrayerStreak } from '@/types/prayer-tracking';
 
 /**
  * Get today's prayer state from SQLite.
@@ -56,6 +56,23 @@ export function usePrayerTrackingLocal() {
 }
 
 /**
+ * Get prayer streak from local SQLite (today + sync queue).
+ * Use this for UI so streak reflects local state; Supabase streak has no row for today until next day.
+ */
+export function usePrayerStreakLocal() {
+  const today = getTodayDateString();
+
+  return useQuery<PrayerStreak>({
+    queryKey: ['prayerTracking', 'localStreak', today],
+    queryFn: async () => {
+      const count = await prayerTrackingRepo.calculateLocalStreak();
+      return { count };
+    },
+    staleTime: 30 * 1000,
+  });
+}
+
+/**
  * Update prayer status (local only)
  * 
  * IMPORTANT: This only updates local SQLite state.
@@ -82,9 +99,11 @@ export function useUpdatePrayerStatusLocal() {
       // Previous day's state is automatically queued for sync
     },
     onSuccess: () => {
-      // Invalidate and refetch
       queryClient.invalidateQueries({
         queryKey: ['prayerTracking', 'local', today],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['prayerTracking', 'localStreak', today],
       });
     },
   });

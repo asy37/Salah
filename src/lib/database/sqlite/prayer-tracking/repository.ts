@@ -325,7 +325,7 @@ class PrayerTrackingRepository {
       let checkDate = new Date(today);
       checkDate.setDate(checkDate.getDate() - 1);
 
-      for (let i = 0; i < 365; i++) {
+      for (let i = 0; i < 5000; i++) {
         const dateString = checkDate.toISOString().slice(0, 10);
         const queueItem = queueItems.find((item) => item.date === dateString);
 

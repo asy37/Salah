@@ -8,11 +8,9 @@ import { queryKeys } from '@/lib/query/queryKeys';
 import {
   getTodayPrayerLog,
   updatePrayerStatus,
-  getPrayerStreak,
 } from '@/lib/api/services/prayerTracking';
 import type {
   PrayerTrackingData,
-  PrayerStreak,
   UpdatePrayerStatusRequest,
   PrayerName,
 } from '@/types/prayer-tracking';
@@ -43,29 +41,10 @@ export function useUpdatePrayerStatus() {
     mutationFn: (request: UpdatePrayerStatusRequest) =>
       updatePrayerStatus(request),
     onSuccess: () => {
-      // Invalidate and refetch today's prayer log
       queryClient.invalidateQueries({
         queryKey: queryKeys.prayerTracking.today(),
       });
-      // Also invalidate streak
-      queryClient.invalidateQueries({
-        queryKey: ['prayerStreak'],
-      });
     },
-  });
-}
-
-/**
- * Hook: Get prayer streak
- */
-export function usePrayerStreak() {
-  const { session } = useAuth();
-
-  return useQuery<PrayerStreak>({
-    queryKey: ['prayerStreak'],
-    queryFn: getPrayerStreak,
-    enabled: !!session,
-    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
 
