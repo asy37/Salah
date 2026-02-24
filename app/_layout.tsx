@@ -6,6 +6,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { QueryClientProvider } from "@tanstack/react-query";
 import * as Notifications from "expo-notifications";
 import "../global.css";
+import { initI18n } from "@/i18n";
 // Note: NotificationService is lazy-loaded to avoid Expo Go compatibility issues
 // It will be imported only when needed, not at app startup
 import PrayerHeader from "@/components/layout/header";
@@ -39,6 +40,12 @@ export default function RootLayout() {
   const segments = useSegments();
   const { shouldShowRegister, canAccessApp, isLoading } = useAuthFlow();
   const [isNavigationReady, setIsNavigationReady] = useState(false);
+  const [i18nReady, setI18nReady] = useState(false);
+
+  // Initialize i18n (stored lang / device locale / RTL for Arabic)
+  useEffect(() => {
+    initI18n().then(() => setI18nReady(true)).catch(() => setI18nReady(true));
+  }, []);
 
   // Fonts are optional - app will work without them
   const [fontsLoaded] = useFonts({
@@ -88,7 +95,7 @@ export default function RootLayout() {
   ]);
 
   useEffect(() => {
-    if (!fontsLoaded) {
+    if (!fontsLoaded || !i18nReady) {
       return;
     }
 
@@ -99,7 +106,7 @@ export default function RootLayout() {
       .catch((error) => {
         setIsNavigationReady(true);
       });
-  }, [fontsLoaded]);
+  }, [fontsLoaded, i18nReady]);
 
   // Prefetch prayer times on app start and when location changes
   const location = useLocationStore((state) => state.location);

@@ -3,6 +3,7 @@ import clsx from "clsx";
 import ProgressCircle from "./ProgressCircle";
 import type { PrayerTrackingData } from "@/types/prayer-tracking";
 import { useTheme } from "@/lib/storage/useThemeStore";
+import { useTranslation } from "@/i18n";
 
 type TodayJourneyCardProps = {
   readonly data: PrayerTrackingData;
@@ -10,23 +11,23 @@ type TodayJourneyCardProps = {
 
 export default function TodayJourneyCard({ data }: TodayJourneyCardProps) {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   const completionPercentage = data.percent || 0;
   const totalPrayed = Object.values(data.prayers).filter((s) => s === 'prayed').length;
   const totalCount = 5;
 
-  // Motivasyon mesajı
   const getMotivationMessage = (): string => {
     if (completionPercentage === 100) {
-      return "Mükemmel! Bugün tüm vakitleri kıldın. Allah kabul etsin.";
+      return t("tracking.motivationPerfect");
     } else if (completionPercentage >= 80) {
-      return `Harika! Bugün ${totalCount} vakitten ${totalPrayed}'ünü kıldın. Devam edelim inşallah.`;
+      return t("tracking.motivationGreat", { count: totalPrayed, total: totalCount });
     } else if (completionPercentage >= 50) {
-      return `İstikrar çok kıymetli. Bugün ${totalCount} vakitten ${totalPrayed}'ünü kıldın. Devam edelim inşallah.`;
+      return t("tracking.motivationSteady", { count: totalPrayed, total: totalCount });
     } else if (totalPrayed > 0) {
-      return `Başlangıç güzel. Bugün ${totalPrayed} vakit kıldın. Devam edelim inşallah.`;
+      return t("tracking.motivationStarted", { count: totalPrayed });
     } else {
-      return "Bugün henüz vakit kılmadın. Hemen başlayalım inşallah.";
+      return t("tracking.motivationNotStarted");
     }
   };
 
@@ -49,7 +50,7 @@ export default function TodayJourneyCard({ data }: TodayJourneyCardProps) {
               (isDark ? "text-text-primaryDark" : "text-text-primaryLight")
             }
           >
-            Bugünkü Yolculuğun
+            {t("tracking.todayJourney")}
           </Text>
           <Text
             className={

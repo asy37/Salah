@@ -8,55 +8,29 @@ import VersionInfo from "@/components/more/VersionInfo";
 import { signOut } from "@/lib/api/services/auth";
 import { supabase } from "@/lib/supabase/client";
 import { useTheme } from "@/lib/storage/useThemeStore";
-
-const TOOLS_ITEMS = [
-  {
-    key: "dhikr",
-    title: "Dhikr Tracker",
-    subtitle: "Daily dhikr tracker",
-    icon: "timer",
-    iconBg: "primary" as const,
-    route: "./more/dhikr",
-  },
-  {
-    key: "daily-verse",
-    title: "Daily Verse",
-    subtitle: "Your daily verse",
-    icon: "menu-book",
-    iconBg: "primary" as const,
-    route: "./more/daily-verse",
-  },
-  {
-    key: "prayers",
-    title: "My Dua Notebook",
-    subtitle: "My dua journal",
-    icon: "volunteer-activism",
-    iconBg: "primary" as const,
-    route: "./more/duas",
-  },
-] as const;
-
+import { useTranslation } from "@/i18n";
 
 export default function MoreScreen() {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
   const router = useRouter();
 
   const handleLogout = async () => {
     Alert.alert(
-      "Çıkış Yap",
-      "Çıkış yapmak istediğinize emin misiniz?",
+      t("more.logoutConfirmTitle"),
+      t("more.logoutConfirmMessage"),
       [
         {
-          text: "İptal",
+          text: t("more.cancel"),
           style: "cancel",
         },
         {
-          text: "Çıkış Yap",
+          text: t("more.logout"),
           style: "destructive",
           onPress: async () => {
             const { error } = await signOut();
             if (error) {
-              Alert.alert("Hata", error.message);
+              Alert.alert(t("more.error"), error.message);
             } else {
               // Wait for auth state to update before navigating
               // Check session is actually cleared
@@ -87,29 +61,16 @@ export default function MoreScreen() {
     );
   };
 
+  const TOOLS_ITEMS = [
+    { key: "dhikr", title: t("more.dhikrTracker"), subtitle: t("more.dhikrSubtitle"), icon: "timer", iconBg: "primary" as const, route: "./more/dhikr" },
+    { key: "daily-verse", title: t("more.dailyVerse"), subtitle: t("more.dailyVerseSubtitle"), icon: "menu-book", iconBg: "primary" as const, route: "./more/daily-verse" },
+    { key: "prayers", title: t("more.myDuaNotebook"), subtitle: t("more.myDuaSubtitle"), icon: "volunteer-activism", iconBg: "primary" as const, route: "./more/duas" },
+  ];
   const ACCOUNT_ITEMS = [
-    {
-      key: "profile",
-      title: "Profil",
-      icon: "person",
-      iconBg: "gray" as const,
-      route: "./more/profile",
-    },
-    {
-      key: "settings",
-      title: "Ayarlar",
-      icon: "settings",
-      iconBg: "gray" as const,
-      route: "./more/settings",
-    },
-    {
-      key: "logout",
-      title: "Çıkış Yap",
-      icon: "logout",
-      iconBg: "gray" as const,
-      onPress: handleLogout,
-    },
-  ] as const;
+    { key: "profile", title: t("more.profile"), icon: "person", iconBg: "gray" as const, route: "./more/profile" },
+    { key: "settings", title: t("more.settings"), icon: "settings", iconBg: "gray" as const, route: "./more/settings" },
+    { key: "logout", title: t("more.logout"), icon: "logout", iconBg: "gray" as const, onPress: handleLogout },
+  ];
 
   return (
     <ScrollView
@@ -128,7 +89,7 @@ export default function MoreScreen() {
           items={LOCATION_ITEMS}
           isDark={isDark}
         /> */}
-        <MenuSection title="Hesap" items={ACCOUNT_ITEMS} isDark={isDark} />
+        <MenuSection title={t("more.account")} items={ACCOUNT_ITEMS} isDark={isDark} />
         <PremiumCard isDark={isDark} />
         <VersionInfo isDark={isDark} />
       </View>

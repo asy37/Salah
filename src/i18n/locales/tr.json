@@ -1,0 +1,125 @@
+{
+  "tabs": {
+    "prayer": "Namaz",
+    "quran": "Kur'an",
+    "qibla": "Kıble",
+    "adhan": "Ezan",
+    "more": "Daha Fazla"
+  },
+  "prayer": {
+    "markPrayed": "Kıldım",
+    "remindLater": "Daha sonra kılacağım",
+    "didNotPray": "Kılmadım",
+    "dailyPrayers": "Günlük Namazlar",
+    "todaySchedule": "Bugünün Programı",
+    "loadingTimes": "Namaz vakitleri yükleniyor...",
+    "errorLoading": "Veri yüklenirken bir hata oluştu",
+    "offlineMessage": "Vakitleri görmek için internet bağlantısı gerekir. Son bilinen vakitler yüklenecek."
+  },
+  "tracking": {
+    "todayJourney": "Bugünkü Yolculuğun",
+    "motivationPerfect": "Mükemmel! Bugün tüm vakitleri kıldın. Allah kabul etsin.",
+    "motivationGreat": "Harika! Bugün {{total}} vakitten {{count}}'ünü kıldın. Devam edelim inşallah.",
+    "motivationSteady": "İstikrar çok kıymetli. Bugün {{total}} vakitten {{count}}'ünü kıldın. Devam edelim inşallah.",
+    "motivationStarted": "Başlangıç güzel. Bugün {{count}} vakit kıldın. Devam edelim inşallah.",
+    "motivationNotStarted": "Bugün henüz vakit kılmadın. Hemen başlayalım inşallah."
+  },
+  "adhan": {
+    "offlineMessage": "Vakitleri yüklemek için internet bağlantısı gerekir. Bağlandığınızda son bilinen vakitler gösterilecek."
+  },
+  "more": {
+    "dhikrTracker": "Zikir Takip",
+    "dhikrSubtitle": "Günlük zikir takibi",
+    "dailyVerse": "Günlük Ayet",
+    "dailyVerseSubtitle": "Günlük ayetiniz",
+    "myDuaNotebook": "Dua Defterim",
+    "myDuaSubtitle": "Dua günlüğüm",
+    "account": "Hesap",
+    "profile": "Profil",
+    "settings": "Ayarlar",
+    "logout": "Çıkış Yap",
+    "logoutConfirmTitle": "Çıkış Yap",
+    "logoutConfirmMessage": "Çıkış yapmak istediğinize emin misiniz?",
+    "cancel": "İptal",
+    "error": "Hata"
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "prayerAndLocation": "Namaz ve Konum",
+    "calculationMethod": "Hesaplama Yöntemi",
+    "autoLocation": "Otomatik Konum",
+    "autoLocationSubtitle": "Doğru vakitler için GPS kullan",
+    "notifications": "Bildirimler",
+    "notificationsOff": "Bildirimler kapalı. Sistem ayarlarından açabilirsiniz.",
+    "adhanNotifications": "Ezan Bildirimleri",
+    "prePrayerAlerts": "Namaz Öncesi Hatırlatma",
+    "prePrayerSubtitle": "15 dakika önce hatırlat",
+    "dailyVerseNotification": "Günlük Ayet Bildirimi",
+    "dailyVerseSubtitle": "Günlük rastgele ayet bildirimi",
+    "soundAndHaptics": "Ses ve Titreşim",
+    "playAdhanAudio": "Ezan Sesi Çal",
+    "vibration": "Titreşim",
+    "appearance": "Görünüm",
+    "language": "Dil",
+    "languageSubtitle": "Uygulama dili",
+    "supportAndAbout": "Destek ve Hakkında",
+    "helpCenter": "Yardım Merkezi",
+    "privacyPolicy": "Gizlilik Politikası",
+    "rateTheApp": "Uygulamayı Değerlendir"
+  },
+  "language": {
+    "en": "English",
+    "tr": "Türkçe",
+    "ar": "العربية",
+    "restartMessage": "Dil değişti. Uygulama uygulamak için yeniden başlayacak.",
+    "sectionTitle": "Dil"
+  },
+  "common": {
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "done": "Bitti",
+    "days": "Gün",
+    "day": "Gün"
+  },
+  "notification": {
+    "prayerTimeTitle": "{{prayerName}} Namazı Vakti",
+    "prayerTimeBody": "{{prayerName}} namazı için ezan okundu",
+    "reminderTitle": "Namaz Hatırlatıcı",
+    "reminderBody": "{{prayerName}} namazını kıldın mı?",
+    "prePrayerBody": "{{prayerName}} namazına 15 dakika kaldı",
+    "remindLaterButton": "Daha Sonra Hatırlat",
+    "markedPrayedButton": "Kıldım",
+    "dailyVerseTitle": "Günlük Ayet",
+    "streakTitle": "Namaz Serisi",
+    "streakBody": "{{count}} gündür aralıksız namaz kılıyorsun! 🎉",
+    "dontForgetBody": "{{prayerName}} namazını kılmayı unutma"
+  },
+  "auth": {
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "email": "E-posta",
+    "password": "Şifre",
+    "loginError": "Giriş Hatası",
+    "error": "Hata",
+    "signInError": "Giriş yapılırken bir sorun oluştu. Lütfen tekrar deneyin.",
+    "forgotPasswordSent": "Email gönderildi",
+    "forgotPasswordMessage": "Şifre sıfırlama bağlantısı için gelen kutunuzu kontrol edin.",
+    "invalidEmail": "Geçersiz email",
+    "invalidEmailMessage": "Şifre sıfırlama için geçerli bir email giriniz.",
+    "guestSignInError": "Misafir girişi yapılırken bir sorun oluştu. Lütfen tekrar deneyin.",
+    "forgotPassword": "Şifremi unuttum",
+    "signIn": "Giriş Yap",
+    "signingIn": "Giriş yapılıyor...",
+    "or": "veya",
+    "continueAsGuest": "Misafir olarak devam et",
+    "noAccount": "Hesabın yok mu?",
+    "registerLink": "Kayıt ol"
+  },
+  "prayerNames": {
+    "fajr": "Sabah",
+    "dhuhr": "Öğle",
+    "asr": "İkindi",
+    "maghrib": "Akşam",
+    "isha": "Yatsı"
+  }
+}

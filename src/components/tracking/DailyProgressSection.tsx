@@ -10,6 +10,7 @@ import { usePrayerTimesStore } from "@/lib/storage/prayerTimesStore";
 import PrayerList from "@/components/prayer-list/PrayerList";
 import { prayerMap } from "./utils";
 import { useTheme } from "@/lib/storage/useThemeStore";
+import { useTranslation } from "@/i18n";
 
 type DailyProgressSectionProps = {
   readonly data: PrayerTrackingData;
@@ -19,6 +20,7 @@ export default function DailyProgressSection({
   data,
 }: DailyProgressSectionProps) {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   const prayerTimesData = usePrayerTimesStore((state) => state.cache);
 
@@ -31,7 +33,7 @@ export default function DailyProgressSection({
             isDark ? "text-text-primaryDark" : "text-text-primaryLight"
           )}
         >
-          Günlük Namazlar
+          {t("prayer.dailyPrayers")}
         </Text>
         <Text
           className={clsx(
@@ -58,7 +60,7 @@ export default function DailyProgressSection({
               isDark ? "text-text-secondaryDark" : "text-text-secondaryLight"
             )}
           >
-            Vakitleri görmek için internet bağlantısı gerekir. Son bilinen vakitler yüklenecek.
+            {t("prayer.offlineMessage")}
           </Text>
         )}
       </View>

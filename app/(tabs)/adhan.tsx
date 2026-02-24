@@ -10,9 +10,11 @@ import { PrayerTimings } from "@/components/prayer-list/types/prayer-timings";
 import { usePrayerTimesStore } from "@/lib/storage/prayerTimesStore";
 import { adhanMap } from "@/components/adhan/utils/utils-function";
 import { useTheme } from "@/lib/storage/useThemeStore";
+import { useTranslation } from "@/i18n";
 
 export default function AdhanScreen() {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   const data = usePrayerTimesStore((state) => state.cache);
 
@@ -52,7 +54,7 @@ export default function AdhanScreen() {
                 isDark ? "text-text-secondaryDark" : "text-text-secondaryLight"
               )}
             >
-              Vakitleri yüklemek için internet bağlantısı gerekir. Bağlandığınızda son bilinen vakitler gösterilecek.
+              {t("adhan.offlineMessage")}
             </Text>
           </View>
         )}

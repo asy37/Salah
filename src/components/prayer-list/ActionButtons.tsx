@@ -4,6 +4,7 @@ import { PrayerStatus, PrayerName } from "@/types/prayer-tracking";
 import { MaterialIcons } from "@expo/vector-icons";
 import { PrayerItem } from "./types/prayer-timings";
 import { useTheme } from "@/lib/storage/useThemeStore";
+import { useTranslation } from "@/i18n";
 
 type ActionButtonsProps = {
   readonly updateStatus: (
@@ -31,6 +32,7 @@ export const ActionButtons = ({
   isActive,
 }: ActionButtonsProps) => {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   const handleStatusUpdate = (newStatus: PrayerStatus) => {
     updateStatus(
@@ -59,7 +61,7 @@ export const ActionButtons = ({
         )}
       >
         <MaterialIcons name="check-circle" size={18} color="#1F8F5F" />
-        <Text className="text-primary-500 font-semibold">Kıldım</Text>
+        <Text className="text-primary-500 font-semibold">{t("prayer.markPrayed")}</Text>
       </TouchableOpacity>
 
       {isPast && isActive && (
@@ -73,7 +75,7 @@ export const ActionButtons = ({
         >
           <MaterialIcons name="schedule" size={18} color="#E6B566" />
           <Text className={clsx("font-semibold text-warning")}>
-            Daha sonra kılacağım
+            {t("prayer.remindLater")}
           </Text>
         </TouchableOpacity>
       )}
@@ -91,7 +93,7 @@ export const ActionButtons = ({
           style={{ color: isDark ? "#D96C6C" : "#C62828" }}
           className="font-semibold"
         >
-          Kılmadım
+          {t("prayer.didNotPray")}
         </Text>
       </TouchableOpacity>
     </View>

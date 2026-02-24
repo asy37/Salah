@@ -1,4 +1,4 @@
-import { ScrollView, View, Text } from "react-native";
+import { ScrollView, View, Text, Alert, I18nManager } from "react-native";
 import clsx from "clsx";
 import * as Notifications from "expo-notifications";
 import { useEffect, useState } from "react";
@@ -19,10 +19,16 @@ import { syncPushTokenAndSettings } from "@/lib/services/pushTokenSync";
 import { useTheme } from "@/lib/storage/useThemeStore";
 import CalculationMethodModal from "@/components/adhan/CalculationMethodModal";
 import { PrayerCalculationMethod } from "@/constants/prayer-method";
+import { useTranslation } from "@/i18n";
+import { setStoredLanguage } from "@/i18n/localeStorage";
+import type { SupportedLocale } from "@/i18n/localeStorage";
 
 
 export default function SettingsScreen() {
   const { isDark } = useTheme();
+  const { t, i18n: i18nInstance } = useTranslation();
+  const currentLang = (i18nInstance.language?.split(/[-_]/)[0] ?? "tr") as string;
+  const effectiveLang: SupportedLocale = currentLang === "en" || currentLang === "tr" || currentLang === "ar" ? currentLang : "tr";
   const [showCalculationMethodModal, setShowCalculationMethodModal] =
     useState(false);
   const setMethod = useMethodStore((state) => state.setMethod);
@@ -84,6 +90,31 @@ export default function SettingsScreen() {
     setMethod(method);
     setShowCalculationMethodModal(false);
   };
+
+  const handleLanguageSelect = (code: SupportedLocale) => {
+    const isRTL = code === "ar";
+    const wasRTL = I18nManager.isRTL;
+    i18nInstance.changeLanguage(code);
+    setStoredLanguage(code);
+    if (isRTL !== wasRTL) {
+      I18nManager.forceRTL(isRTL);
+      Alert.alert(t("language.restartMessage"));
+    }
+  };
+
+  const showLanguagePicker = () => {
+    Alert.alert(
+      t("language.sectionTitle"),
+      undefined,
+      [
+        { text: t("language.en"), onPress: () => handleLanguageSelect("en") },
+        { text: t("language.tr"), onPress: () => handleLanguageSelect("tr") },
+        { text: t("language.ar"), onPress: () => handleLanguageSelect("ar") },
+        { text: t("common.cancel"), style: "cancel" },
+      ]
+    );
+  };
+
   return (
     <View
       className={clsx(
@@ -99,7 +130,7 @@ export default function SettingsScreen() {
       >
         <View className="px-4 py-2">
           {/* Prayer & Location */}
-          <SettingsSection title="Prayer & Location" isDark={isDark} />
+          <SettingsSection title={t("settings.prayerAndLocation")} isDark={isDark} />
           <View
             className={clsx(
               "rounded-xl overflow-hidden",
@@ -114,7 +145,7 @@ export default function SettingsScreen() {
             }}
           >
             <SettingsItem
-              title="Calculation Method"
+              title={t("settings.calculationMethod")}
               value={method?.label ?? "Diyanet"}
               isDark={isDark}
               onPress={handleSelectCalculationMethod}
@@ -129,8 +160,8 @@ export default function SettingsScreen() {
               }}
             />
             <SettingsToggle
-              title="Auto Location"
-              subtitle="Use GPS for accurate times"
+              title={t("settings.autoLocation")}
+              subtitle={t("settings.autoLocationSubtitle")}
               value={autoLocation}
               onValueChange={(v) => setAutoLocation(v)}
               isDark={isDark}
@@ -138,7 +169,7 @@ export default function SettingsScreen() {
           </View>
 
           {/* Notifications */}
-          <SettingsSection title="Notifications" isDark={isDark} />
+          <SettingsSection title={t("settings.notifications")} isDark={isDark} />
           <View
             className={clsx(
               "rounded-xl overflow-hidden",
@@ -160,12 +191,12 @@ export default function SettingsScreen() {
                     isDark ? "text-text-secondaryDark" : "text-text-secondaryLight"
                   )}
                 >
-                  Bildirimler kapalı. Sistem ayarlarından açabilirsiniz.
+                  {t("settings.notificationsOff")}
                 </Text>
               </View>
             )}
             <SettingsToggle
-              title="Adhan Notifications"
+              title={t("settings.adhanNotifications")}
               value={adhanNotifications}
               onValueChange={(v) => handleToggleChange(setAdhanNotifications, v, "adhan")}
               isDark={isDark}
@@ -179,8 +210,8 @@ export default function SettingsScreen() {
               }}
             />
             <SettingsToggle
-              title="Pre-Prayer Alerts"
-              subtitle="Remind 15 mins before"
+              title={t("settings.prePrayerAlerts")}
+              subtitle={t("settings.prePrayerSubtitle")}
               value={prePrayerAlerts}
               onValueChange={(v) => handleToggleChange(setPrePrayerAlerts, v, "prePrayer")}
               isDark={isDark}
@@ -194,8 +225,8 @@ export default function SettingsScreen() {
               }}
             />
             <SettingsToggle
-              title="Daily Verse Notification"
-              subtitle="Günlük rastgele ayet bildirimi"
+              title={t("settings.dailyVerseNotification")}
+              subtitle={t("settings.dailyVerseSubtitle")}
               value={dailyVerseEnabled}
               onValueChange={(v) => handleToggleChange(setDailyVerseEnabled, v, "dailyVerse")}
               isDark={isDark}
@@ -203,7 +234,7 @@ export default function SettingsScreen() {
           </View>
 
           {/* Sound & Haptics */}
-          <SettingsSection title="Sound & Haptics" isDark={isDark} />
+          <SettingsSection title={t("settings.soundAndHaptics")} isDark={isDark} />
           <View
             className={clsx(
               "rounded-xl overflow-hidden",
@@ -218,7 +249,7 @@ export default function SettingsScreen() {
             }}
           >
             <SettingsToggle
-              title="Play Adhan Audio"
+              title={t("settings.playAdhanAudio")}
               value={playAdhanAudio}
               onValueChange={(v) => handleToggleChange(setPlayAdhanAudio, v, "playAdhan")}
               isDark={isDark}
@@ -232,7 +263,7 @@ export default function SettingsScreen() {
               }}
             />
             <SettingsToggle
-              title="Vibration"
+              title={t("settings.vibration")}
               value={vibration}
               onValueChange={(v) => handleToggleChange(setVibration, v, "vibration")}
               isDark={isDark}
@@ -240,7 +271,7 @@ export default function SettingsScreen() {
           </View>
 
           {/* Appearance */}
-          <SettingsSection title="Appearance" isDark={isDark} />
+          <SettingsSection title={t("settings.appearance")} isDark={isDark} />
           <View
             className={clsx(
               "rounded-xl overflow-hidden",
@@ -255,10 +286,24 @@ export default function SettingsScreen() {
             }}
           >
             <ThemeSelector />
+            <View
+              className="h-px"
+              style={{
+                backgroundColor: isDark
+                  ? "rgba(34, 56, 51, 0.5)"
+                  : "#E2ECE8",
+              }}
+            />
+            <SettingsItem
+              title={t("settings.language")}
+              value={t(`language.${effectiveLang}`)}
+              isDark={isDark}
+              onPress={showLanguagePicker}
+            />
           </View>
 
-          {/* Support & About */}
-          <SettingsSection title="Support & About" isDark={isDark} />
+          {/* Support & About - keep section title key */}
+          <SettingsSection title={t("settings.supportAndAbout")} isDark={isDark} />
           <View
             className={clsx(
               "rounded-xl overflow-hidden",
@@ -273,7 +318,7 @@ export default function SettingsScreen() {
             }}
           >
             <SettingsItem
-              title="Help Center"
+              title={t("settings.helpCenter")}
               isDark={isDark}
               onPress={() => { }}
             />
@@ -286,7 +331,7 @@ export default function SettingsScreen() {
               }}
             />
             <SettingsItem
-              title="Privacy Policy"
+              title={t("settings.privacyPolicy")}
               isDark={isDark}
               onPress={() => { }}
             />
@@ -299,7 +344,7 @@ export default function SettingsScreen() {
               }}
             />
             <SettingsItem
-              title="Rate the App"
+              title={t("settings.rateTheApp")}
               isDark={isDark}
               isPrimary
               onPress={() => { }}

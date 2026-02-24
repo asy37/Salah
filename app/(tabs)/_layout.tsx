@@ -3,9 +3,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { View } from "react-native";
 import { colors } from "@/components/theme/colors";
 import { useTheme } from "@/lib/storage/useThemeStore";
+import { useTranslation } from "@/i18n";
 
 export default function TabLayout() {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
   return (
     <Tabs
       screenOptions={{
@@ -21,7 +23,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Prayer",
+          title: t("tabs.prayer"),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="time-outline" size={size} color={color} />
           ),
@@ -30,7 +32,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="quran"
         options={{
-          title: "Quran",
+          title: t("tabs.quran"),
           tabBarIcon: ({ color, size }) => (
             <View>
               <Ionicons name="book-outline" size={size} color={color} />
@@ -41,7 +43,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="qibla"
         options={{
-          title: "Qibla",
+          title: t("tabs.qibla"),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="infinite-outline" size={size} color={color} />
           ),
@@ -50,7 +52,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="adhan"
         options={{
-          title: "Adhan",
+          title: t("tabs.adhan"),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="infinite-outline" size={size} color={color} />
           ),
@@ -59,7 +61,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="more"
         options={{
-          title: "More",
+          title: t("tabs.more"),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="menu-outline" size={size} color={color} />
           ),

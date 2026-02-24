@@ -1,0 +1,125 @@
+{
+  "tabs": {
+    "prayer": "الصلاة",
+    "quran": "القرآن",
+    "qibla": "القبلة",
+    "adhan": "الأذان",
+    "more": "المزيد"
+  },
+  "prayer": {
+    "markPrayed": "صلّيت",
+    "remindLater": "سأصلّي لاحقاً",
+    "didNotPray": "لم أصلّ",
+    "dailyPrayers": "الصلوات اليومية",
+    "todaySchedule": "جدول اليوم",
+    "loadingTimes": "جاري تحميل أوقات الصلاة...",
+    "errorLoading": "حدث خطأ أثناء تحميل البيانات",
+    "offlineMessage": "الاتصال بالإنترنت مطلوب لعرض أوقات الصلاة. سيتم تحميل آخر الأوقات عند الاتصال."
+  },
+  "tracking": {
+    "todayJourney": "رحلتك اليوم",
+    "motivationPerfect": "ممتاز! صلّيت كل الصلوات اليوم. تقبّل الله.",
+    "motivationGreat": "رائع! صلّيت {{count}} من {{total}} صلوات اليوم. نكمل إن شاء الله.",
+    "motivationSteady": "الاستمرارية ثمينة. صلّيت {{count}} من {{total}} صلوات اليوم. نكمل إن شاء الله.",
+    "motivationStarted": "بداية حسنة. صلّيت {{count}} صلوات اليوم. نكمل إن شاء الله.",
+    "motivationNotStarted": "لم تصلّ اليوم بعد. نبدأ إن شاء الله."
+  },
+  "adhan": {
+    "offlineMessage": "الاتصال بالإنترنت مطلوب لتحميل أوقات الصلاة. عند الاتصال ستظهر آخر الأوقات المحفوظة."
+  },
+  "more": {
+    "dhikrTracker": "عداد الذكر",
+    "dhikrSubtitle": "تتبع الذكر اليومي",
+    "dailyVerse": "الآية اليومية",
+    "dailyVerseSubtitle": "آيتك اليومية",
+    "myDuaNotebook": "دفتر الأدعية",
+    "myDuaSubtitle": "يوميات أدعيتي",
+    "account": "الحساب",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج",
+    "logoutConfirmTitle": "تسجيل الخروج",
+    "logoutConfirmMessage": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+    "cancel": "إلغاء",
+    "error": "خطأ"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "prayerAndLocation": "الصلاة والموقع",
+    "calculationMethod": "طريقة الحساب",
+    "autoLocation": "الموقع التلقائي",
+    "autoLocationSubtitle": "استخدم GPS لأوقات دقيقة",
+    "notifications": "الإشعارات",
+    "notificationsOff": "الإشعارات مغلقة. يمكنك تفعيلها من إعدادات النظام.",
+    "adhanNotifications": "إشعارات الأذان",
+    "prePrayerAlerts": "تذكير قبل الصلاة",
+    "prePrayerSubtitle": "تذكير قبل 15 دقيقة",
+    "dailyVerseNotification": "إشعار الآية اليومية",
+    "dailyVerseSubtitle": "إشعار بآية عشوائية يومية",
+    "soundAndHaptics": "الصوت والاهتزاز",
+    "playAdhanAudio": "تشغيل صوت الأذان",
+    "vibration": "الاهتزاز",
+    "appearance": "المظهر",
+    "language": "اللغة",
+    "languageSubtitle": "لغة التطبيق",
+    "supportAndAbout": "الدعم وحول",
+    "helpCenter": "مركز المساعدة",
+    "privacyPolicy": "سياسة الخصوصية",
+    "rateTheApp": "قيّم التطبيق"
+  },
+  "language": {
+    "en": "English",
+    "tr": "Türkçe",
+    "ar": "العربية",
+    "restartMessage": "تم تغيير اللغة. سيتم إعادة تشغيل التطبيق للتطبيق.",
+    "sectionTitle": "اللغة"
+  },
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "done": "تم",
+    "days": "أيام",
+    "day": "يوم"
+  },
+  "notification": {
+    "prayerTimeTitle": "وقت صلاة {{prayerName}}",
+    "prayerTimeBody": "أُذّن لصلاة {{prayerName}}",
+    "reminderTitle": "تذكير الصلاة",
+    "reminderBody": "هل صلّيت {{prayerName}}؟",
+    "prePrayerBody": "صلاة {{prayerName}} بعد 15 دقيقة",
+    "remindLaterButton": "ذكّرني لاحقاً",
+    "markedPrayedButton": "صلّيت",
+    "dailyVerseTitle": "الآية اليومية",
+    "streakTitle": "سلسلة الصلاة",
+    "streakBody": "صلّيت {{count}} أيام متتالية! 🎉",
+    "dontForgetBody": "لا تنسَ صلاة {{prayerName}}"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "loginError": "خطأ في تسجيل الدخول",
+    "error": "خطأ",
+    "signInError": "حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.",
+    "forgotPasswordSent": "تم إرسال البريد",
+    "forgotPasswordMessage": "تحقق من صندوق الوارد لرابط إعادة تعيين كلمة المرور.",
+    "invalidEmail": "بريد غير صالح",
+    "invalidEmailMessage": "أدخل بريداً صالحاً لإعادة تعيين كلمة المرور.",
+    "guestSignInError": "حدث خطأ في تسجيل الدخول كضيف. يرجى المحاولة مرة أخرى.",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "signIn": "تسجيل الدخول",
+    "signingIn": "جاري تسجيل الدخول...",
+    "or": "أو",
+    "continueAsGuest": "المتابعة كضيف",
+    "noAccount": "ليس لديك حساب؟",
+    "registerLink": "إنشاء حساب"
+  },
+  "prayerNames": {
+    "fajr": "الفجر",
+    "dhuhr": "الظهر",
+    "asr": "العصر",
+    "maghrib": "المغرب",
+    "isha": "العشاء"
+  }
+}

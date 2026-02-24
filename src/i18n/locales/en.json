@@ -1,0 +1,125 @@
+{
+  "tabs": {
+    "prayer": "Prayer",
+    "quran": "Quran",
+    "qibla": "Qibla",
+    "adhan": "Adhan",
+    "more": "More"
+  },
+  "prayer": {
+    "markPrayed": "Prayed",
+    "remindLater": "I'll pray later",
+    "didNotPray": "Did not pray",
+    "dailyPrayers": "Daily Prayers",
+    "todaySchedule": "Today's Schedule",
+    "loadingTimes": "Loading prayer times...",
+    "errorLoading": "An error occurred while loading data",
+    "offlineMessage": "Internet connection is required to see prayer times. Last known times will load when connected."
+  },
+  "tracking": {
+    "todayJourney": "Today's Journey",
+    "motivationPerfect": "Perfect! You prayed all prayers today. May Allah accept.",
+    "motivationGreat": "Great! You prayed {{count}} of {{total}} prayers today. Let's continue, insha'Allah.",
+    "motivationSteady": "Consistency is valuable. You prayed {{count}} of {{total}} prayers today. Let's continue, insha'Allah.",
+    "motivationStarted": "Good start. You prayed {{count}} prayers today. Let's continue, insha'Allah.",
+    "motivationNotStarted": "You haven't prayed today yet. Let's start, insha'Allah."
+  },
+  "adhan": {
+    "offlineMessage": "Internet connection is required to load prayer times. When connected, the last known times will be shown."
+  },
+  "more": {
+    "dhikrTracker": "Dhikr Tracker",
+    "dhikrSubtitle": "Daily dhikr tracker",
+    "dailyVerse": "Daily Verse",
+    "dailyVerseSubtitle": "Your daily verse",
+    "myDuaNotebook": "My Dua Notebook",
+    "myDuaSubtitle": "My dua journal",
+    "account": "Account",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Log out",
+    "logoutConfirmTitle": "Log Out",
+    "logoutConfirmMessage": "Are you sure you want to log out?",
+    "cancel": "Cancel",
+    "error": "Error"
+  },
+  "settings": {
+    "title": "Settings",
+    "prayerAndLocation": "Prayer & Location",
+    "calculationMethod": "Calculation Method",
+    "autoLocation": "Auto Location",
+    "autoLocationSubtitle": "Use GPS for accurate times",
+    "notifications": "Notifications",
+    "notificationsOff": "Notifications are off. You can enable them in system settings.",
+    "adhanNotifications": "Adhan Notifications",
+    "prePrayerAlerts": "Pre-Prayer Alerts",
+    "prePrayerSubtitle": "Remind 15 mins before",
+    "dailyVerseNotification": "Daily Verse Notification",
+    "dailyVerseSubtitle": "Daily random verse notification",
+    "soundAndHaptics": "Sound & Haptics",
+    "playAdhanAudio": "Play Adhan Audio",
+    "vibration": "Vibration",
+    "appearance": "Appearance",
+    "language": "Language",
+    "languageSubtitle": "App language",
+    "supportAndAbout": "Support & About",
+    "helpCenter": "Help Center",
+    "privacyPolicy": "Privacy Policy",
+    "rateTheApp": "Rate the App"
+  },
+  "language": {
+    "en": "English",
+    "tr": "Türkçe",
+    "ar": "العربية",
+    "restartMessage": "Language changed. The app will restart to apply.",
+    "sectionTitle": "Language"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "done": "Done",
+    "days": "Days",
+    "day": "Day"
+  },
+  "notification": {
+    "prayerTimeTitle": "{{prayerName}} Prayer Time",
+    "prayerTimeBody": "Adhan has been called for {{prayerName}} prayer",
+    "reminderTitle": "Prayer Reminder",
+    "reminderBody": "Did you pray {{prayerName}}?",
+    "prePrayerBody": "{{prayerName}} prayer in 15 minutes",
+    "remindLaterButton": "Remind Later",
+    "markedPrayedButton": "Prayed",
+    "dailyVerseTitle": "Daily Verse",
+    "streakTitle": "Prayer Streak",
+    "streakBody": "You have prayed {{count}} days in a row! 🎉",
+    "dontForgetBody": "Don't forget to pray {{prayerName}}"
+  },
+  "auth": {
+    "login": "Log in",
+    "register": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "loginError": "Login Error",
+    "error": "Error",
+    "signInError": "A problem occurred while signing in. Please try again.",
+    "forgotPasswordSent": "Email sent",
+    "forgotPasswordMessage": "Check your inbox for the password reset link.",
+    "invalidEmail": "Invalid email",
+    "invalidEmailMessage": "Enter a valid email for password reset.",
+    "guestSignInError": "A problem occurred with guest sign in. Please try again.",
+    "forgotPassword": "Forgot password?",
+    "signIn": "Log in",
+    "signingIn": "Signing in...",
+    "or": "or",
+    "continueAsGuest": "Continue as guest",
+    "noAccount": "Don't have an account?",
+    "registerLink": "Sign up"
+  },
+  "prayerNames": {
+    "fajr": "Fajr",
+    "dhuhr": "Dhuhr",
+    "asr": "Asr",
+    "maghrib": "Maghrib",
+    "isha": "Isha"
+  }
+}

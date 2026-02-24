@@ -21,17 +21,19 @@ import {
 } from "@/lib/api/services/auth";
 import { loginSchema, type LoginFormValues } from "@/components/auth/login/schema";
 import { useTheme } from "@/lib/storage/useThemeStore";
+import { useTranslation } from "@/i18n";
+import { i18n } from "@/i18n";
 
 async function doSignIn(email: string, password: string) {
     const result = await signInWithPassword(email, password);
     if (result.error) {
-        Alert.alert("Giriş Hatası", result.error.message);
+        Alert.alert(i18n.t("auth.loginError"), result.error.message);
         return;
     }
     if (result.user || result.session) {
         setTimeout(() => router.replace("/(tabs)"), 500);
     } else {
-        Alert.alert("Hata", "Giriş yapılırken bir sorun oluştu. Lütfen tekrar deneyin.");
+        Alert.alert(i18n.t("auth.error"), i18n.t("auth.signInError"));
     }
 }
 function getValidEmail(raw?: string): string | null {
@@ -45,13 +47,13 @@ async function sendResetPassword(email: string) {
     const { error } = await resetPasswordForEmail(email);
 
     if (error) {
-        Alert.alert("Hata", error.message);
+        Alert.alert(i18n.t("auth.error"), error.message);
         return;
     }
 
     Alert.alert(
-        "Email gönderildi",
-        "Şifre sıfırlama bağlantısı için gelen kutunuzu kontrol edin."
+        i18n.t("auth.forgotPasswordSent"),
+        i18n.t("auth.forgotPasswordMessage")
     );
 }
 async function doForgotPassword(getEmail: () => string) {
@@ -59,8 +61,8 @@ async function doForgotPassword(getEmail: () => string) {
 
     if (!email) {
         Alert.alert(
-            "Geçersiz email",
-            "Şifre sıfırlama için geçerli bir email giriniz."
+            i18n.t("auth.invalidEmail"),
+            i18n.t("auth.invalidEmailMessage")
         );
         return;
     }
@@ -71,18 +73,19 @@ async function doForgotPassword(getEmail: () => string) {
 async function doGuestSignIn() {
     const result = await signInAnonymously();
     if (result.error) {
-        Alert.alert("Hata", result.error.message);
+        Alert.alert(i18n.t("auth.error"), result.error.message);
         return;
     }
     if (result.user || result.session) {
         setTimeout(() => router.replace("/(tabs)"), 500);
     } else {
-        Alert.alert("Hata", "Misafir girişi yapılırken bir sorun oluştu. Lütfen tekrar deneyin.");
+        Alert.alert(i18n.t("auth.error"), i18n.t("auth.guestSignInError"));
     }
 }
 
 export default function LoginScreen() {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -96,7 +99,7 @@ export default function LoginScreen() {
         try {
             await doSignIn(data.email, data.password);
         } catch {
-            Alert.alert("Hata", "Giriş yapılırken bir hata oluştu. Lütfen tekrar deneyin.");
+            Alert.alert(i18n.t("auth.error"), i18n.t("auth.signInError"));
         } finally {
             setIsLoading(false);
         }
@@ -109,7 +112,7 @@ export default function LoginScreen() {
         try {
             await doGuestSignIn();
         } catch {
-            Alert.alert("Hata", "Misafir girişi yapılırken bir hata oluştu.");
+            Alert.alert(i18n.t("auth.error"), i18n.t("auth.guestSignInError"));
         } finally {
             setIsLoading(false);
         }
@@ -142,7 +145,7 @@ export default function LoginScreen() {
                                     isDark ? "text-text-secondaryDark" : "text-text-primaryLight"
                                 )}
                             >
-                                Email Adresi
+                                {t("auth.email")}
                             </Text>
                             <Controller
                                 control={control}
@@ -197,7 +200,7 @@ export default function LoginScreen() {
                                     isDark ? "text-text-secondaryDark" : "text-text-primaryLight"
                                 )}
                             >
-                                Şifre
+                                {t("auth.password")}
                             </Text>
                             <Controller
                                 control={control}
@@ -270,7 +273,7 @@ export default function LoginScreen() {
                             )}
                         >
                             <Text className="text-white text-base font-bold">
-                                {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
+                                {isLoading ? t("auth.signingIn") : t("auth.signIn")}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -286,7 +289,7 @@ export default function LoginScreen() {
                                 isDark ? "text-text-secondaryDark" : "text-text-secondaryLight"
                             )}
                         >
-                            veya
+                            {t("auth.or")}
                         </Text>
                         <View
                             className={clsx("flex-1 h-px", isDark ? "bg-border-dark" : "bg-gray-200")}
@@ -303,7 +306,7 @@ export default function LoginScreen() {
                                     isLoading && "opacity-50"
                                 )}
                             >
-                                Misafir olarak devam et
+                                {t("auth.continueAsGuest")}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -316,7 +319,7 @@ export default function LoginScreen() {
                                 isDark ? "text-text-secondaryDark" : "text-text-secondaryLight"
                             )}
                         >
-                            Hesabın yok mu?
+                            {t("auth.noAccount")}
                         </Text>
                         <TouchableOpacity
                             onPress={() => router.push("/auth/register")}
@@ -329,7 +332,7 @@ export default function LoginScreen() {
                                     isLoading && "opacity-50"
                                 )}
                             >
-                                Kayıt ol
+                                {t("auth.registerLink")}
                             </Text>
                         </TouchableOpacity>
                     </View>

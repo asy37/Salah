@@ -5,9 +5,11 @@ import DailyProgressSection from "@/components/tracking/DailyProgressSection";
 import { usePrayerTrackingLocal, convertToPrayerTrackingData } from "@/lib/hooks/prayer-tracking/usePrayerTrackingLocal";
 import { useAutoSync } from "@/lib/hooks/adhan/usePrayerSync";
 import { useTheme } from "@/lib/storage/useThemeStore";
+import { useTranslation } from "@/i18n";
 
 export default function PrayerTrackingScreen() {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
   
   // Setup auto sync
   useAutoSync();
@@ -33,7 +35,7 @@ export default function PrayerTrackingScreen() {
             isDark ? "text-text-secondaryDark" : "text-text-secondaryLight"
           )}
         >
-          Namaz vakitleri yükleniyor...
+          {t("prayer.loadingTimes")}
         </Text>
       </View>
     );
@@ -53,7 +55,7 @@ export default function PrayerTrackingScreen() {
             isDark ? "text-text-secondaryDark" : "text-text-secondaryLight"
           )}
         >
-          Veri yüklenirken bir hata oluştu
+          {t("prayer.errorLoading")}
         </Text>
       </View>
     );

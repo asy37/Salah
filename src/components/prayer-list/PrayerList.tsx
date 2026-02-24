@@ -3,6 +3,7 @@ import { Text, View } from "react-native";
 import PrayerScheduleItem from "./PrayerItem";
 import { PrayerTimings } from "./types/prayer-timings";
 import { getPrayerStatus, transformPrayerTimings } from "./utils/utils";
+import { useTranslation } from "@/i18n";
 
 type PrayerListProps = {
   readonly isDark: boolean;
@@ -20,6 +21,7 @@ export default function PrayerList({
   prayerMap,
   extended,
 }: PrayerListProps) {
+  const { t } = useTranslation();
   const prayerItems = transformPrayerTimings(prayerMap, data);
 
   return (
@@ -30,7 +32,7 @@ export default function PrayerList({
           isDark ? "text-text-primaryDark" : "text-text-primaryLight"
         )}
       >
-        Today's Schedule
+        {t("prayer.todaySchedule")}
       </Text>
       {prayerItems.map((prayer) => {
         const { isPast, isActive } = getPrayerStatus(prayer.key, prayerItems);

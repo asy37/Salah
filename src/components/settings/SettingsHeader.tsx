@@ -2,7 +2,11 @@ import { Pressable, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import clsx from "clsx";
 
+import { useTheme } from "@/lib/storage/useThemeStore";
+import { useTranslation } from "@/i18n";
+
 export default function SettingsHeader({ isDark }: { isDark: boolean }) {
+  const { t } = useTranslation();
   const router = useRouter();
 
   return (
@@ -21,14 +25,14 @@ export default function SettingsHeader({ isDark }: { isDark: boolean }) {
             isDark ? "text-text-primaryDark" : "text-text-primaryLight"
           )}
         >
-          Settings
+          {t("settings.title")}
         </Text>
         <Pressable onPress={() => router.back()} hitSlop={10}>
           <Text
             className="text-base font-bold"
             style={{ color: "#1F8F5F" }}
           >
-            Done
+            {t("common.done")}
           </Text>
         </Pressable>
       </View>

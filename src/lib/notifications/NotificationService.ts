@@ -12,26 +12,13 @@
 
 import { Platform } from 'react-native';
 import type { PrayerName } from '@/types/prayer-tracking';
+import { i18n } from '@/i18n';
 
 // Conditional import for Expo Go compatibility
 // Use lazy loading to avoid errors in Expo Go
 let Notifications: typeof import('expo-notifications') | null = null;
 let TaskManager: typeof import('expo-task-manager') | null = null;
 let BackgroundFetch: typeof import('expo-background-fetch') | null = null;
-
-// Prayer name mappings
-const PRAYER_NAME_MAP: Record<string, string> = {
-  Fajr: 'Sabah',
-  Dhuhr: 'Öğle',
-  Asr: 'İkindi',
-  Maghrib: 'Akşam',
-  Isha: 'Yatsı',
-  fajr: 'Sabah',
-  dhuhr: 'Öğle',
-  asr: 'İkindi',
-  maghrib: 'Akşam',
-  isha: 'Yatsı',
-};
 
 // app.json plugin "sounds" ile aynı base dosya adları (underscore)
 const PRAYER_SOUND_MAP: Record<string, string> = {
@@ -118,14 +105,14 @@ function configureNotifications() {
       [
         {
           identifier: NOTIFICATION_ACTIONS.PRAYER_MARKED_PRAYED,
-          buttonTitle: 'Kıldım',
+          buttonTitle: i18n.t('notification.markedPrayedButton'),
           options: {
             opensAppToForeground: false,
           },
         },
         {
           identifier: NOTIFICATION_ACTIONS.PRAYER_REMIND_LATER,
-          buttonTitle: 'Daha Sonra Hatırlat',
+          buttonTitle: i18n.t('notification.remindLaterButton'),
           options: {
             opensAppToForeground: false,
           },
@@ -136,10 +123,21 @@ function configureNotifications() {
 }
 
 /**
- * Get Turkish prayer name
+ * Get localized prayer display name
+ */
+function getPrayerDisplayName(prayerName: string): string {
+  const key = prayerName.toLowerCase();
+  if (['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].includes(key)) {
+    return i18n.t(`prayerNames.${key}`);
+  }
+  return prayerName;
+}
+
+/**
+ * Get Turkish prayer name (legacy alias – now returns localized name)
  */
 function getPrayerNameTurkish(prayerName: string): string {
-  return PRAYER_NAME_MAP[prayerName] || prayerName;
+  return getPrayerDisplayName(prayerName);
 }
 
 /** Android 8+: Ezan bildirimi için kanal gerekli (ses + titreşim). Her vakit kendi sesi için ayrı kanal. */
@@ -153,8 +151,9 @@ async function ensurePrayerTimeChannelsAndroid(): Promise<void> {
   for (const key of prayers) {
     const soundFile = PRAYER_SOUND_MAP[key];
     const channelId = `prayer_time_${key}`;
+    const prayerDisplayName = getPrayerDisplayName(key);
     await NotificationsModule.setNotificationChannelAsync(channelId, {
-      name: `${PRAYER_NAME_MAP[key]} Namazı`,
+      name: i18n.t('notification.prayerTimeTitle', { prayerName: prayerDisplayName }),
       importance: 5,
       sound: soundFile,
       vibrationPattern,
@@ -266,8 +265,8 @@ export class NotificationService {
 
         await NotificationsModule.scheduleNotificationAsync({
           content: {
-            title: `${prayerNameTurkish} Namazı Vakti`,
-            body: `${prayerNameTurkish} namazı için ezan okundu`,
+            title: i18n.t('notification.prayerTimeTitle', { prayerName: prayerNameTurkish }),
+            body: i18n.t('notification.prayerTimeBody', { prayerName: prayerNameTurkish }),
             sound: soundEnabled ? (soundFile || true) : false,
             vibrate: vibrationEnabled ? vibrationPattern : undefined,
             categoryIdentifier: NOTIFICATION_CATEGORIES.PRAYER_TIME,
@@ -338,8 +337,8 @@ export class NotificationService {
 
         await NotificationsModule.scheduleNotificationAsync({
           content: {
-            title: 'Namaz Hatırlatıcı',
-            body: `${prayerNameTurkish} namazına 15 dakika kaldı`,
+            title: i18n.t('notification.reminderTitle'),
+            body: i18n.t('notification.prePrayerBody', { prayerName: prayerNameTurkish }),
             sound: true,
             vibrate: vibrationEnabled ? [0, 250, 250, 250] : undefined,
             categoryIdentifier: NOTIFICATION_CATEGORIES.PRE_PRAYER,
@@ -409,8 +408,8 @@ export class NotificationService {
 
         await NotificationsModule.scheduleNotificationAsync({
           content: {
-            title: 'Namaz Hatırlatıcı',
-            body: `${prayerNameTurkish} namazını kıldın mı?`,
+            title: i18n.t('notification.reminderTitle'),
+            body: i18n.t('notification.reminderBody', { prayerName: prayerNameTurkish }),
             sound: true,
             vibrate: vibrationEnabled ? [0, 250, 250, 250] : undefined,
             categoryIdentifier: NOTIFICATION_CATEGORIES.PRAYER_REMINDER,
@@ -458,8 +457,8 @@ export class NotificationService {
 
     const notificationId = await NotificationsModule.scheduleNotificationAsync({
       content: {
-        title: 'Namaz Hatırlatıcı',
-        body: `${prayerNameTurkish} namazını kılmayı unutma`,
+        title: i18n.t('notification.reminderTitle'),
+        body: i18n.t('notification.dontForgetBody', { prayerName: prayerNameTurkish }),
         sound: true,
         categoryIdentifier: NOTIFICATION_CATEGORIES.PRAYER_REMINDER_LATER,
         data: {
@@ -511,7 +510,7 @@ export class NotificationService {
 
     const notificationId = await NotificationsModule.scheduleNotificationAsync({
       content: {
-        title: 'Günlük Ayet',
+        title: i18n.t('notification.dailyVerseTitle'),
         body: ayahText.length > 100 ? `${ayahText.substring(0, 100)}...` : ayahText,
         sound: true,
         categoryIdentifier: NOTIFICATION_CATEGORIES.DAILY_VERSE,
@@ -566,8 +565,8 @@ export class NotificationService {
 
     const notificationId = await NotificationsModule.scheduleNotificationAsync({
       content: {
-        title: 'Namaz Serisi',
-        body: `${streakCount} gündür aralıksız namaz kılıyorsun! 🎉`,
+        title: i18n.t('notification.streakTitle'),
+        body: i18n.t('notification.streakBody', { count: streakCount }),
         sound: true,
         categoryIdentifier: NOTIFICATION_CATEGORIES.STREAK,
         data: {
