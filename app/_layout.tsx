@@ -118,88 +118,91 @@ export default function RootLayout() {
     debugLog("_layout.tsx:notificationEffect", "before syncPushTokenAndSettings", {});
     syncPushTokenAndSettings().catch(() => {});
 
-    // Set up notification listeners
+    const processNotificationResponse = async (
+      response: Notifications.NotificationResponse
+    ) => {
+      const actionIdentifier = response.actionIdentifier;
+      const data = response.notification.request.content.data as Record<string, unknown> | undefined;
+
+      if (actionIdentifier === NOTIFICATION_ACTIONS.PRAYER_MARKED_PRAYED) {
+        const { prayerTrackingRepo } = await import('@/lib/database/sqlite/prayer-tracking/repository');
+        const { getTodayDateString } = await import('@/lib/services/dailyReset');
+
+        if (data?.prayerName && typeof data.prayerName === 'string') {
+          const prayerName = data.prayerName.toLowerCase();
+          const today = getTodayDateString();
+          await prayerTrackingRepo.upsertPrayerState(today, prayerName as any, 'prayed');
+
+          await notificationService.cancelNotificationsByType('prayer_reminder');
+
+          queryClient.invalidateQueries({
+            queryKey: ['prayerTracking', 'local', today],
+          });
+        }
+        return;
+      }
+
+      if (actionIdentifier === NOTIFICATION_ACTIONS.PRAYER_REMIND_LATER) {
+        if (data?.prayerName && typeof data.prayerName === 'string') {
+          const latitude = location?.latitude ?? 41.0082;
+          const longitude = location?.longitude ?? 28.9784;
+
+          try {
+            const prayerTimesResponse = await fetchPrayerTimes({
+              latitude,
+              longitude,
+              method: method ?? 13,
+            });
+
+            await notificationScheduler.scheduleReminderForNextPrayer(
+              data.prayerName,
+              prayerTimesResponse
+            );
+          } catch (error) {
+            console.error('[Notification] Failed to schedule reminder:', error);
+          }
+        }
+        return;
+      }
+
+      if (actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
+        const deepLink = typeof data?.deepLink === 'string' ? data.deepLink : '';
+        if (deepLink) {
+          if (deepLink.includes('daily-verse')) {
+            router.push('/(tabs)/more/daily-verse');
+          } else if (deepLink.includes('adhan')) {
+            router.push('/(tabs)/adhan');
+          } else if (deepLink.includes('tracking')) {
+            router.push('/(tabs)');
+          }
+        } else if (data?.type === 'prayer_time') {
+          router.push('/(tabs)/adhan');
+        } else if (data?.type === 'streak') {
+          router.push('/(tabs)');
+        } else if (data?.type === 'daily_verse') {
+          router.push('/(tabs)/more/daily-verse');
+        } else if (data?.type === 'pre_prayer' || data?.type === 'prayer_reminder') {
+          router.push('/(tabs)');
+        }
+      }
+
+      await notificationService.handleNotificationResponse(response as any);
+    };
+
+    Notifications.getLastNotificationResponseAsync()
+      .then((lastResponse) => {
+        if (lastResponse) {
+          processNotificationResponse(lastResponse);
+        }
+      })
+      .catch(() => {});
+
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-      // Handle foreground notifications if needed
       console.log('[Notification] Received:', notification);
     });
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener(
-      async (response) => {
-        const actionIdentifier = response.actionIdentifier;
-        const data = response.notification.request.content.data;
-
-        // Handle action button clicks
-        if (actionIdentifier === NOTIFICATION_ACTIONS.PRAYER_MARKED_PRAYED) {
-          const { prayerTrackingRepo } = await import('@/lib/database/sqlite/prayer-tracking/repository');
-          const { getTodayDateString } = await import('@/lib/services/dailyReset');
-          
-          if (data?.prayerName && typeof data.prayerName === 'string') {
-            const prayerName = data.prayerName.toLowerCase();
-            const today = getTodayDateString();
-            await prayerTrackingRepo.upsertPrayerState(today, prayerName as any, 'prayed');
-            
-            // Cancel related reminder notifications
-            await notificationService.cancelNotificationsByType('prayer_reminder');
-            
-            // Invalidate prayer tracking query
-            queryClient.invalidateQueries({
-              queryKey: ['prayerTracking', 'local', today],
-            });
-          }
-          return;
-        }
-
-        if (actionIdentifier === NOTIFICATION_ACTIONS.PRAYER_REMIND_LATER) {
-          // Schedule reminder for next prayer
-          if (data?.prayerName && typeof data.prayerName === 'string') {
-            // Get prayer times to find next prayer
-            const latitude = location?.latitude ?? 41.0082;
-            const longitude = location?.longitude ?? 28.9784;
-            
-            try {
-              const prayerTimesResponse = await fetchPrayerTimes({
-                latitude,
-                longitude,
-                method: method ?? 13,
-              });
-              
-              await notificationScheduler.scheduleReminderForNextPrayer(
-                data.prayerName,
-                prayerTimesResponse
-              );
-            } catch (error) {
-              console.error('[Notification] Failed to schedule reminder:', error);
-            }
-          }
-          return;
-        }
-
-        // Handle notification tap (not action button)
-        if (actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
-          const deepLink = typeof data?.deepLink === 'string' ? data.deepLink : '';
-          if (deepLink) {
-            if (deepLink.includes('daily-verse')) {
-              router.push('/(tabs)/more/daily-verse');
-            } else if (deepLink.includes('adhan')) {
-              router.push('/(tabs)/adhan');
-            } else if (deepLink.includes('tracking')) {
-              router.push('/(tabs)');
-            }
-          } else if (data?.type === 'prayer_time') {
-            router.push('/(tabs)/adhan');
-          } else if (data?.type === 'streak') {
-            router.push('/(tabs)');
-          } else if (data?.type === 'daily_verse') {
-            router.push('/(tabs)/more/daily-verse');
-          } else if (data?.type === 'pre_prayer' || data?.type === 'prayer_reminder') {
-            router.push('/(tabs)');
-          }
-        }
-
-        // Call service handler
-        await notificationService.handleNotificationResponse(response as any);
-      }
+      processNotificationResponse
     );
 
     return () => {
@@ -210,7 +213,7 @@ export default function RootLayout() {
         responseListener.current.remove();
       }
     };
-  }, []);
+  }, [location?.latitude, location?.longitude, method, router]);
 
   useEffect(() => {
     // Method is always available (has default value), but we need to wait for it
