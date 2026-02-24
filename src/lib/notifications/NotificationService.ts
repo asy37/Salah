@@ -10,6 +10,7 @@
  * Use a development build for full functionality.
  */
 
+import { Platform } from 'react-native';
 import type { PrayerName } from '@/types/prayer-tracking';
 
 // Conditional import for Expo Go compatibility
@@ -32,18 +33,18 @@ const PRAYER_NAME_MAP: Record<string, string> = {
   isha: 'Yatsı',
 };
 
-// Prayer sound file mappings
+// app.json plugin "sounds" ile aynı base dosya adları (underscore)
 const PRAYER_SOUND_MAP: Record<string, string> = {
-  Fajr: 'fajr-ezan.mp3',
-  Dhuhr: 'dhuhr-ezan.mp3',
-  Asr: 'asr-ezan.mp3',
-  Maghrib: 'maghrib-ezan.mp3',
-  Isha: 'isha-ezan.mp3',
-  fajr: 'fajr-ezan.mp3',
-  dhuhr: 'dhuhr-ezan.mp3',
-  asr: 'asr-ezan.mp3',
-  maghrib: 'maghrib-ezan.mp3',
-  isha: 'isha-ezan.mp3',
+  Fajr: 'fajr_ezan.mp3',
+  Dhuhr: 'dhuhr_ezan.mp3',
+  Asr: 'asr_ezan.mp3',
+  Maghrib: 'maghrib_ezan.mp3',
+  Isha: 'isha_ezan.mp3',
+  fajr: 'fajr_ezan.mp3',
+  dhuhr: 'dhuhr_ezan.mp3',
+  asr: 'asr_ezan.mp3',
+  maghrib: 'maghrib_ezan.mp3',
+  isha: 'isha_ezan.mp3',
 };
 
 /**
@@ -141,6 +142,27 @@ function getPrayerNameTurkish(prayerName: string): string {
   return PRAYER_NAME_MAP[prayerName] || prayerName;
 }
 
+/** Android 8+: Ezan bildirimi için kanal gerekli (ses + titreşim). Her vakit kendi sesi için ayrı kanal. */
+async function ensurePrayerTimeChannelsAndroid(): Promise<void> {
+  if (Platform.OS !== 'android') return;
+  const NotificationsModule = getNotifications();
+  if (!NotificationsModule?.setNotificationChannelAsync) return;
+
+  const vibrationPattern = [0, 250, 250, 250];
+  const prayers = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'] as const;
+  for (const key of prayers) {
+    const soundFile = PRAYER_SOUND_MAP[key];
+    const channelId = `prayer_time_${key}`;
+    await NotificationsModule.setNotificationChannelAsync(channelId, {
+      name: `${PRAYER_NAME_MAP[key]} Namazı`,
+      importance: 5,
+      sound: soundFile,
+      vibrationPattern,
+      enableVibration: true,
+    } as any);
+  }
+}
+
 export class NotificationService {
   private static instance: NotificationService;
 
@@ -219,33 +241,37 @@ export class NotificationService {
 
     configureNotifications(); // Ensure handler is set
 
+    await ensurePrayerTimeChannelsAndroid();
+
     // Cancel existing prayer time notifications
     await this.cancelNotificationsByType('prayer_time');
+
+    const vibrationPattern = [0, 250, 250, 250];
 
     // Schedule new notifications
     for (const day of prayerTimes.slice(0, days)) {
       for (const prayer of day.prayers) {
-        // Only schedule for actual prayer times (not Imsak, Sunrise, etc.)
         const prayerKey = prayer.name.toLowerCase();
         if (!['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].includes(prayerKey)) {
           continue;
         }
 
-        // Skip past times (iOS can assert on past date triggers)
         if (prayer.time.getTime() <= Date.now()) {
           continue;
         }
 
         const prayerNameTurkish = getPrayerNameTurkish(prayer.name);
         const soundFile = soundEnabled ? getPrayerSound(prayer.name) : false;
+        const channelId = Platform.OS === 'android' ? `prayer_time_${prayerKey}` : undefined;
 
         await NotificationsModule.scheduleNotificationAsync({
           content: {
             title: `${prayerNameTurkish} Namazı Vakti`,
             body: `${prayerNameTurkish} namazı için ezan okundu`,
-            sound: soundFile,
-            vibrate: vibrationEnabled ? [0, 250, 250, 250] : undefined,
+            sound: soundEnabled ? (soundFile || true) : false,
+            vibrate: vibrationEnabled ? vibrationPattern : undefined,
             categoryIdentifier: NOTIFICATION_CATEGORIES.PRAYER_TIME,
+            ...(channelId && { channelId }),
             data: {
               type: 'prayer_time',
               prayerName: prayer.name,
@@ -257,6 +283,7 @@ export class NotificationService {
           trigger: {
             type: 'date',
             date: prayer.time,
+            ...(channelId && { channelId }),
           } as any,
         });
       }
