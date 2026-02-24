@@ -131,9 +131,10 @@ export default function RootLayout() {
         if (data?.prayerName && typeof data.prayerName === 'string') {
           const prayerName = data.prayerName.toLowerCase();
           const today = getTodayDateString();
+          const notifDate = typeof data?.date === 'string' ? data.date : today;
           await prayerTrackingRepo.upsertPrayerState(today, prayerName as any, 'prayed');
 
-          await notificationService.cancelNotificationsByType('prayer_reminder');
+          await notificationService.cancelPrayerReminderForPrayer(data.prayerName, notifDate);
 
           queryClient.invalidateQueries({
             queryKey: ['prayerTracking', 'local', today],

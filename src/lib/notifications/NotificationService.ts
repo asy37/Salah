@@ -361,7 +361,8 @@ export class NotificationService {
   }
 
   /**
-   * Schedule prayer reminder notifications (30 minutes after prayer time)
+   * Schedule prayer reminder notifications (30 minutes after prayer time).
+   * todayDate + alreadyPrayedToday verilirse, bugün için "kıldım" işaretlenmiş vakitlerin hatırlatması planlanmaz.
    */
   async schedulePrayerReminderNotifications(
     prayerTimes: Array<{
@@ -369,7 +370,8 @@ export class NotificationService {
       prayers: Array<{ name: string; time: Date }>;
     }>,
     days: number = 7,
-    vibrationEnabled: boolean = true
+    vibrationEnabled: boolean = true,
+    opts?: { todayDate: string; alreadyPrayedToday: Record<string, boolean> }
   ): Promise<void> {
     const NotificationsModule = getNotifications();
     if (!NotificationsModule) {
@@ -379,15 +381,21 @@ export class NotificationService {
 
     configureNotifications(); // Ensure handler is set
 
-    // Cancel existing reminder notifications
     await this.cancelNotificationsByType('prayer_reminder');
 
-    // Schedule new notifications
     for (const day of prayerTimes.slice(0, days)) {
       for (const prayer of day.prayers) {
-        // Only schedule for actual prayer times
         const prayerKey = prayer.name.toLowerCase();
         if (!['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].includes(prayerKey)) {
+          continue;
+        }
+
+        if (
+          opts?.todayDate &&
+          opts?.alreadyPrayedToday &&
+          day.date === opts.todayDate &&
+          opts.alreadyPrayedToday[prayerKey]
+        ) {
           continue;
         }
 
@@ -621,6 +629,27 @@ export class NotificationService {
   }
 
   /**
+   * Sadece belirtilen (tarih, vakit) için namaz hatırlatıcı bildirimini iptal eder.
+   * Kullanıcı "kıldım" işaretlediğinde o vakit hatırlatması gelmemeli.
+   */
+  async cancelPrayerReminderForPrayer(prayerName: string, date: string): Promise<void> {
+    const NotificationsModule = getNotifications();
+    if (!NotificationsModule) return;
+
+    const notifications = await NotificationsModule.getAllScheduledNotificationsAsync();
+    const key = prayerName.toLowerCase();
+    const filtered = notifications.filter(
+      (n) =>
+        n.content.data?.type === 'prayer_reminder' &&
+        (n.content.data?.prayerName as string)?.toLowerCase() === key &&
+        n.content.data?.date === date
+    );
+    for (const notification of filtered) {
+      await NotificationsModule.cancelScheduledNotificationAsync(notification.identifier);
+    }
+  }
+
+  /**
    * Register push notification token
    */
   async registerPushToken(): Promise<string | null> {
@@ -677,17 +706,16 @@ export class NotificationService {
 
     // Handle action button clicks
     if (actionIdentifier === NOTIFICATION_ACTIONS.PRAYER_MARKED_PRAYED) {
-      // Mark prayer as prayed in SQLite
       const { prayerTrackingRepo } = await import('@/lib/database/sqlite/prayer-tracking/repository');
       const { getTodayDateString } = await import('@/lib/services/dailyReset');
-      
+
       if (data?.prayerName) {
         const prayerName = data.prayerName.toLowerCase() as PrayerName;
         const today = getTodayDateString();
         await prayerTrackingRepo.upsertPrayerState(today, prayerName, 'prayed');
-        
-        // Cancel related reminder notifications
-        await this.cancelNotificationsByType('prayer_reminder');
+
+        const notifDate = typeof data?.date === 'string' ? data.date : today;
+        await this.cancelPrayerReminderForPrayer(data.prayerName, notifDate);
       }
       return;
     }

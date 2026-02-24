@@ -7,6 +7,7 @@ import { notificationService } from '@/lib/notifications/NotificationService';
 import { useNotificationSettings } from '@/lib/storage/notificationSettings';
 import { getDailyAyahNumber } from '@/lib/quran/dailyAyah';
 import { prayerTrackingRepo } from '@/lib/database/sqlite/prayer-tracking/repository';
+import { getTodayDateString } from '@/lib/services/dailyReset';
 import type { AladhanPrayerTimesResponse } from '@/lib/api/services/prayerTimes';
 import { createPrayerTime } from '@/components/prayer-list/utils/utils';
 import { Platform } from 'react-native';
@@ -157,12 +158,24 @@ class NotificationSchedulerService {
       await notificationService.cancelNotificationsByType('pre_prayer');
     }
 
-    // Schedule prayer reminder notifications (30 minutes after)
+    // Schedule prayer reminder notifications (30 minutes after). Bugün "kıldım" işaretlenmiş vakitler için planlama yapma.
     if (settings.prayerReminderEnabled) {
+      const today = getTodayDateString();
+      const state = await prayerTrackingRepo.getCurrentPrayerState();
+      const alreadyPrayedToday: Record<string, boolean> = state?.date === today
+        ? {
+            fajr: state.fajr === 'prayed',
+            dhuhr: state.dhuhr === 'prayed',
+            asr: state.asr === 'prayed',
+            maghrib: state.maghrib === 'prayed',
+            isha: state.isha === 'prayed',
+          }
+        : {};
       await notificationService.schedulePrayerReminderNotifications(
         limitedPrayerTimes,
         effectiveDays,
-        settings.vibration
+        settings.vibration,
+        { todayDate: today, alreadyPrayedToday }
       );
     } else {
       await notificationService.cancelNotificationsByType('prayer_reminder');

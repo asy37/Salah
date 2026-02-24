@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { prayerTrackingRepo } from '@/lib/database/sqlite/prayer-tracking/repository';
 import { dailyResetService, getTodayDateString } from '@/lib/services/dailyReset';
 import { usePrayerTimesStore } from '@/lib/storage/prayerTimesStore';
+import { notificationService } from '@/lib/notifications/NotificationService';
 import type { PrayerStatus, PrayerName, PrayerStreak } from '@/types/prayer-tracking';
 
 /**
@@ -98,13 +99,16 @@ export function useUpdatePrayerStatusLocal() {
       // Sync queue is handled by daily reset service at imsak time
       // Previous day's state is automatically queued for sync
     },
-    onSuccess: () => {
+    onSuccess: (_, { prayer, status }) => {
       queryClient.invalidateQueries({
         queryKey: ['prayerTracking', 'local', today],
       });
       queryClient.invalidateQueries({
         queryKey: ['prayerTracking', 'localStreak', today],
       });
+      if (status === 'prayed') {
+        notificationService.cancelPrayerReminderForPrayer(prayer, today).catch(() => {});
+      }
     },
   });
 }
