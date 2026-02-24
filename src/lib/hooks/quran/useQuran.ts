@@ -161,7 +161,7 @@ export function useQuran(
   const getDailyAyah = useCallback(
     (date?: Date): Ayah | null => {
       const n = getDailyAyahNumber(date ?? new Date());
-      return getAyahByNumber(282);
+      return getAyahByNumber(n);
     },
     [getAyahByNumber]
   );

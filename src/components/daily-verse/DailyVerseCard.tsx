@@ -67,7 +67,6 @@ export default function DailyVerseCard({ isDark }: DailyVerseCardProps) {
       </Text>
       <AyahBlock
         ayah={dailyAyah}
-        isDark={isDark}
         onAyahPress={handleAyahPress}
         activeWordIndex={
           activeAyahNumber === dailyAyah.number ? activeWordIndex : -1
