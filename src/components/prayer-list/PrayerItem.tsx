@@ -43,10 +43,12 @@ export default function PrayerItem({
   const [isExpanded, setIsExpanded] = useState(false);
   const { mutate: updateStatus, isPending } = useUpdatePrayerStatusLocal();
 
+  const canExpand = extended && (isPast || isActive);
+
   return (
     <Pressable
-      onPress={extended ? () => setIsExpanded(!isExpanded) : undefined}
-      disabled={extended && isPending}
+      onPress={canExpand ? () => setIsExpanded(!isExpanded) : undefined}
+      disabled={extended && isPending || !canExpand}
       className={clsx(
         "flex-1 items-center gap-4 p-4 rounded-xl border shadow-sm relative overflow-hidden",
         getBackgroundColor(isActive, isPast, isDark),

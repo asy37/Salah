@@ -42,8 +42,7 @@ export const ActionButtons = ({
       }
     );
   };
-  console.log(isPast);
-  
+
   return (
     <View
       className={clsx(
