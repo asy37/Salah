@@ -20,6 +20,7 @@ import { useLocationStore } from "@/lib/storage/locationStore";
 import { useMethodStore } from "@/lib/storage/useMethodStore";
 import { useDhikrSync } from "@/lib/hooks/dhikir/useDhikrSync";
 import { useDuaSync } from "@/lib/hooks/duas/useDuaSync";
+import { useProfileSync } from "@/lib/hooks/profile/useProfileSync";
 import { useTranslationStore } from "@/lib/storage/useQuranStore";
 import { getDownloadedTranslations } from "@/lib/database/sqlite/translation/repository";
 import { QuranAudioProvider } from "@/contexts/QuranAudioContext";
@@ -331,5 +332,6 @@ function DhikrSyncProvider() {
  */
 function DuaSyncProvider() {
   useDuaSync();
+  useProfileSync();
   return null;
 }

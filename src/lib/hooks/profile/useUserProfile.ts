@@ -2,7 +2,6 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query/queryKeys';
 import { queryClient } from '@/lib/query/queryClient';
 import {
-  getMyProfile,
   getAvatarSignedUrl,
   updateMyProfile,
   uploadAvatarFromUri,
@@ -11,11 +10,17 @@ import {
   type UpgradeAnonymousUserInput,
 } from '@/lib/api/services/profile';
 import { useAuth } from '@/lib/hooks/auth/useAuth';
+import { profileRepo } from '@/lib/database/sqlite/profile/repository';
 
 export function useUserProfile() {
+  const { session } = useAuth();
+  const userId = session?.user?.id ?? null;
+
   return useQuery({
-    queryKey: queryKeys.user.profile(),
-    queryFn: getMyProfile,
+    queryKey: [...queryKeys.user.profile(), userId ?? ''],
+    queryFn: () => profileRepo.getLocalProfile(userId!),
+    enabled: !!userId,
+    staleTime: 2 * 60 * 1000,
   });
 }
 
@@ -56,7 +61,10 @@ export function useAvatarUrl() {
 export function useUpdateUserProfile() {
   return useMutation({
     mutationFn: (input: UpdateUserProfileInput) => updateMyProfile(input),
-    onSuccess: () => {
+    onSuccess: async (data) => {
+      if (data?.id) {
+        await profileRepo.upsertLocalProfile(data.id, data);
+      }
       queryClient.invalidateQueries({ queryKey: queryKeys.user.profile() });
     },
   });

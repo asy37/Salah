@@ -92,3 +92,25 @@ CREATE TABLE IF NOT EXISTS sync_queue (
 
 CREATE INDEX IF NOT EXISTS idx_sync_queue_dua_id ON sync_queue(dua_id);
 CREATE INDEX IF NOT EXISTS idx_sync_queue_created_at ON sync_queue(created_at);
+
+-- 7️⃣ User Profile Cache (offline-first profile display)
+CREATE TABLE IF NOT EXISTS user_profile_cache (
+  user_id TEXT PRIMARY KEY,
+  name TEXT,
+  surname TEXT,
+  image TEXT,
+  is_anonymous INTEGER NOT NULL DEFAULT 0,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+
+-- 8️⃣ Profile Sync Queue (pending profile updates for Supabase)
+CREATE TABLE IF NOT EXISTS profile_sync_queue (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id TEXT NOT NULL,
+  payload TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_profile_sync_queue_user_id ON profile_sync_queue(user_id);
+CREATE INDEX IF NOT EXISTS idx_profile_sync_queue_created_at ON profile_sync_queue(created_at);
