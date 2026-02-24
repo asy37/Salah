@@ -1,7 +1,8 @@
 // src/lib/stores/prayerTimesStore.ts
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AladhanPrayerTimesResponse } from "../api/services/prayerTimes";
 
 type PrayerTimesCache = {
@@ -26,7 +27,8 @@ export const usePrayerTimesStore = create<PrayerTimesState>()(
       clearCache: () => set({ cache: null }),
     }),
     {
-      name: "prayer-times-cache", // AsyncStorage key
+      name: "prayer-times-cache",
+      storage: createJSONStorage(() => AsyncStorage),
     }
   )
 );

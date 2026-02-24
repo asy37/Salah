@@ -5,6 +5,7 @@
 
 import { aladhanClient } from "../client";
 import { usePrayerTimesStore } from "@/lib/storage/prayerTimesStore";
+import { storage } from "@/lib/storage/mmkv";
 
 export interface AladhanPrayerTimesResponse {
   code: number;
@@ -138,6 +139,13 @@ export async function fetchPrayerTimes(
   }
 
   try {
+    // Expo'da gerçek ağ kapatılamadığı için: __DEV__ iken "simüle offline" ile test
+    if (typeof __DEV__ !== "undefined" && __DEV__) {
+      const simulateOffline = await storage.getBoolean("simulatePrayerTimesOffline");
+      if (simulateOffline) {
+        throw new Error("Simulated offline for Expo testing");
+      }
+    }
     const response = await aladhanClient.get<AladhanPrayerTimesResponse>(
       "/timings",
       {
@@ -162,7 +170,40 @@ export async function fetchPrayerTimes(
 
     return response;
   } catch (error) {
-    console.error("❌ Aladhan API hatası:", error);
+    const isSimulatedOffline = (error as Error)?.message === "Simulated offline for Expo testing";
+    if (!isSimulatedOffline) {
+      console.error("❌ Aladhan API hatası:", error);
+    }
+    // Offline-first: Ağ hatası olsa bile önceden cache varsa onu döndür; store'u da güncelle ki ekranlar (store'dan okuyan) veriyi görsün.
+    let fallbackCache = usePrayerTimesStore.getState().cache;
+    if (fallbackCache?.data) {
+      usePrayerTimesStore.getState().setCache(fallbackCache);
+      return {
+        code: 200,
+        status: "OK",
+        data: fallbackCache.data,
+      };
+    }
+    // Simüle offline: Store rehydration async olduğu için cache bazen hep null kalıyor. Persist'ın yazdığı AsyncStorage'dan doğrudan oku.
+    if (typeof __DEV__ !== "undefined" && __DEV__ && isSimulatedOffline) {
+      try {
+        const raw = await storage.getString("prayer-times-cache");
+        if (raw) {
+          const parsed = JSON.parse(raw) as { state?: { cache?: typeof fallbackCache }; cache?: typeof fallbackCache };
+          const fromStorage = parsed?.state?.cache ?? parsed?.cache ?? null;
+          if (fromStorage?.data) {
+            usePrayerTimesStore.getState().setCache(fromStorage);
+            return {
+              code: 200,
+              status: "OK",
+              data: fromStorage.data,
+            };
+          }
+        }
+      } catch {
+        // ignore parse/storage errors
+      }
+    }
     throw error;
   }
 }

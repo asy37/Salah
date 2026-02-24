@@ -1,4 +1,4 @@
-import { ScrollView, View } from "react-native";
+import { ScrollView, View, Text } from "react-native";
 import clsx from "clsx";
 import AdhanHeader from "@/components/adhan/AdhanHeader";
 import DateInfo from "@/components/adhan/DateInfo";
@@ -16,8 +16,9 @@ export default function AdhanScreen() {
 
   const data = usePrayerTimesStore((state) => state.cache);
 
-  const prayerDate = data?.data.date as PrayerDate;
-  const prayerTimings = data?.data.timings as PrayerTimings;
+  const prayerDate = data?.data.date as PrayerDate | undefined;
+  const prayerTimings = data?.data.timings as PrayerTimings | undefined;
+  const hasData = data?.data?.timings != null;
 
   return (
     <View
@@ -32,14 +33,29 @@ export default function AdhanScreen() {
         showsVerticalScrollIndicator={false}
       >
         <AdhanHeader isDark={isDark} />
-        <DateInfo isDark={isDark} data={prayerDate} />
-        <NextPrayerCard isDark={isDark} data={prayerTimings} />
-        <PrayerScheduleList
-          prayerMap={adhanMap}
-          isDark={isDark}
-          data={prayerTimings}
-          extended={false}
-        />
+        {hasData ? (
+          <>
+            <DateInfo isDark={isDark} data={prayerDate!} />
+            <NextPrayerCard isDark={isDark} data={prayerTimings} />
+            <PrayerScheduleList
+              prayerMap={adhanMap}
+              isDark={isDark}
+              data={prayerTimings}
+              extended={false}
+            />
+          </>
+        ) : (
+          <View className="flex-1 items-center justify-center px-6 py-12">
+            <Text
+              className={clsx(
+                "text-base text-center",
+                isDark ? "text-text-secondaryDark" : "text-text-secondaryLight"
+              )}
+            >
+              Vakitleri yüklemek için internet bağlantısı gerekir. Bağlandığınızda son bilinen vakitler gösterilecek.
+            </Text>
+          </View>
+        )}
       </ScrollView>
     </View>
   );

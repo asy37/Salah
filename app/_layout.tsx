@@ -236,7 +236,10 @@ export default function RootLayout() {
         // Schedule notifications
         await notificationScheduler.scheduleAllNotifications(prayerTimesResponse, 7);
       } catch (error) {
-        console.error('[Layout] Failed to schedule notifications:', error);
+        const isSimulatedOffline = (error as Error)?.message === "Simulated offline for Expo testing";
+        if (!isSimulatedOffline) {
+          console.error('[Layout] Failed to schedule notifications:', error);
+        }
       }
     };
 

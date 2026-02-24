@@ -44,12 +44,23 @@ export default function DailyProgressSection({
       </View>
 
       <View className="gap-3">
-        <PrayerList
-          extended={true}
-          isDark={isDark}
-          data={prayerTimesData?.data.timings}
-          prayerMap={prayerMap}
-        />
+        {prayerTimesData?.data?.timings ? (
+          <PrayerList
+            extended={true}
+            isDark={isDark}
+            data={prayerTimesData.data.timings}
+            prayerMap={prayerMap}
+          />
+        ) : (
+          <Text
+            className={clsx(
+              "text-sm text-center py-4 px-2",
+              isDark ? "text-text-secondaryDark" : "text-text-secondaryLight"
+            )}
+          >
+            Vakitleri görmek için internet bağlantısı gerekir. Son bilinen vakitler yüklenecek.
+          </Text>
+        )}
       </View>
     </View>
   );
