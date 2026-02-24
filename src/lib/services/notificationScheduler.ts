@@ -89,14 +89,18 @@ function getNextPrayerTime(
 }
 
 class NotificationSchedulerService {
+  private scheduleAllInProgress: Promise<void> | null = null;
+
   /**
-   * Schedule all notifications based on prayer times and settings
+   * Schedule all notifications based on prayer times and settings.
+   * Aynı anda yalnızca bir çalıştırma yapılır; böylece ezan bildirimi tekrarlanmaz.
    */
   async scheduleAllNotifications(
     prayerTimesResponse: AladhanPrayerTimesResponse,
     days: number = 7
   ): Promise<void> {
-    const settings = useNotificationSettings.getState();
+    const run = async () => {
+      const settings = useNotificationSettings.getState();
     const prayerTimes = convertPrayerTimesToData(prayerTimesResponse, days);
 
     // Calculate approximate total number of notifications we plan to schedule (for iOS 64 limit)
@@ -176,6 +180,15 @@ class NotificationSchedulerService {
       await this.scheduleStreak(settings.streakTime);
     } else {
       await notificationService.cancelNotificationsByType('streak');
+    }
+    };
+
+    await this.scheduleAllInProgress;
+    this.scheduleAllInProgress = run();
+    try {
+      await this.scheduleAllInProgress;
+    } finally {
+      this.scheduleAllInProgress = null;
     }
   }
 

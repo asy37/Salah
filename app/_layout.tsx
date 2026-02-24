@@ -105,6 +105,8 @@ export default function RootLayout() {
   const location = useLocationStore((state) => state.location);
   const method = useMethodStore((state) => state.method?.id);
   const notificationSettings = useNotificationSettings();
+  const lastScheduleRunRef = useRef(0);
+  const SCHEDULE_DEBOUNCE_MS = 2500;
 
   // Notification response handler
   const notificationListener = useRef<{ remove: () => void } | null>(null);
@@ -219,6 +221,12 @@ export default function RootLayout() {
     const longitude = location?.longitude ?? 28.9784;
 
     const prefetchAndSchedule = async () => {
+      const now = Date.now();
+      if (now - lastScheduleRunRef.current < SCHEDULE_DEBOUNCE_MS) {
+        return;
+      }
+      lastScheduleRunRef.current = now;
+
       try {
         const prayerTimesResponse = await fetchPrayerTimes({
           latitude,
