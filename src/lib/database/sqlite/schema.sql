@@ -114,3 +114,28 @@ CREATE TABLE IF NOT EXISTS profile_sync_queue (
 
 CREATE INDEX IF NOT EXISTS idx_profile_sync_queue_user_id ON profile_sync_queue(user_id);
 CREATE INDEX IF NOT EXISTS idx_profile_sync_queue_created_at ON profile_sync_queue(created_at);
+
+-- 9️⃣ Prayer Times Month Cache (Aladhan calendar API – one row per month per location)
+CREATE TABLE IF NOT EXISTS prayer_times_month_cache (
+  year INTEGER NOT NULL,
+  month INTEGER NOT NULL,
+  latitude REAL NOT NULL,
+  longitude REAL NOT NULL,
+  method INTEGER NOT NULL,
+  data TEXT NOT NULL,
+  synced_at INTEGER NOT NULL,
+  PRIMARY KEY (year, month, latitude, longitude, method)
+);
+
+-- 🔟 Prayer Times Sync Queue (when month changes offline – fetch on reconnect)
+CREATE TABLE IF NOT EXISTS prayer_times_sync_queue (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  year INTEGER NOT NULL,
+  month INTEGER NOT NULL,
+  latitude REAL NOT NULL,
+  longitude REAL NOT NULL,
+  method INTEGER NOT NULL,
+  created_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_prayer_times_sync_queue_created ON prayer_times_sync_queue(created_at);

@@ -16,6 +16,7 @@ import { useMethodStore } from "@/lib/storage/useMethodStore";
 import { queryClient } from "@/lib/query/queryClient";
 import { queryKeys } from "@/lib/query/queryKeys";
 import { syncPushTokenAndSettings } from "@/lib/services/pushTokenSync";
+import { getTodayDDMMYYYY } from "@/lib/services/dailyReset";
 import { useTheme } from "@/lib/storage/useThemeStore";
 import CalculationMethodModal from "@/components/adhan/CalculationMethodModal";
 import { PrayerCalculationMethod } from "@/constants/prayer-method";
@@ -72,6 +73,7 @@ export default function SettingsScreen() {
           latitude: lat,
           longitude: lng,
           method,
+          date: getTodayDDMMYYYY(),
         });
         await notificationScheduler.scheduleAllNotifications(res, 7);
         queryClient.invalidateQueries({ queryKey: queryKeys.prayerTimes.all });

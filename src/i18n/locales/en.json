@@ -79,7 +79,10 @@
     "cancel": "Cancel",
     "done": "Done",
     "days": "Days",
-    "day": "Day"
+    "day": "Day",
+    "stalePrayerTimesModalTitle": "Prayer times are out of date",
+    "stalePrayerTimesModalMessage": "You haven't been online for {{days}} days. Connect to the internet for up-to-date prayer times.",
+    "ok": "OK"
   },
   "notification": {
     "prayerTimeTitle": "{{prayerName}} Prayer Time",
@@ -96,7 +99,9 @@
     "dailyVerseTitle": "Daily Verse",
     "streakTitle": "Prayer Streak",
     "streakBody": "Mashallah, you have prayed {{count}} days in a row. Keep it up. May Allah accept.",
-    "dontForgetBody": "Don't forget to pray {{prayerName}}"
+    "dontForgetBody": "Don't forget to pray {{prayerName}}",
+    "stalePrayerTimesTitle": "Prayer times are out of date",
+    "stalePrayerTimesBody": "You haven't been online for 7 days. Connect to the internet for up-to-date prayer times."
   },
   "auth": {
     "login": "Log in",

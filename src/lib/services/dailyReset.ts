@@ -25,6 +25,22 @@ export function getTodayDateString(): string {
 }
 
 /**
+ * Get today's date in DD-MM-YYYY format (Aladhan API)
+ */
+export function getTodayDDMMYYYY(): string {
+  return format(new Date(), 'dd-MM-yyyy');
+}
+
+/**
+ * Get date in DD-MM-YYYY format for today + offsetDays (Aladhan API)
+ */
+export function getDateDDMMYYYY(offsetDays: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return format(d, 'dd-MM-yyyy');
+}
+
+/**
  * Get yesterday's date in YYYY-MM-DD format
  */
 export function getYesterdayDateString(): string {

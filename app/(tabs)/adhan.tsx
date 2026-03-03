@@ -16,11 +16,11 @@ export default function AdhanScreen() {
   const { isDark } = useTheme();
   const { t } = useTranslation();
 
-  const data = usePrayerTimesStore((state) => state.cache);
+  const todayData = usePrayerTimesStore((state) => state.getTodayData());
 
-  const prayerDate = data?.data.date as PrayerDate | undefined;
-  const prayerTimings = data?.data.timings as PrayerTimings | undefined;
-  const hasData = data?.data?.timings != null;
+  const prayerDate = todayData?.date as PrayerDate | undefined;
+  const prayerTimings = todayData?.timings as PrayerTimings | undefined;
+  const hasData = todayData?.timings != null;
 
   return (
     <View

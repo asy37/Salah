@@ -766,6 +766,43 @@ export class NotificationService {
   }
 
   /**
+   * Schedule a one-time reminder 7 days from now: "You haven't been online for 7 days.
+   * Connect for up-to-date prayer times." Call after every successful calendar fetch / upsertMonth;
+   * cancels any existing reminder and reschedules for 7 days from now.
+   */
+  async scheduleStalePrayerTimesReminder(): Promise<string | null> {
+    const NotificationsModule = getNotifications();
+    if (!NotificationsModule) {
+      console.warn('[NotificationService] Notifications not available');
+      return null;
+    }
+
+    configureNotifications();
+
+    await this.cancelNotificationsByType('stale_prayer_times_reminder');
+
+    const triggerDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    const notificationId = await NotificationsModule.scheduleNotificationAsync({
+      content: {
+        title: i18n.t('notification.stalePrayerTimesTitle'),
+        body: i18n.t('notification.stalePrayerTimesBody'),
+        sound: true,
+        data: {
+          type: 'stale_prayer_times_reminder',
+          deepLink: 'islamicapp://adhan',
+        },
+      },
+      trigger: {
+        type: 'date' as const,
+        date: triggerDate,
+      } as any,
+    });
+
+    return notificationId;
+  }
+
+  /**
    * Cancel all notifications
    */
   async cancelAllNotifications(): Promise<void> {

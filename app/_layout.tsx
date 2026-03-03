@@ -1,6 +1,7 @@
 import "@/lib/utils/debugLogInit";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect, useState, useRef } from "react";
+import { AppState, InteractionManager } from "react-native";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -16,12 +17,28 @@ import { useAuthFlow } from "@/lib/hooks/auth/useAuth";
 import EmailConfirmationProvider from "@/components/auth/email/EmailConfirmationProvider";
 import LocationPermissionProvider from "@/components/location/LocationPermissionProvider";
 import { queryKeys } from "@/lib/query/queryKeys";
-import { fetchPrayerTimes } from "@/lib/api/services/prayerTimes";
+import {
+  fetchPrayerTimes,
+  fetchPrayerTimesCalendar,
+  type PrayerTimesDayData,
+} from "@/lib/api/services/prayerTimes";
+import { getTodayDDMMYYYY } from "@/lib/services/dailyReset";
+import { getDb } from "@/lib/database/sqlite/db";
+import {
+  upsertMonth,
+  getPrayerTimesSyncQueue,
+  removeFromPrayerTimesSyncQueue,
+  addToPrayerTimesSyncQueue,
+  getDataByDate,
+  getMonthSyncedAt,
+} from "@/lib/database/sqlite/prayer-times/repository";
 import { useLocationStore } from "@/lib/storage/locationStore";
+import { usePrayerTimesStore } from "@/lib/storage/prayerTimesStore";
 import { useMethodStore } from "@/lib/storage/useMethodStore";
 import { useDhikrSync } from "@/lib/hooks/dhikir/useDhikrSync";
 import { useDuaSync } from "@/lib/hooks/duas/useDuaSync";
 import { useProfileSync } from "@/lib/hooks/profile/useProfileSync";
+import { usePrayerTimesRefreshOnReconnect } from "@/lib/hooks/adhan/usePrayerTimesRefreshOnReconnect";
 import { useTranslationStore } from "@/lib/storage/useQuranStore";
 import { getDownloadedTranslations } from "@/lib/database/sqlite/translation/repository";
 import { QuranAudioProvider } from "@/contexts/QuranAudioContext";
@@ -33,6 +50,7 @@ import { syncPushTokenAndSettings } from "@/lib/services/pushTokenSync";
 import { useThemeStore } from "@/lib/storage/useThemeStore";
 import { debugLog } from "@/lib/utils/debugLog";
 import { DebugErrorBoundary } from "@/components/DebugErrorBoundary";
+import StalePrayerTimesModal from "@/components/adhan/StalePrayerTimesModal";
 
 export default function RootLayout() {
   debugLog("_layout.tsx:RootLayout", "RootLayout mounting", {});
@@ -41,6 +59,8 @@ export default function RootLayout() {
   const { shouldShowRegister, canAccessApp, isLoading } = useAuthFlow();
   const [isNavigationReady, setIsNavigationReady] = useState(false);
   const [i18nReady, setI18nReady] = useState(false);
+  const [showStaleModal, setShowStaleModal] = useState(false);
+  const [dbReady, setDbReady] = useState(false);
 
   // Initialize i18n (stored lang / device locale / RTL for Arabic)
   useEffect(() => {
@@ -64,6 +84,16 @@ export default function RootLayout() {
   // Apply saved theme on mount (persisted preference)
   useEffect(() => {
     useThemeStore.getState().applyTheme();
+  }, []);
+
+  // Warm up SQLite after native is ready to avoid NativeDatabase.prepareAsync NPE on Android
+  useEffect(() => {
+    const task = InteractionManager.runAfterInteractions(() => {
+      getDb()
+        .then(() => setDbReady(true))
+        .catch(() => setDbReady(false));
+    });
+    return () => task.cancel();
   }, []);
 
   // Setup TanStack Query managers (focus & online)
@@ -161,6 +191,7 @@ export default function RootLayout() {
               latitude,
               longitude,
               method: method ?? 13,
+              date: getTodayDDMMYYYY(),
             });
 
             await notificationScheduler.scheduleReminderForNextPrayer(
@@ -197,6 +228,8 @@ export default function RootLayout() {
           data?.type === 'prayer_late_reminder'
         ) {
           router.push('/(tabs)');
+        } else if (data?.type === 'stale_prayer_times_reminder') {
+          router.push('/(tabs)/adhan');
         }
       }
 
@@ -232,8 +265,7 @@ export default function RootLayout() {
   }, [location?.latitude, location?.longitude, method, router]);
 
   useEffect(() => {
-    // Method is always available (has default value), but we need to wait for it
-    if (!method) return;
+    if (!method || !dbReady) return;
 
     // Use location if available, otherwise use default Istanbul coordinates
     const latitude = location?.latitude ?? 41.0082;
@@ -246,32 +278,126 @@ export default function RootLayout() {
       }
       lastScheduleRunRef.current = now;
 
+      const today = getTodayDDMMYYYY();
+      const currentDate = new Date();
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth() + 1;
+
       try {
-        const prayerTimesResponse = await fetchPrayerTimes({
+        const cached = await getDataByDate(today, latitude, longitude, method);
+        if (cached) {
+          const syncedAt = await getMonthSyncedAt(year, month, latitude, longitude, method);
+          usePrayerTimesStore.getState().setTodayData(cached, syncedAt ?? undefined);
+        }
+
+        const queue = await getPrayerTimesSyncQueue();
+        for (const item of queue) {
+          try {
+            const cal = await fetchPrayerTimesCalendar({
+              latitude: item.latitude,
+              longitude: item.longitude,
+              method: item.method,
+              year: item.year,
+              month: item.month,
+            });
+            await upsertMonth(
+              item.year,
+              item.month,
+              item.latitude,
+              item.longitude,
+              item.method,
+              cal.data
+            );
+            await removeFromPrayerTimesSyncQueue(item.id);
+          } catch {
+            // skip failed queue item
+          }
+        }
+
+        const cal = await fetchPrayerTimesCalendar({
           latitude,
           longitude,
           method,
+          year,
+          month,
         });
+        await upsertMonth(year, month, latitude, longitude, method, cal.data);
 
-        // Prefetch for query cache
-        queryClient.prefetchQuery({
-          queryKey: queryKeys.prayerTimes.byLocation(latitude, longitude, method.toString()),
-          queryFn: () => prayerTimesResponse,
-          staleTime: 24 * 60 * 60 * 1000, // 24 saat
-        });
+        const todayFromCal = cal.data.find((d) => d.date?.gregorian?.date === today);
+        if (todayFromCal) {
+          usePrayerTimesStore.getState().setTodayData(todayFromCal, Date.now());
+        }
 
-        // Schedule notifications
-        await notificationScheduler.scheduleAllNotifications(prayerTimesResponse, 7);
+        const dayIndex = cal.data.findIndex(
+          (d) => d.date?.gregorian?.date === today
+        );
+        const weekData: PrayerTimesDayData[] =
+          dayIndex >= 0
+            ? cal.data
+                .slice(dayIndex, dayIndex + 7)
+                .map((d) => ({
+                  date: d.date?.gregorian?.date ?? "",
+                  data: d,
+                }))
+            : [];
+
+        if (weekData.length > 0) {
+          const firstDay = weekData[0];
+          queryClient.prefetchQuery({
+            queryKey: queryKeys.prayerTimes.byLocation(
+              latitude,
+              longitude,
+              today,
+              method
+            ),
+            queryFn: () =>
+              Promise.resolve({
+                code: 200,
+                status: "OK" as const,
+                data: firstDay.data,
+              }),
+            staleTime: 24 * 60 * 60 * 1000,
+          });
+          await notificationScheduler.scheduleAllNotificationsFromWeek(weekData);
+        }
+        await notificationService.scheduleStalePrayerTimesReminder();
       } catch (error) {
-        const isSimulatedOffline = (error as Error)?.message === "Simulated offline for Expo testing";
+        const isSimulatedOffline =
+          (error as Error)?.message === "Simulated offline for Expo testing";
         if (!isSimulatedOffline) {
-          console.error('[Layout] Failed to schedule notifications:', error);
+          console.error("[Layout] Failed to fetch prayer times calendar:", error);
+        }
+        try {
+          await addToPrayerTimesSyncQueue(
+            year,
+            month,
+            latitude,
+            longitude,
+            method
+          );
+        } catch {
+          // ignore queue add failure
         }
       }
     };
 
     prefetchAndSchedule();
-  }, [location, method, notificationSettings]);
+  }, [location, method, notificationSettings, dbReady]);
+
+  // Show stale prayer times modal when cache is 7+ days old (today not in cacheByDate)
+  useEffect(() => {
+    if (!canAccessApp || segments[0] !== "(tabs)" || !isNavigationReady) return;
+    const checkStale = () => {
+      if (usePrayerTimesStore.getState().isPrayerTimesStale()) {
+        setShowStaleModal(true);
+      }
+    };
+    checkStale();
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") checkStale();
+    });
+    return () => sub.remove();
+  }, [canAccessApp, segments, isNavigationReady]);
 
   const { selectedTranslation, setSelectedTranslation, setTranslationData } =
     useTranslationStore();
@@ -281,6 +407,7 @@ export default function RootLayout() {
 
   // İndirilmiş çevirileri yükle (seçili yoksa data[0] ile varsayılan atamak için)
   useEffect(() => {
+    if (!dbReady) return;
     debugLog("_layout.tsx:getDownloadedTranslations", "before", {});
     getDownloadedTranslations()
       .then((list) => {
@@ -291,7 +418,7 @@ export default function RootLayout() {
         debugLog("_layout.tsx:getDownloadedTranslations", "error", { error: String(err) });
         setDownloadedList([]);
       });
-  }, []);
+  }, [dbReady]);
 
   // Öncelik: 1) Daha önce seçilmiş, 2) Seçili yok ve data varsa data[0]
   const effectiveIdentifier =
@@ -332,6 +459,10 @@ export default function RootLayout() {
         <DhikrSyncProvider />
         <DuaSyncProvider />
         {!shouldShowRegister && <PrayerHeader />}
+        <StalePrayerTimesModal
+          visible={showStaleModal}
+          onClose={() => setShowStaleModal(false)}
+        />
 
         <Stack
           screenOptions={{
@@ -353,6 +484,7 @@ export default function RootLayout() {
  */
 function DhikrSyncProvider() {
   useDhikrSync();
+  usePrayerTimesRefreshOnReconnect();
   return null;
 }
 

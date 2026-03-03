@@ -111,6 +111,31 @@ CREATE TABLE IF NOT EXISTS profile_sync_queue (
 
 CREATE INDEX IF NOT EXISTS idx_profile_sync_queue_user_id ON profile_sync_queue(user_id);
 CREATE INDEX IF NOT EXISTS idx_profile_sync_queue_created_at ON profile_sync_queue(created_at);
+
+-- 9 Prayer Times Month Cache (Aladhan calendar API)
+CREATE TABLE IF NOT EXISTS prayer_times_month_cache (
+  year INTEGER NOT NULL,
+  month INTEGER NOT NULL,
+  latitude REAL NOT NULL,
+  longitude REAL NOT NULL,
+  method INTEGER NOT NULL,
+  data TEXT NOT NULL,
+  synced_at INTEGER NOT NULL,
+  PRIMARY KEY (year, month, latitude, longitude, method)
+);
+
+-- 10 Prayer Times Sync Queue (month change offline, fetch on reconnect)
+CREATE TABLE IF NOT EXISTS prayer_times_sync_queue (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  year INTEGER NOT NULL,
+  month INTEGER NOT NULL,
+  latitude REAL NOT NULL,
+  longitude REAL NOT NULL,
+  method INTEGER NOT NULL,
+  created_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_prayer_times_sync_queue_created ON prayer_times_sync_queue(created_at);
 `;
 
 /**
@@ -125,7 +150,9 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase> {
   dbPromise ??= (async () => {
     try {
       debugLog("db.ts:getDb", "before openDatabaseAsync", {});
-      const db = await SQLite.openDatabaseAsync("islamic_app.db");
+      const db = await SQLite.openDatabaseAsync("islamic_app.db", {
+        useNewConnection: true,
+      } as Parameters<typeof SQLite.openDatabaseAsync>[1]);
       debugLog("db.ts:getDb", "before execAsync schema", {});
       await db.execAsync(SCHEMA_SQL);
       debugLog("db.ts:getDb", "SQLite init done", {});
@@ -133,6 +160,11 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase> {
     } catch (err) {
       debugLog("db.ts:getDb", "SQLite init failed", { error: String(err) });
       dbPromise = null;
+      // Single retry on prepareAsync NPE (native module may not be ready on first call)
+      if (String(err).includes("prepareAsync")) {
+        debugLog("db.ts:getDb", "retry after prepareAsync error", {});
+        return await getDb();
+      }
       throw err;
     }
   })();

@@ -22,7 +22,7 @@ export default function DailyProgressSection({
   const { isDark } = useTheme();
   const { t } = useTranslation();
 
-  const prayerTimesData = usePrayerTimesStore((state) => state.cache);
+  const todayData = usePrayerTimesStore((state) => state.getTodayData());
 
   return (
     <View className="mt-6">
@@ -46,11 +46,11 @@ export default function DailyProgressSection({
       </View>
 
       <View className="gap-3">
-        {prayerTimesData?.data?.timings ? (
+        {todayData?.timings ? (
           <PrayerList
             extended={true}
             isDark={isDark}
-            data={prayerTimesData.data.timings}
+            data={todayData.timings}
             prayerMap={prayerMap}
           />
         ) : (

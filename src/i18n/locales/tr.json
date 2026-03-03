@@ -79,7 +79,10 @@
     "cancel": "İptal",
     "done": "Bitti",
     "days": "Gün",
-    "day": "Gün"
+    "day": "Gün",
+    "stalePrayerTimesModalTitle": "Ezan vakitleri güncel değil",
+    "stalePrayerTimesModalMessage": "{{days}} gündür internete bağlanmadınız. Güncel ezan saatleri için internete bağlanın.",
+    "ok": "Tamam"
   },
   "notification": {
     "prayerTimeTitle": "{{prayerName}} Namazı Vakti",
@@ -96,7 +99,9 @@
     "dailyVerseTitle": "Günlük Ayet",
     "streakTitle": "Namaz Serisi",
     "streakBody": "Maşallah {{count}} gündür aralıksız namaz kılıyorsun. Böyle Devam. Allah kabul etsin.",
-    "dontForgetBody": "{{prayerName}} namazını kılmayı unutma"
+    "dontForgetBody": "{{prayerName}} namazını kılmayı unutma",
+    "stalePrayerTimesTitle": "Ezan vakitleri güncel değil",
+    "stalePrayerTimesBody": "7 gündür internete bağlanmadınız. Güncel ezan saatleri için internete bağlanın."
   },
   "auth": {
     "login": "Giriş Yap",

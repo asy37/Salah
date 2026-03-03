@@ -24,15 +24,16 @@ export default function PrayerHeader() {
 
   const { isDark } = useTheme();
   const { data: streakData } = usePrayerStreakLocal();
-  const data = usePrayerTimesStore((state) => state.cache);
+  const todayData = usePrayerTimesStore((state) => state.getTodayData());
   const { user } = useAuth();
   const { data: profile } = useUserProfile();
   const avatarUrl = useAvatarUrl();
   const displayName = profile?.name ?? user?.user_metadata?.name ?? "";
   const AVATAR_URL = avatarUrl ?? PLACEHOLDER_AVATAR;
-  const prayerDate = data?.data.date as PrayerDate;
+  const prayerDate = todayData?.date as PrayerDate;
   const hijriDate = `${prayerDate?.hijri?.day} ${prayerDate?.hijri?.weekday.en} ${prayerDate?.hijri?.month.en} ${prayerDate?.hijri?.year}`;
   const gregorianDate = `${prayerDate?.gregorian?.day} ${prayerDate?.gregorian?.weekday.en} ${prayerDate?.gregorian?.month.en} ${prayerDate?.gregorian?.year}`;
+
   return (
     <SafeAreaView
       edges={["top"]}

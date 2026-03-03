@@ -79,7 +79,10 @@
     "cancel": "إلغاء",
     "done": "تم",
     "days": "أيام",
-    "day": "يوم"
+    "day": "يوم",
+    "stalePrayerTimesModalTitle": "أوقات الصلاة غير محدثة",
+    "stalePrayerTimesModalMessage": "لم تتصل بالإنترنت منذ {{days}} أيام. اتصل بالإنترنت لأوقات صلاة محدثة.",
+    "ok": "حسناً"
   },
   "notification": {
     "prayerTimeTitle": "وقت صلاة {{prayerName}}",
@@ -96,7 +99,9 @@
     "dailyVerseTitle": "الآية اليومية",
     "streakTitle": "سلسلة الصلاة",
     "streakBody": "ما شاء الله، صلّيت {{count}} أياماً متتالية. استمر. تقبّل الله.",
-    "dontForgetBody": "لا تنسَ صلاة {{prayerName}}"
+    "dontForgetBody": "لا تنسَ صلاة {{prayerName}}",
+    "stalePrayerTimesTitle": "أوقات الصلاة غير محدثة",
+    "stalePrayerTimesBody": "لم تتصل بالإنترنت منذ 7 أيام. اتصل بالإنترنت لأوقات صلاة محدثة."
   },
   "auth": {
     "login": "تسجيل الدخول",

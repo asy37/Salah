@@ -3,12 +3,16 @@
  * Handles scheduling all types of notifications based on prayer times and settings
  */
 
+import { parse } from 'date-fns';
 import { notificationService } from '@/lib/notifications/NotificationService';
 import { useNotificationSettings } from '@/lib/storage/notificationSettings';
 import { getDailyAyahNumber } from '@/lib/quran/dailyAyah';
 import { prayerTrackingRepo } from '@/lib/database/sqlite/prayer-tracking/repository';
 import { getTodayDateString } from '@/lib/services/dailyReset';
-import type { AladhanPrayerTimesResponse } from '@/lib/api/services/prayerTimes';
+import type {
+  AladhanPrayerTimesResponse,
+  PrayerTimesDayData,
+} from '@/lib/api/services/prayerTimes';
 import { createPrayerTime } from '@/components/prayer-list/utils/utils';
 import { Platform } from 'react-native';
 
@@ -21,7 +25,8 @@ interface PrayerTimeData {
 }
 
 /**
- * Convert Aladhan API response to prayer time data format
+ * Convert single-day Aladhan response to PrayerTimeData (one day only).
+ * Used when only today's data is available.
  */
 function convertPrayerTimesToData(
   response: AladhanPrayerTimesResponse,
@@ -30,13 +35,13 @@ function convertPrayerTimesToData(
   const result: PrayerTimeData[] = [];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const timings = response.data.timings;
 
   for (let i = 0; i < days; i++) {
     const currentDate = new Date(today);
     currentDate.setDate(today.getDate() + i);
     const dateString = currentDate.toISOString().slice(0, 10);
 
-    const timings = response.data.timings;
     const prayers = PRAYER_ORDER.map((prayerName) => {
       const timeString = timings[prayerName as keyof typeof timings];
       if (!timeString) return null;
@@ -55,6 +60,24 @@ function convertPrayerTimesToData(
   }
 
   return result;
+}
+
+/**
+ * Convert 7-day API data to PrayerTimeData[] (one entry per day with correct timings).
+ */
+function convertWeekDataToPrayerTimeData(weekData: PrayerTimesDayData[]): PrayerTimeData[] {
+  return weekData.map(({ date: ddMmYyyy, data }) => {
+    const baseDate = parse(ddMmYyyy, 'dd-MM-yyyy', new Date());
+    const dateString = baseDate.toISOString().slice(0, 10);
+    const timings = data.timings;
+    const prayers = PRAYER_ORDER.map((prayerName) => {
+      const timeString = timings[prayerName as keyof typeof timings];
+      if (!timeString) return null;
+      const time = createPrayerTime(timeString, baseDate);
+      return { name: prayerName, time } as { name: string; time: Date };
+    }).filter((p): p is { name: string; time: Date } => p !== null);
+    return { date: dateString, prayers };
+  });
 }
 
 /**
@@ -176,8 +199,17 @@ class NotificationSchedulerService {
   }
 
   /**
+   * Schedule all notifications from 7-day data (correct times per day).
+   */
+  async scheduleAllNotificationsFromWeek(weekData: PrayerTimesDayData[]): Promise<void> {
+    const prayerTimes = convertWeekDataToPrayerTimeData(weekData);
+    await this.scheduleWithPrayerTimes(prayerTimes, 7);
+  }
+
+  /**
    * Schedule all notifications based on prayer times and settings.
    * Aynı anda yalnızca bir çalıştırma yapılır; böylece ezan bildirimi tekrarlanmaz.
+   * Tek günlük response verilirse aynı gün 7 kez kopyalanır (fallback); 7 günlük veri için scheduleAllNotificationsFromWeek kullanın.
    */
   async scheduleAllNotifications(
     prayerTimesResponse: AladhanPrayerTimesResponse,
@@ -187,6 +219,57 @@ class NotificationSchedulerService {
       const settings = useNotificationSettings.getState();
       const prayerTimes = convertPrayerTimesToData(prayerTimesResponse, days);
 
+      const totalPrayerCount = prayerTimes.reduce(
+        (sum, day) => sum + day.prayers.length,
+        0
+      );
+      const estimatedPrayerTimeNotifs =
+        settings.adhanNotifications ? totalPrayerCount : 0;
+      const estimatedReminderNotifs =
+        settings.prayerReminderEnabled ? totalPrayerCount : 0;
+      const estimatedPrePrayerNotifs =
+        settings.prePrayerAlerts ? totalPrayerCount : 0;
+      const estimatedOtherNotifs =
+        (settings.dailyVerseEnabled ? 1 : 0) + (settings.streakEnabled ? 1 : 0);
+      const estimatedTotal =
+        estimatedPrayerTimeNotifs +
+        estimatedReminderNotifs +
+        estimatedPrePrayerNotifs +
+        estimatedOtherNotifs;
+
+      let effectiveDays = days;
+      if (Platform.OS === 'ios' && estimatedTotal > 64 && totalPrayerCount > 0) {
+        const ratio = 64 / estimatedTotal;
+        effectiveDays = Math.max(1, Math.floor(days * ratio));
+      }
+
+      const limitedPrayerTimes =
+        effectiveDays < prayerTimes.length
+          ? prayerTimes.slice(0, effectiveDays)
+          : prayerTimes;
+
+      await this.applyScheduleFromSettings(
+        settings,
+        limitedPrayerTimes,
+        effectiveDays
+      );
+    };
+
+    await this.scheduleAllInProgress;
+    this.scheduleAllInProgress = run();
+    try {
+      await this.scheduleAllInProgress;
+    } finally {
+      this.scheduleAllInProgress = null;
+    }
+  }
+
+  private async scheduleWithPrayerTimes(
+    prayerTimes: PrayerTimeData[],
+    days: number
+  ): Promise<void> {
+    const run = async () => {
+      const settings = useNotificationSettings.getState();
       const totalPrayerCount = prayerTimes.reduce(
         (sum, day) => sum + day.prayers.length,
         0

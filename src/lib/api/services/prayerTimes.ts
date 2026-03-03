@@ -1,11 +1,13 @@
 /**
  * Prayer Times API Service
- * Handles fetching prayer times from Aladhan API
+ * Handles fetching prayer times from Aladhan API.
+ * Primary flow: /calendar (monthly) → SQLite. Legacy: /timings (single day / week) for fallback.
  */
 
 import { aladhanClient } from "../client";
 import { usePrayerTimesStore } from "@/lib/storage/prayerTimesStore";
 import { storage } from "@/lib/storage/mmkv";
+import { getTodayDDMMYYYY, getDateDDMMYYYY } from "@/lib/services/dailyReset";
 
 export interface AladhanPrayerTimesResponse {
   code: number;
@@ -113,7 +115,8 @@ export interface PrayerTimesParams {
 }
 
 /**
- * Fetch prayer times from Aladhan API
+ * Fetch prayer times for a single day (legacy /timings). Prefer calendar + SQLite flow.
+ * Uses store todayData when requesting today; fallback from store on offline.
  */
 export async function fetchPrayerTimes(
   params: PrayerTimesParams
@@ -123,23 +126,22 @@ export async function fetchPrayerTimes(
     longitude,
     method = 13,
     calendarMethod = "DIYANET",
-    date,
+    date: paramDate,
     timezone,
   } = params;
 
-  const cacheKey = `${date}_${latitude}_${longitude}_${method}`;
-  const cache = usePrayerTimesStore.getState().cache;
-
-  if (cache?.key === cacheKey) {
-    return {
-      code: 200,
-      status: "OK",
-      data: cache.data,
-    };
+  const date = paramDate ?? getTodayDDMMYYYY();
+  const today = getTodayDDMMYYYY();
+  const storeData = usePrayerTimesStore.getState().getTodayData();
+  if (date === today && storeData?.date?.gregorian) {
+    const g = storeData.date.gregorian;
+    const cacheDate = `${String(g.day).padStart(2, "0")}-${String(g.month?.number ?? 0).padStart(2, "0")}-${g.year}`;
+    if (cacheDate === today) {
+      return { code: 200, status: "OK", data: storeData };
+    }
   }
 
   try {
-    // Expo'da gerçek ağ kapatılamadığı için: __DEV__ iken "simüle offline" ile test
     if (typeof __DEV__ !== "undefined" && __DEV__) {
       const simulateOffline = await storage.getBoolean("simulatePrayerTimesOffline");
       if (simulateOffline) {
@@ -153,7 +155,7 @@ export async function fetchPrayerTimes(
         longitude: longitude.toString(),
         method: method.toString(),
         calendarMethod: calendarMethod,
-        ...(date && { date }),
+        date,
         ...(timezone && { timezone }),
       }
     );
@@ -162,11 +164,9 @@ export async function fetchPrayerTimes(
       throw new Error(response.status || "Failed to fetch prayer times");
     }
 
-    usePrayerTimesStore.getState().setCache({
-      key: cacheKey,
-      data: response.data,
-      cachedAt: Date.now(),
-    });
+    if (date === today) {
+      usePrayerTimesStore.getState().setTodayData(response.data, Date.now());
+    }
 
     return response;
   } catch (error) {
@@ -174,36 +174,149 @@ export async function fetchPrayerTimes(
     if (!isSimulatedOffline) {
       console.error("❌ Aladhan API hatası:", error);
     }
-    // Offline-first: Ağ hatası olsa bile önceden cache varsa onu döndür; store'u da güncelle ki ekranlar (store'dan okuyan) veriyi görsün.
-    let fallbackCache = usePrayerTimesStore.getState().cache;
-    if (fallbackCache?.data) {
-      usePrayerTimesStore.getState().setCache(fallbackCache);
-      return {
-        code: 200,
-        status: "OK",
-        data: fallbackCache.data,
-      };
+    if (date === today && storeData?.date?.gregorian) {
+      const g = storeData.date.gregorian;
+      const cacheDate = `${String(g.day).padStart(2, "0")}-${String(g.month?.number ?? 0).padStart(2, "0")}-${g.year}`;
+      if (cacheDate === today) {
+        return { code: 200, status: "OK", data: storeData };
+      }
     }
-    // Simüle offline: Store rehydration async olduğu için cache bazen hep null kalıyor. Persist'ın yazdığı AsyncStorage'dan doğrudan oku.
     if (typeof __DEV__ !== "undefined" && __DEV__ && isSimulatedOffline) {
       try {
         const raw = await storage.getString("prayer-times-cache");
         if (raw) {
-          const parsed = JSON.parse(raw) as { state?: { cache?: typeof fallbackCache }; cache?: typeof fallbackCache };
-          const fromStorage = parsed?.state?.cache ?? parsed?.cache ?? null;
-          if (fromStorage?.data) {
-            usePrayerTimesStore.getState().setCache(fromStorage);
-            return {
-              code: 200,
-              status: "OK",
-              data: fromStorage.data,
-            };
+          const parsed = JSON.parse(raw) as { state?: { todayData?: typeof storeData } };
+          const fromStorage = parsed?.state?.todayData ?? null;
+          if (fromStorage?.date?.gregorian) {
+            const g = fromStorage.date.gregorian;
+            const cacheDate = `${String(g.day).padStart(2, "0")}-${String(g.month?.number ?? 0).padStart(2, "0")}-${g.year}`;
+            if (cacheDate === today) {
+              return { code: 200, status: "OK", data: fromStorage };
+            }
           }
         }
       } catch {
-        // ignore parse/storage errors
+        // ignore
       }
     }
     throw error;
   }
+}
+
+export type PrayerTimesDayData = {
+  date: string; // DD-MM-YYYY
+  data: AladhanPrayerTimesResponse["data"];
+};
+
+export interface PrayerTimesWeekParams {
+  latitude: number;
+  longitude: number;
+  method?: number;
+  calendarMethod?: string;
+  timezone?: string;
+}
+
+/** Calendar API response: one entry per day of the month. */
+export interface AladhanCalendarResponse {
+  code: number;
+  status: string;
+  data: AladhanPrayerTimesResponse["data"][];
+}
+
+export interface PrayerTimesCalendarParams {
+  latitude: number;
+  longitude: number;
+  method?: number;
+  year: number;
+  month: number; // 1–12
+  calendarMethod?: string;
+  timezone?: string;
+}
+
+/**
+ * Fetch prayer times for a full month via Aladhan /calendar API.
+ * Use this as the primary source; persist result with prayerTimesRepo.upsertMonth().
+ */
+export async function fetchPrayerTimesCalendar(
+  params: PrayerTimesCalendarParams
+): Promise<AladhanCalendarResponse> {
+  const {
+    latitude,
+    longitude,
+    method = 13,
+    calendarMethod = "DIYANET",
+    year,
+    month,
+    timezone,
+  } = params;
+
+  if (typeof __DEV__ !== "undefined" && __DEV__) {
+    const simulateOffline = await storage.getBoolean("simulatePrayerTimesOffline");
+    if (simulateOffline) {
+      throw new Error("Simulated offline for Expo testing");
+    }
+  }
+
+  const response = await aladhanClient.get<AladhanCalendarResponse>("/calendar", {
+    latitude: latitude.toString(),
+    longitude: longitude.toString(),
+    method: method.toString(),
+    calendarMethod,
+    year: year.toString(),
+    month: month.toString(),
+    ...(timezone && { timezone }),
+  });
+
+  if (response.code !== 200) {
+    throw new Error(response.status || "Failed to fetch prayer times calendar");
+  }
+
+  return response;
+}
+
+/**
+ * Fetch prayer times for today and the next 6 days (7 days total) via parallel /timings requests.
+ * Legacy: prefer fetchPrayerTimesCalendar + SQLite for new flow.
+ */
+export async function fetchPrayerTimesForWeek(
+  params: PrayerTimesWeekParams
+): Promise<PrayerTimesDayData[]> {
+  const {
+    latitude,
+    longitude,
+    method = 13,
+    calendarMethod = "DIYANET",
+    timezone,
+  } = params;
+
+  if (typeof __DEV__ !== "undefined" && __DEV__) {
+    const simulateOffline = await storage.getBoolean("simulatePrayerTimesOffline");
+    if (simulateOffline) {
+      throw new Error("Simulated offline for Expo testing");
+    }
+  }
+
+  const baseParams = {
+    latitude: latitude.toString(),
+    longitude: longitude.toString(),
+    method: method.toString(),
+    calendarMethod,
+    ...(timezone && { timezone }),
+  };
+
+  const results = await Promise.all(
+    [0, 1, 2, 3, 4, 5, 6].map(async (offset) => {
+      const date = getDateDDMMYYYY(offset);
+      const response = await aladhanClient.get<AladhanPrayerTimesResponse>("/timings", {
+        ...baseParams,
+        date,
+      });
+      if (response.code !== 200) {
+        throw new Error(response.status || "Failed to fetch prayer times");
+      }
+      return { date, data: response.data };
+    })
+  );
+
+  return results;
 }
