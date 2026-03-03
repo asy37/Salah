@@ -23,7 +23,6 @@ export default function PrayerList({
 }: PrayerListProps) {
   const { t } = useTranslation();
   const prayerItems = transformPrayerTimings(prayerMap, data);
-
   return (
     <View className="flex-1 px-4 flex-col gap-3">
       <Text

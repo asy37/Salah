@@ -19,7 +19,6 @@ export default function PrayerTrackingScreen() {
   
   // Convert local state to PrayerTrackingData format
   const data = localState ? convertToPrayerTrackingData(localState) : null;
-
   if (isLoading) {
     return (
       <View

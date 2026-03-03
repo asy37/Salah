@@ -44,7 +44,6 @@ export default function PrayerItem({
   const { mutate: updateStatus, isPending } = useUpdatePrayerStatusLocal();
 
   const canExpand = extended && (isPast || isActive);
-
   return (
     <Pressable
       onPress={canExpand ? () => setIsExpanded(!isExpanded) : undefined}

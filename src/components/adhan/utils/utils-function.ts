@@ -7,10 +7,10 @@ export const adhanMap: Record<
   string,
   { name: string; key: string; meaning: string; icon: string }
 > = {
-  Imsak: {
-    name: "Imsak",
-    key: "Imsak",
-    meaning: "The Imsak",
+  Fajr: {
+    name: "Fajr",
+    key: "Fajr",
+    meaning: "The Fajr",
     icon: "wb-twilight",
   },
   Sunrise: {
