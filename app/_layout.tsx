@@ -142,6 +142,7 @@ export default function RootLayout() {
           await prayerTrackingRepo.upsertPrayerState(today, prayerName as any, 'prayed');
 
           await notificationService.cancelPrayerReminderForPrayer(data.prayerName, notifDate);
+          await notificationService.cancelPrayerLateReminderForPrayer(data.prayerName, notifDate);
 
           queryClient.invalidateQueries({
             queryKey: ['prayerTracking', 'local', today],
@@ -180,7 +181,7 @@ export default function RootLayout() {
             router.push('/(tabs)/more/daily-verse');
           } else if (deepLink.includes('adhan')) {
             router.push('/(tabs)/adhan');
-          } else if (deepLink.includes('tracking')) {
+          } else if (deepLink.includes('tracking') || deepLink.includes('index')) {
             router.push('/(tabs)');
           }
         } else if (data?.type === 'prayer_time') {
@@ -189,7 +190,12 @@ export default function RootLayout() {
           router.push('/(tabs)');
         } else if (data?.type === 'daily_verse') {
           router.push('/(tabs)/more/daily-verse');
-        } else if (data?.type === 'pre_prayer' || data?.type === 'prayer_reminder') {
+        } else if (
+          data?.type === 'pre_prayer' ||
+          data?.type === 'prayer_reminder' ||
+          data?.type === 'prayer_status' ||
+          data?.type === 'prayer_late_reminder'
+        ) {
           router.push('/(tabs)');
         }
       }
@@ -197,6 +203,8 @@ export default function RootLayout() {
       await notificationService.handleNotificationResponse(response as any);
     };
 
+    // Cold start: process notification that opened the app
+    // eslint-disable-next-line deprecation/deprecation -- Expo notifications: no replacement for getLastNotificationResponseAsync yet
     Notifications.getLastNotificationResponseAsync()
       .then((lastResponse) => {
         if (lastResponse) {

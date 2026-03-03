@@ -92,50 +92,12 @@ function getNextPrayerTime(
 class NotificationSchedulerService {
   private scheduleAllInProgress: Promise<void> | null = null;
 
-  /**
-   * Schedule all notifications based on prayer times and settings.
-   * Aynı anda yalnızca bir çalıştırma yapılır; böylece ezan bildirimi tekrarlanmaz.
-   */
-  async scheduleAllNotifications(
-    prayerTimesResponse: AladhanPrayerTimesResponse,
-    days: number = 7
+  /** Ezan, öncesi, namaz durumu/late, günlük ayet ve seri bildirimlerini ayarlara göre planla veya iptal et. */
+  private async applyScheduleFromSettings(
+    settings: ReturnType<typeof useNotificationSettings.getState>,
+    limitedPrayerTimes: PrayerTimeData[],
+    effectiveDays: number
   ): Promise<void> {
-    const run = async () => {
-      const settings = useNotificationSettings.getState();
-    const prayerTimes = convertPrayerTimesToData(prayerTimesResponse, days);
-
-    // Calculate approximate total number of notifications we plan to schedule (for iOS 64 limit)
-    let totalPrayerCount = 0;
-    for (const day of prayerTimes) {
-      totalPrayerCount += day.prayers.length;
-    }
-    const estimatedPrayerTimeNotifs =
-      settings.adhanNotifications ? totalPrayerCount : 0;
-    const estimatedReminderNotifs =
-      settings.prayerReminderEnabled ? totalPrayerCount : 0;
-    const estimatedPrePrayerNotifs =
-      settings.prePrayerAlerts ? totalPrayerCount : 0;
-    const estimatedOtherNotifs =
-      (settings.dailyVerseEnabled ? 1 : 0) + (settings.streakEnabled ? 1 : 0);
-    const estimatedTotal =
-      estimatedPrayerTimeNotifs +
-      estimatedReminderNotifs +
-      estimatedPrePrayerNotifs +
-      estimatedOtherNotifs;
-
-    // On iOS, cap total scheduled notifications to avoid UNNotificationTrigger assertion
-    let effectiveDays = days;
-    if (Platform.OS === 'ios' && estimatedTotal > 64 && totalPrayerCount > 0) {
-      const ratio = 64 / estimatedTotal;
-      effectiveDays = Math.max(1, Math.floor(days * ratio));
-    }
-
-    const limitedPrayerTimes =
-      effectiveDays < prayerTimes.length
-        ? prayerTimes.slice(0, effectiveDays)
-        : prayerTimes;
-
-    // Schedule prayer time notifications (ezan)
     if (settings.adhanNotifications) {
       await notificationService.schedulePrayerTimeNotifications(
         limitedPrayerTimes,
@@ -147,7 +109,6 @@ class NotificationSchedulerService {
       await notificationService.cancelNotificationsByType('prayer_time');
     }
 
-    // Schedule pre-prayer alerts (15 minutes before)
     if (settings.prePrayerAlerts) {
       await notificationService.schedulePrePrayerAlerts(
         limitedPrayerTimes,
@@ -158,42 +119,108 @@ class NotificationSchedulerService {
       await notificationService.cancelNotificationsByType('pre_prayer');
     }
 
-    // Schedule prayer reminder notifications (30 minutes after). Bugün "kıldım" işaretlenmiş vakitler için planlama yapma.
     if (settings.prayerReminderEnabled) {
-      const today = getTodayDateString();
-      const state = await prayerTrackingRepo.getCurrentPrayerState();
-      const alreadyPrayedToday: Record<string, boolean> = state?.date === today
-        ? {
-            fajr: state.fajr === 'prayed',
-            dhuhr: state.dhuhr === 'prayed',
-            asr: state.asr === 'prayed',
-            maghrib: state.maghrib === 'prayed',
-            isha: state.isha === 'prayed',
-          }
-        : {};
-      await notificationService.schedulePrayerReminderNotifications(
+      await this.schedulePrayerStatusAndLateReminders(
         limitedPrayerTimes,
         effectiveDays,
-        settings.vibration,
-        { todayDate: today, alreadyPrayedToday }
+        settings.vibration
       );
     } else {
       await notificationService.cancelNotificationsByType('prayer_reminder');
+      await notificationService.cancelNotificationsByType('prayer_status');
+      await notificationService.cancelNotificationsByType('prayer_late_reminder');
     }
 
-    // Schedule daily verse notification
     if (settings.dailyVerseEnabled) {
       await this.scheduleDailyVerse(settings.dailyVerseTime);
     } else {
       await notificationService.cancelNotificationsByType('daily_verse');
     }
 
-    // Schedule streak notification
     if (settings.streakEnabled) {
       await this.scheduleStreak(settings.streakTime);
     } else {
       await notificationService.cancelNotificationsByType('streak');
     }
+  }
+
+  /** Namaz durumu (15-20 dk) ve namaz hatırlatma (1 saat). Bugün "kıldım" işaretlenmiş vakitler atlanır. */
+  private async schedulePrayerStatusAndLateReminders(
+    limitedPrayerTimes: PrayerTimeData[],
+    effectiveDays: number,
+    vibration: boolean
+  ): Promise<void> {
+    const today = getTodayDateString();
+    const state = await prayerTrackingRepo.getCurrentPrayerState();
+    const alreadyPrayedToday: Record<string, boolean> = state?.date === today
+      ? {
+          fajr: state.fajr === 'prayed',
+          dhuhr: state.dhuhr === 'prayed',
+          asr: state.asr === 'prayed',
+          maghrib: state.maghrib === 'prayed',
+          isha: state.isha === 'prayed',
+        }
+      : {};
+    await notificationService.schedulePrayerStatusNotifications(
+      limitedPrayerTimes,
+      effectiveDays,
+      vibration,
+      { todayDate: today, alreadyPrayedToday }
+    );
+    await notificationService.schedulePrayerLateReminderNotifications(
+      limitedPrayerTimes,
+      effectiveDays,
+      vibration,
+      { todayDate: today, alreadyPrayedToday }
+    );
+  }
+
+  /**
+   * Schedule all notifications based on prayer times and settings.
+   * Aynı anda yalnızca bir çalıştırma yapılır; böylece ezan bildirimi tekrarlanmaz.
+   */
+  async scheduleAllNotifications(
+    prayerTimesResponse: AladhanPrayerTimesResponse,
+    days: number = 7
+  ): Promise<void> {
+    const run = async () => {
+      const settings = useNotificationSettings.getState();
+      const prayerTimes = convertPrayerTimesToData(prayerTimesResponse, days);
+
+      const totalPrayerCount = prayerTimes.reduce(
+        (sum, day) => sum + day.prayers.length,
+        0
+      );
+      const estimatedPrayerTimeNotifs =
+        settings.adhanNotifications ? totalPrayerCount : 0;
+      const estimatedReminderNotifs =
+        settings.prayerReminderEnabled ? totalPrayerCount : 0;
+      const estimatedPrePrayerNotifs =
+        settings.prePrayerAlerts ? totalPrayerCount : 0;
+      const estimatedOtherNotifs =
+        (settings.dailyVerseEnabled ? 1 : 0) + (settings.streakEnabled ? 1 : 0);
+      const estimatedTotal =
+        estimatedPrayerTimeNotifs +
+        estimatedReminderNotifs +
+        estimatedPrePrayerNotifs +
+        estimatedOtherNotifs;
+
+      let effectiveDays = days;
+      if (Platform.OS === 'ios' && estimatedTotal > 64 && totalPrayerCount > 0) {
+        const ratio = 64 / estimatedTotal;
+        effectiveDays = Math.max(1, Math.floor(days * ratio));
+      }
+
+      const limitedPrayerTimes =
+        effectiveDays < prayerTimes.length
+          ? prayerTimes.slice(0, effectiveDays)
+          : prayerTimes;
+
+      await this.applyScheduleFromSettings(
+        settings,
+        limitedPrayerTimes,
+        effectiveDays
+      );
     };
 
     await this.scheduleAllInProgress;

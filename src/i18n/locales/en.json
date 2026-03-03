@@ -83,15 +83,19 @@
   },
   "notification": {
     "prayerTimeTitle": "{{prayerName}} Prayer Time",
-    "prayerTimeBody": "Adhan has been called for {{prayerName}} prayer",
+    "prayerTimeBody": "{{prayerName}} has been called. Come to prayer for the sake of Allah.",
     "reminderTitle": "Prayer Reminder",
     "reminderBody": "Did you pray {{prayerName}}?",
     "prePrayerBody": "{{prayerName}} prayer in 15 minutes",
-    "remindLaterButton": "Remind Later",
+    "prayerStatusTitle": "Prayer reminder",
+    "prayerStatusBody": "Did you pray {{prayerName}}?",
+    "prayerLateReminderTitle": "Prayer reminder",
+    "prayerLateReminderBody": "Did you pray {{prayerName}}? The next prayer is soon; pray when you can.",
+    "remindLaterButton": "Remind later",
     "markedPrayedButton": "Prayed",
     "dailyVerseTitle": "Daily Verse",
     "streakTitle": "Prayer Streak",
-    "streakBody": "You have prayed {{count}} days in a row! 🎉",
+    "streakBody": "Mashallah, you have prayed {{count}} days in a row. Keep it up. May Allah accept.",
     "dontForgetBody": "Don't forget to pray {{prayerName}}"
   },
   "auth": {

@@ -29,7 +29,7 @@ export interface NotificationSettings {
 
   // Streak bildirimleri
   streakEnabled: boolean;
-  streakTime: string; // HH:mm format (örn: "08:00")
+  streakTime: string; // HH:mm format (örn: "09:00")
 }
 
 const defaultSettings: NotificationSettings = {
@@ -42,7 +42,7 @@ const defaultSettings: NotificationSettings = {
   dailyVerseEnabled: true,
   dailyVerseTime: '09:00',
   streakEnabled: true,
-  streakTime: '08:00',
+  streakTime: '09:00',
 };
 
 type NotificationSettingsState = NotificationSettings & {
@@ -112,11 +112,14 @@ export const useNotificationSettings = create<NotificationSettingsState>()(
       name: 'notification-settings',
       storage: createJSONStorage(() => AsyncStorage),
       version: 2,
-      migrate: (persistedState: unknown, version: number) => {
+      migrate: (persistedState: unknown, version: number): NotificationSettings => {
         if (version < 2) {
-          return migrateSettings(persistedState) as NotificationSettings;
+          return migrateSettings(persistedState);
         }
-        return (persistedState as NotificationSettings) ?? defaultSettings;
+        if (persistedState != null && typeof persistedState === 'object') {
+          return { ...defaultSettings, ...persistedState } as NotificationSettings;
+        }
+        return defaultSettings;
       },
     }
   )

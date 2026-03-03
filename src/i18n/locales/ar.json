@@ -83,15 +83,19 @@
   },
   "notification": {
     "prayerTimeTitle": "وقت صلاة {{prayerName}}",
-    "prayerTimeBody": "أُذّن لصلاة {{prayerName}}",
+    "prayerTimeBody": "أُذّن {{prayerName}}. حي على الصلاة لوجه الله.",
     "reminderTitle": "تذكير الصلاة",
     "reminderBody": "هل صلّيت {{prayerName}}؟",
     "prePrayerBody": "صلاة {{prayerName}} بعد 15 دقيقة",
+    "prayerStatusTitle": "تذكير الصلاة",
+    "prayerStatusBody": "هل صلّيت {{prayerName}}؟",
+    "prayerLateReminderTitle": "تذكير الصلاة",
+    "prayerLateReminderBody": "هل صلّيت {{prayerName}}؟ الوقت القادم قريب، صلّ عندما تتيسر.",
     "remindLaterButton": "ذكّرني لاحقاً",
     "markedPrayedButton": "صلّيت",
     "dailyVerseTitle": "الآية اليومية",
     "streakTitle": "سلسلة الصلاة",
-    "streakBody": "صلّيت {{count}} أيام متتالية! 🎉",
+    "streakBody": "ما شاء الله، صلّيت {{count}} أياماً متتالية. استمر. تقبّل الله.",
     "dontForgetBody": "لا تنسَ صلاة {{prayerName}}"
   },
   "auth": {

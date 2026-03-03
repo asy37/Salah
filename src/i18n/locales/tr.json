@@ -83,15 +83,19 @@
   },
   "notification": {
     "prayerTimeTitle": "{{prayerName}} Namazı Vakti",
-    "prayerTimeBody": "{{prayerName}} namazı için ezan okundu",
+    "prayerTimeBody": "{{prayerName}} okundu. Haydi Allah rızası için namaza.",
     "reminderTitle": "Namaz Hatırlatıcı",
     "reminderBody": "{{prayerName}} namazını kıldın mı?",
     "prePrayerBody": "{{prayerName}} namazına 15 dakika kaldı",
-    "remindLaterButton": "Daha Sonra Hatırlat",
+    "prayerStatusTitle": "Namaz hatırlatması",
+    "prayerStatusBody": "{{prayerName}} namazını kıldın mı?",
+    "prayerLateReminderTitle": "Namaz hatırlatması",
+    "prayerLateReminderBody": "{{prayerName}} kıldın mı? Bir sonraki vakite az kaldı, uygun olduğunda namazını kılabilirsin.",
+    "remindLaterButton": "Daha sonra hatırlat",
     "markedPrayedButton": "Kıldım",
     "dailyVerseTitle": "Günlük Ayet",
     "streakTitle": "Namaz Serisi",
-    "streakBody": "{{count}} gündür aralıksız namaz kılıyorsun! 🎉",
+    "streakBody": "Maşallah {{count}} gündür aralıksız namaz kılıyorsun. Böyle Devam. Allah kabul etsin.",
     "dontForgetBody": "{{prayerName}} namazını kılmayı unutma"
   },
   "auth": {
