@@ -5,7 +5,7 @@
 import { useEffect, useRef } from "react";
 import { fetchPrayerTimesCalendar } from "@/lib/api/services/prayerTimes";
 import type { PrayerTimesDayData } from "@/lib/api/services/prayerTimes";
-import { getTodayDDMMYYYY } from "@/lib/services/dailyReset";
+import { getTodayDDMMYYYY, getTodayDateString } from "@/lib/services/dailyReset";
 import {
   getDataByDate,
   getMonthSyncedAt,
@@ -35,7 +35,6 @@ export function usePrayerTimesPrefetch(dbReady: boolean): void {
 
   useEffect(() => {
     if (!method || !dbReady) return;
-
     const latitude = location?.latitude ?? DEFAULT_LAT;
     const longitude = location?.longitude ?? DEFAULT_LNG;
     const today = getTodayDDMMYYYY();
@@ -52,6 +51,9 @@ export function usePrayerTimesPrefetch(dbReady: boolean): void {
         if (cached) {
           const syncedAt = await getMonthSyncedAt(year, month, latitude, longitude, method);
           usePrayerTimesStore.getState().setTodayData(cached, syncedAt ?? undefined);
+          queryClient.invalidateQueries({
+            queryKey: ["prayerTracking", "local", getTodayDateString()],
+          });
         }
 
         const queue = await getPrayerTimesSyncQueue();
@@ -90,6 +92,9 @@ export function usePrayerTimesPrefetch(dbReady: boolean): void {
         const todayFromCal = cal.data.find((d) => d.date?.gregorian?.date === today);
         if (todayFromCal) {
           usePrayerTimesStore.getState().setTodayData(todayFromCal, Date.now());
+          queryClient.invalidateQueries({
+            queryKey: ["prayerTracking", "local", getTodayDateString()],
+          });
         }
 
         const dayIndex = cal.data.findIndex((d) => d.date?.gregorian?.date === today);

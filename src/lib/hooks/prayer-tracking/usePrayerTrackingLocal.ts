@@ -17,13 +17,12 @@ import type { PrayerStatus, PrayerName, PrayerStreak } from '@/types/prayer-trac
  */
 export function usePrayerTrackingLocal() {
   const today = getTodayDateString();
-  const todayData = usePrayerTimesStore((s) => s.getTodayData());
-  const lastSyncedAt = usePrayerTimesStore((s) => s.lastSyncedAt);
 
   return useQuery({
-    queryKey: ['prayerTracking', 'local', today, lastSyncedAt ?? 0],
+    queryKey: ['prayerTracking', 'local', today],
     queryFn: async () => {
       // Initialize daily reset: use imsak if we have prayer times, else fallback to date change
+      const todayData = usePrayerTimesStore.getState().getTodayData();
       const prayerTimesResponse =
         todayData == null
           ? undefined

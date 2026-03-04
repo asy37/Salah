@@ -12,7 +12,7 @@ import { fetchPrayerTimesCalendar } from '@/lib/api/services/prayerTimes';
 import type { PrayerTimesDayData } from '@/lib/api/services/prayerTimes';
 import { queryClient } from '@/lib/query/queryClient';
 import { queryKeys } from '@/lib/query/queryKeys';
-import { getTodayDDMMYYYY } from '@/lib/services/dailyReset';
+import { getTodayDDMMYYYY, getTodayDateString } from '@/lib/services/dailyReset';
 import {
   upsertMonth,
   getPrayerTimesSyncQueue,
@@ -73,6 +73,9 @@ async function refreshPrayerTimesAndSchedule(
     const todayFromCal = cal.data.find((d) => d.date?.gregorian?.date === today);
     if (todayFromCal) {
       usePrayerTimesStore.getState().setTodayData(todayFromCal, Date.now());
+      queryClient.invalidateQueries({
+        queryKey: ['prayerTracking', 'local', getTodayDateString()],
+      });
     }
 
     const dayIndex = cal.data.findIndex((d) => d.date?.gregorian?.date === today);
