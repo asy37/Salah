@@ -7,7 +7,8 @@
 import { aladhanClient } from "../client";
 import { usePrayerTimesStore } from "@/lib/storage/prayerTimesStore";
 import { storage } from "@/lib/storage/mmkv";
-import { getTodayDDMMYYYY, getDateDDMMYYYY, getTodayDateString } from "@/lib/services/dailyReset";
+import { getTodayDDMMYYYY, getDateDDMMYYYY } from "@/lib/services/dailyReset";
+import { getEffectiveToday } from "@/lib/services/prayerDate";
 import { queryClient } from "@/lib/query/queryClient";
 
 export interface AladhanPrayerTimesResponse {
@@ -168,7 +169,7 @@ export async function fetchPrayerTimes(
     if (date === today) {
       usePrayerTimesStore.getState().setTodayData(response.data, Date.now());
       queryClient.invalidateQueries({
-        queryKey: ["prayerTracking", "local", getTodayDateString()],
+        queryKey: ["prayerTracking", "local", getEffectiveToday()],
       });
     }
 

@@ -14,6 +14,7 @@ import { prayerTrackingRepo } from '@/lib/database/sqlite/prayer-tracking/reposi
 import { storage } from '@/lib/storage/mmkv';
 import { format } from 'date-fns';
 import type { AladhanPrayerTimesResponse } from '@/lib/api/services/prayerTimes';
+import { getEffectivePrayerDate } from '@/lib/services/prayerDate';
 
 const LAST_RESET_DATE_KEY = 'prayer_tracking_last_reset_date';
 
@@ -73,25 +74,15 @@ export function isAfterImsak(imsakTime: Date): boolean {
 }
 
 /**
- * Check if it's a new day (after imsak time)
+ * Check if effective Islamic day has changed (after imsak boundary).
  */
 export function isNewDay(
   lastResetDate: string | null,
   imsakTime: Date | null
 ): boolean {
-  if (!imsakTime) {
-    // Fallback: use date change
-    const today = getTodayDateString();
-    return lastResetDate !== today;
-  }
-
-  // Check if imsak time has passed
-  if (isAfterImsak(imsakTime)) {
-    const today = getTodayDateString();
-    return lastResetDate !== today;
-  }
-
-  return false;
+  const now = new Date();
+  const effectiveToday = getEffectivePrayerDate(now, imsakTime);
+  return lastResetDate !== effectiveToday;
 }
 
 class DailyResetService {
@@ -116,9 +107,10 @@ class DailyResetService {
 
     const newDay = isNewDay(this.lastResetDate, imsakTime);
 
-    // Check if we need to reset
     if (newDay) {
-      await this.performDailyReset();
+      const now = new Date();
+      const effectiveToday = getEffectivePrayerDate(now, imsakTime);
+      await this.performDailyReset(effectiveToday);
     }
   }
 
@@ -128,10 +120,9 @@ class DailyResetService {
    * 2. Convert to boolean payload
    * 3. Add to sync queue
    * 4. Reset daily state for new day
+   * @param effectiveToday Islamic "today" (YYYY-MM-DD)
    */
-  async performDailyReset(): Promise<void> {
-    const today = getTodayDateString();
-
+  async performDailyReset(effectiveToday: string): Promise<void> {
     try {
       // 1. Read current state (before reset)
       const currentState = await prayerTrackingRepo.getCurrentPrayerState();
@@ -143,15 +134,15 @@ class DailyResetService {
       }
 
       // 3. Reset daily state for new day
-      await prayerTrackingRepo.resetDailyPrayerState(today);
+      await prayerTrackingRepo.resetDailyPrayerState(effectiveToday);
 
       // 4. Update last reset date (memory + persisted)
-      this.lastResetDate = today;
-      await storage.set(LAST_RESET_DATE_KEY, today);
+      this.lastResetDate = effectiveToday;
+      await storage.set(LAST_RESET_DATE_KEY, effectiveToday);
 
       console.log('[DailyReset] Daily reset completed', {
         previousDate: currentState?.date,
-        today,
+        effectiveToday,
         hadState: !!currentState,
       });
     } catch (error) {

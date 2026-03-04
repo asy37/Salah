@@ -6,7 +6,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { usePrayerStreakLocal } from "@/lib/hooks/prayer-tracking/usePrayerTrackingLocal";
+import { useStreak } from "@/lib/hooks/prayer-tracking/useStreak";
 import StreakCounter from "@/components/tracking/StreakCounter";
 import { useState } from "react";
 import Button from "@/components/button/Button";
@@ -23,7 +23,7 @@ export default function PrayerHeader() {
   const [isStreakModalVisible, setIsStreakModalVisible] = useState(false);
 
   const { isDark } = useTheme();
-  const { data: streakData } = usePrayerStreakLocal();
+  const { data: streakData } = useStreak();
   const todayData = usePrayerTimesStore((state) => state.getTodayData());
   const { user } = useAuth();
   const { data: profile } = useUserProfile();

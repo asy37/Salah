@@ -5,7 +5,8 @@
 import { useEffect, useRef } from "react";
 import { fetchPrayerTimesCalendar } from "@/lib/api/services/prayerTimes";
 import type { PrayerTimesDayData } from "@/lib/api/services/prayerTimes";
-import { getTodayDDMMYYYY, getTodayDateString } from "@/lib/services/dailyReset";
+import { getTodayDDMMYYYY } from "@/lib/services/dailyReset";
+import { getEffectiveToday } from "@/lib/services/prayerDate";
 import {
   getDataByDate,
   getMonthSyncedAt,
@@ -52,7 +53,7 @@ export function usePrayerTimesPrefetch(dbReady: boolean): void {
           const syncedAt = await getMonthSyncedAt(year, month, latitude, longitude, method);
           usePrayerTimesStore.getState().setTodayData(cached, syncedAt ?? undefined);
           queryClient.invalidateQueries({
-            queryKey: ["prayerTracking", "local", getTodayDateString()],
+            queryKey: ["prayerTracking", "local", getEffectiveToday()],
           });
         }
 
@@ -93,7 +94,7 @@ export function usePrayerTimesPrefetch(dbReady: boolean): void {
         if (todayFromCal) {
           usePrayerTimesStore.getState().setTodayData(todayFromCal, Date.now());
           queryClient.invalidateQueries({
-            queryKey: ["prayerTracking", "local", getTodayDateString()],
+            queryKey: ["prayerTracking", "local", getEffectiveToday()],
           });
         }
 

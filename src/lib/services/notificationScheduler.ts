@@ -7,8 +7,9 @@ import { parse } from 'date-fns';
 import { notificationService } from '@/lib/notifications/NotificationService';
 import { useNotificationSettings } from '@/lib/storage/notificationSettings';
 import { getDailyAyahNumber } from '@/lib/quran/dailyAyah';
-import { prayerTrackingRepo } from '@/lib/database/sqlite/prayer-tracking/repository';
-import { getTodayDateString } from '@/lib/services/dailyReset';
+import { getEffectiveToday } from '@/lib/services/prayerDate';
+import { getPrayerLogsRecent } from '@/lib/api/services/prayerTracking';
+import { calculateStreakFromSupabaseLogs } from '@/lib/services/streakCalculation';
 import type {
   AladhanPrayerTimesResponse,
   PrayerTimesDayData,
@@ -173,7 +174,8 @@ class NotificationSchedulerService {
     effectiveDays: number,
     vibration: boolean
   ): Promise<void> {
-    const today = getTodayDateString();
+    const { prayerTrackingRepo } = await import('@/lib/database/sqlite/prayer-tracking/repository');
+    const today = getEffectiveToday();
     const state = await prayerTrackingRepo.getCurrentPrayerState();
     const alreadyPrayedToday: Record<string, boolean> = state?.date === today
       ? {
@@ -345,11 +347,13 @@ class NotificationSchedulerService {
   }
 
   /**
-   * Schedule streak notification
+   * Schedule streak notification (streak from Supabase)
    */
   async scheduleStreak(time: string): Promise<void> {
     try {
-      const streak = await prayerTrackingRepo.calculateLocalStreak();
+      const effectiveToday = getEffectiveToday();
+      const logs = await getPrayerLogsRecent();
+      const streak = calculateStreakFromSupabaseLogs(logs, effectiveToday);
       await notificationService.scheduleStreakNotification(streak, time);
     } catch (error) {
       console.error('[NotificationScheduler] Failed to schedule streak:', error);

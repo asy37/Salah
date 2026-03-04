@@ -924,11 +924,11 @@ export class NotificationService {
     // Handle action button clicks
     if (actionIdentifier === NOTIFICATION_ACTIONS.PRAYER_MARKED_PRAYED) {
       const { prayerTrackingRepo } = await import('@/lib/database/sqlite/prayer-tracking/repository');
-      const { getTodayDateString } = await import('@/lib/services/dailyReset');
+      const { getEffectiveToday } = await import('@/lib/services/prayerDate');
 
       if (data?.prayerName) {
         const prayerName = data.prayerName.toLowerCase() as PrayerName;
-        const today = getTodayDateString();
+        const today = getEffectiveToday();
         const notifDate = typeof data?.date === 'string' ? data.date : today;
 
         // Mark as prayed in SQLite

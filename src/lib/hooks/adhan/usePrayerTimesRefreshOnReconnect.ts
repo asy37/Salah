@@ -12,7 +12,8 @@ import { fetchPrayerTimesCalendar } from '@/lib/api/services/prayerTimes';
 import type { PrayerTimesDayData } from '@/lib/api/services/prayerTimes';
 import { queryClient } from '@/lib/query/queryClient';
 import { queryKeys } from '@/lib/query/queryKeys';
-import { getTodayDDMMYYYY, getTodayDateString } from '@/lib/services/dailyReset';
+import { getTodayDDMMYYYY } from '@/lib/services/dailyReset';
+import { getEffectiveToday } from '@/lib/services/prayerDate';
 import {
   upsertMonth,
   getPrayerTimesSyncQueue,
@@ -74,7 +75,7 @@ async function refreshPrayerTimesAndSchedule(
     if (todayFromCal) {
       usePrayerTimesStore.getState().setTodayData(todayFromCal, Date.now());
       queryClient.invalidateQueries({
-        queryKey: ['prayerTracking', 'local', getTodayDateString()],
+        queryKey: ['prayerTracking', 'local', getEffectiveToday()],
       });
     }
 

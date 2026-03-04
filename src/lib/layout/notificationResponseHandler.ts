@@ -28,19 +28,22 @@ export async function processNotificationResponse(
 
   if (actionIdentifier === NOTIFICATION_ACTIONS.PRAYER_MARKED_PRAYED) {
     const { prayerTrackingRepo } = await import("@/lib/database/sqlite/prayer-tracking/repository");
-    const { getTodayDateString } = await import("@/lib/services/dailyReset");
+    const { getEffectiveToday } = await import("@/lib/services/prayerDate");
 
     if (data?.prayerName && typeof data.prayerName === "string") {
       const prayerName = data.prayerName.toLowerCase();
-      const today = getTodayDateString();
-      const notifDate = typeof data?.date === "string" ? data.date : today;
-      await prayerTrackingRepo.upsertPrayerState(today, prayerName as PrayerName, "prayed");
+      const effectiveToday = getEffectiveToday();
+      const notifDate = typeof data?.date === "string" ? data.date : effectiveToday;
+      await prayerTrackingRepo.upsertPrayerState(effectiveToday, prayerName as PrayerName, "prayed");
 
       await notificationService.cancelPrayerReminderForPrayer(data.prayerName, notifDate);
       await notificationService.cancelPrayerLateReminderForPrayer(data.prayerName, notifDate);
 
       queryClient.invalidateQueries({
-        queryKey: ["prayerTracking", "local", today],
+        queryKey: ["prayerTracking", "local", effectiveToday],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["prayerStreak"],
       });
     }
     return;

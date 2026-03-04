@@ -6,7 +6,8 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { prayerTrackingRepo } from '@/lib/database/sqlite/prayer-tracking/repository';
-import { dailyResetService, getTodayDateString } from '@/lib/services/dailyReset';
+import { dailyResetService } from '@/lib/services/dailyReset';
+import { getEffectiveToday } from '@/lib/services/prayerDate';
 import { usePrayerTimesStore } from '@/lib/storage/prayerTimesStore';
 import { notificationService } from '@/lib/notifications/NotificationService';
 import type { PrayerStatus, PrayerName, PrayerStreak } from '@/types/prayer-tracking';
@@ -16,12 +17,12 @@ import type { PrayerStatus, PrayerName, PrayerStreak } from '@/types/prayer-trac
  * When prayer times cache is available, daily reset runs after imsak (not at midnight).
  */
 export function usePrayerTrackingLocal() {
-  const today = getTodayDateString();
+  const effectiveToday = getEffectiveToday();
 
   return useQuery({
-    queryKey: ['prayerTracking', 'local', today],
+    queryKey: ['prayerTracking', 'local', effectiveToday],
     queryFn: async () => {
-      // Initialize daily reset: use imsak if we have prayer times, else fallback to date change
+      const today = getEffectiveToday();
       const todayData = usePrayerTimesStore.getState().getTodayData();
       const prayerTimesResponse =
         todayData == null
@@ -29,12 +30,9 @@ export function usePrayerTrackingLocal() {
           : ({ data: todayData } as Parameters<typeof dailyResetService.initialize>[0]);
       await dailyResetService.initialize(prayerTimesResponse);
 
-      // Get current state (single row)
       const state = await prayerTrackingRepo.getCurrentPrayerState();
 
-      // If no state exists, create default
       if (!state) {
-        // Initialize with defaults
         await prayerTrackingRepo.upsertPrayerState(today, 'fajr', 'upcoming');
         const newState = await prayerTrackingRepo.getCurrentPrayerState();
         if (!newState) {
@@ -43,7 +41,6 @@ export function usePrayerTrackingLocal() {
         return newState;
       }
 
-      // If date changed, update date (but keep state)
       if (state.date !== today) {
         await prayerTrackingRepo.upsertPrayerState(today, 'fajr', state.fajr);
         const updatedState = await prayerTrackingRepo.getCurrentPrayerState();
@@ -61,10 +58,10 @@ export function usePrayerTrackingLocal() {
  * Use this for UI so streak reflects local state; Supabase streak has no row for today until next day.
  */
 export function usePrayerStreakLocal() {
-  const today = getTodayDateString();
+  const effectiveToday = getEffectiveToday();
 
   return useQuery<PrayerStreak>({
-    queryKey: ['prayerTracking', 'localStreak', today],
+    queryKey: ['prayerTracking', 'localStreak', effectiveToday],
     queryFn: async () => {
       const count = await prayerTrackingRepo.calculateLocalStreak();
       return { count };
@@ -83,7 +80,7 @@ export function usePrayerStreakLocal() {
  */
 export function useUpdatePrayerStatusLocal() {
   const queryClient = useQueryClient();
-  const today = getTodayDateString();
+  const effectiveToday = getEffectiveToday();
 
   return useMutation({
     mutationFn: async ({
@@ -93,7 +90,7 @@ export function useUpdatePrayerStatusLocal() {
       prayer: PrayerName;
       status: PrayerStatus;
     }) => {
-      // Update local state only (offline-first)
+      const today = getEffectiveToday();
       await prayerTrackingRepo.upsertPrayerState(today, prayer, status);
 
       // Sync queue is handled by daily reset service at imsak time
@@ -101,13 +98,16 @@ export function useUpdatePrayerStatusLocal() {
     },
     onSuccess: (_, { prayer, status }) => {
       queryClient.invalidateQueries({
-        queryKey: ['prayerTracking', 'local', today],
+        queryKey: ['prayerTracking', 'local', effectiveToday],
       });
       queryClient.invalidateQueries({
-        queryKey: ['prayerTracking', 'localStreak', today],
+        queryKey: ['prayerTracking', 'localStreak', effectiveToday],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['prayerStreak'],
       });
       if (status === 'prayed') {
-        notificationService.cancelPrayerReminderForPrayer(prayer, today).catch(() => {});
+        notificationService.cancelPrayerReminderForPrayer(prayer, effectiveToday).catch(() => {});
       }
     },
   });

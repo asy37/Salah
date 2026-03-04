@@ -28,9 +28,11 @@ export function useSyncPrayers() {
   return useMutation({
     mutationFn: () => prayerSyncService.syncPendingItems(),
     onSuccess: () => {
-      // Refresh sync status
       queryClient.invalidateQueries({
         queryKey: ['prayerSync', 'status'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['prayerStreak'],
       });
     },
   });
@@ -40,23 +42,23 @@ export function useSyncPrayers() {
  * Hook to setup automatic sync on app state changes
  */
 export function useAutoSync() {
+  const queryClient = useQueryClient();
   const { mutate: sync } = useSyncPrayers();
 
   useEffect(() => {
-    // Sync when app comes to foreground
     const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
       if (nextAppState === 'active') {
         sync();
+        queryClient.invalidateQueries({ queryKey: ['prayerStreak'] });
       }
     });
 
-    // Start periodic sync
     const cleanup = prayerSyncService.startPeriodicSync(30);
 
     return () => {
       subscription.remove();
       cleanup();
     };
-  }, [sync]);
+  }, [sync, queryClient]);
 }
 
