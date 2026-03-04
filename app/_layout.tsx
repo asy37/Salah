@@ -40,6 +40,9 @@ export default function RootLayout() {
 
   const [fontsLoaded] = useFonts({});
 
+  const appReady =
+    !isLoading && i18nReady && dbReady && fontsLoaded;
+
   useEffect(() => {
     SplashScreen.preventAutoHideAsync();
   }, []);
@@ -84,11 +87,11 @@ export default function RootLayout() {
   }, [isLoading, shouldShowRegister, canAccessApp, segments, isNavigationReady, router]);
 
   useEffect(() => {
-    if (!fontsLoaded || !i18nReady) return;
+    if (!appReady) return;
     SplashScreen.hideAsync()
       .then(() => setIsNavigationReady(true))
       .catch(() => setIsNavigationReady(true));
-  }, [fontsLoaded, i18nReady]);
+  }, [appReady]);
 
   useNotificationSetup(router);
   usePrayerTimesPrefetch(dbReady);
