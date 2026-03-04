@@ -1,6 +1,5 @@
 import { ScrollView, View, Text, Alert, I18nManager } from "react-native";
 import clsx from "clsx";
-import * as Notifications from "expo-notifications";
 import { useEffect, useState } from "react";
 import SettingsHeader from "@/components/settings/SettingsHeader";
 import SettingsSection from "@/components/settings/SettingsSection";
@@ -52,9 +51,13 @@ export default function SettingsScreen() {
   const setDailyVerseEnabled = useNotificationSettings((s) => s.setDailyVerseEnabled);
 
   useEffect(() => {
-    Notifications.getPermissionsAsync().then(({ status }) => {
-      setNotificationPermission(status === "granted");
-    });
+    import("expo-notifications")
+      .then((Notifications) =>
+        Notifications.getPermissionsAsync().then(({ status }) => {
+          setNotificationPermission(status === "granted");
+        })
+      )
+      .catch(() => setNotificationPermission(null));
   }, []);
 
   const handleToggleChange = async (

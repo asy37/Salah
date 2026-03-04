@@ -1,497 +1,122 @@
 import "@/lib/utils/debugLogInit";
+import "../global.css";
 import { Stack, useRouter, useSegments } from "expo-router";
-import { useEffect, useState, useRef } from "react";
-import { AppState, InteractionManager } from "react-native";
+import { useEffect, useState } from "react";
+import { InteractionManager } from "react-native";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { QueryClientProvider } from "@tanstack/react-query";
-import * as Notifications from "expo-notifications";
-import "../global.css";
 import { initI18n } from "@/i18n";
-// Note: NotificationService is lazy-loaded to avoid Expo Go compatibility issues
-// It will be imported only when needed, not at app startup
 import PrayerHeader from "@/components/layout/header";
 import { queryClient } from "@/lib/query/queryClient";
 import { setupQueryManagers } from "@/lib/query/setup";
 import { useAuthFlow } from "@/lib/hooks/auth/useAuth";
 import EmailConfirmationProvider from "@/components/auth/email/EmailConfirmationProvider";
 import LocationPermissionProvider from "@/components/location/LocationPermissionProvider";
-import { queryKeys } from "@/lib/query/queryKeys";
-import {
-  fetchPrayerTimes,
-  fetchPrayerTimesCalendar,
-  type PrayerTimesDayData,
-} from "@/lib/api/services/prayerTimes";
-import { getTodayDDMMYYYY } from "@/lib/services/dailyReset";
+import { useThemeStore } from "@/lib/storage/useThemeStore";
 import { getDb } from "@/lib/database/sqlite/db";
-import {
-  upsertMonth,
-  getPrayerTimesSyncQueue,
-  removeFromPrayerTimesSyncQueue,
-  addToPrayerTimesSyncQueue,
-  getDataByDate,
-  getMonthSyncedAt,
-} from "@/lib/database/sqlite/prayer-times/repository";
-import { useLocationStore } from "@/lib/storage/locationStore";
-import { usePrayerTimesStore } from "@/lib/storage/prayerTimesStore";
-import { useMethodStore } from "@/lib/storage/useMethodStore";
+import { usePrayerTimesRefreshOnReconnect } from "@/lib/hooks/adhan/usePrayerTimesRefreshOnReconnect";
 import { useDhikrSync } from "@/lib/hooks/dhikir/useDhikrSync";
 import { useDuaSync } from "@/lib/hooks/duas/useDuaSync";
 import { useProfileSync } from "@/lib/hooks/profile/useProfileSync";
-import { usePrayerTimesRefreshOnReconnect } from "@/lib/hooks/adhan/usePrayerTimesRefreshOnReconnect";
-import { useTranslationStore } from "@/lib/storage/useQuranStore";
-import { getDownloadedTranslations } from "@/lib/database/sqlite/translation/repository";
-import { QuranAudioProvider } from "@/contexts/QuranAudioContext";
-import { useTranslationByIdentifier } from "@/lib/hooks/quran/useTranslationByIdentifier";
-import { notificationService, NOTIFICATION_ACTIONS } from "@/lib/notifications/NotificationService";
-import { notificationScheduler } from "@/lib/services/notificationScheduler";
-import { useNotificationSettings } from "@/lib/storage/notificationSettings";
-import { syncPushTokenAndSettings } from "@/lib/services/pushTokenSync";
-import { useThemeStore } from "@/lib/storage/useThemeStore";
-import { debugLog } from "@/lib/utils/debugLog";
+import { useNotificationSetup } from "@/lib/hooks/layout/useNotificationSetup";
+import { usePrayerTimesPrefetch } from "@/lib/hooks/layout/usePrayerTimesPrefetch";
+import { useStalePrayerTimesModal } from "@/lib/hooks/layout/useStalePrayerTimesModal";
+import { useTranslationInit } from "@/lib/hooks/layout/useTranslationInit";
 import { DebugErrorBoundary } from "@/components/DebugErrorBoundary";
 import StalePrayerTimesModal from "@/components/adhan/StalePrayerTimesModal";
+import { QuranAudioProvider } from "@/contexts/QuranAudioContext";
 
 export default function RootLayout() {
-  debugLog("_layout.tsx:RootLayout", "RootLayout mounting", {});
   const router = useRouter();
   const segments = useSegments();
   const { shouldShowRegister, canAccessApp, isLoading } = useAuthFlow();
   const [isNavigationReady, setIsNavigationReady] = useState(false);
   const [i18nReady, setI18nReady] = useState(false);
-  const [showStaleModal, setShowStaleModal] = useState(false);
   const [dbReady, setDbReady] = useState(false);
 
-  // Initialize i18n (stored lang / device locale / RTL for Arabic)
   useEffect(() => {
     initI18n().then(() => setI18nReady(true)).catch(() => setI18nReady(true));
   }, []);
 
-  // Fonts are optional - app will work without them
-  const [fontsLoaded] = useFonts({
-    // Comment out if font files are not available yet
-    // 'Amiri-Regular': require('../assets/fonts/Amiri-Regular.ttf'),
-    // 'Amiri-Bold': require('../assets/fonts/Amiri-Bold.ttf'),
-    // 'ScheherazadeNew-Regular': require('../assets/fonts/ScheherazadeNew-Regular.ttf'),
-    // 'ScheherazadeNew-Bold': require('../assets/fonts/ScheherazadeNew-Bold.ttf'),
-  });
+  const [fontsLoaded] = useFonts({});
 
   useEffect(() => {
-    debugLog("_layout.tsx:SplashScreen", "before preventAutoHideAsync", {});
     SplashScreen.preventAutoHideAsync();
   }, []);
 
-  // Apply saved theme on mount (persisted preference)
   useEffect(() => {
     useThemeStore.getState().applyTheme();
   }, []);
 
-  // Warm up SQLite after native is ready to avoid NativeDatabase.prepareAsync NPE on Android
   useEffect(() => {
     const task = InteractionManager.runAfterInteractions(() => {
-      getDb()
-        .then(() => setDbReady(true))
-        .catch(() => setDbReady(false));
+      getDb().then(() => setDbReady(true)).catch(() => setDbReady(false));
     });
     return () => task.cancel();
   }, []);
 
-  // Setup TanStack Query managers (focus & online)
   useEffect(() => {
     setupQueryManagers();
   }, []);
 
-  // Handle navigation based on auth state
   useEffect(() => {
     if (isLoading || !isNavigationReady) return;
-
-    const inAuthGroup = segments[0] === "auth";
-    const inTabsGroup = segments[0] === "(tabs)";
-
-    if (shouldShowRegister && !inAuthGroup) {
-      // No session, redirect to register
+    const inAuth = segments[0] === "auth";
+    const inTabs = segments[0] === "(tabs)";
+    if (shouldShowRegister && !inAuth) {
       router.replace("/auth/register");
-    } else if (canAccessApp && !inTabsGroup && !inAuthGroup) {
-      // Session exists - user can access app (email confirmation not required)
+    } else if (canAccessApp && !inTabs && !inAuth) {
       router.replace("/(tabs)");
     }
-  }, [
-    isLoading,
-    shouldShowRegister,
-    canAccessApp,
-    segments,
-    isNavigationReady,
-    router,
-  ]);
+  }, [isLoading, shouldShowRegister, canAccessApp, segments, isNavigationReady, router]);
 
   useEffect(() => {
-    if (!fontsLoaded || !i18nReady) {
-      return;
-    }
-
+    if (!fontsLoaded || !i18nReady) return;
     SplashScreen.hideAsync()
-      .then(() => {
-        setIsNavigationReady(true);
-      })
-      .catch((error) => {
-        setIsNavigationReady(true);
-      });
+      .then(() => setIsNavigationReady(true))
+      .catch(() => setIsNavigationReady(true));
   }, [fontsLoaded, i18nReady]);
 
-  // Prefetch prayer times on app start and when location changes
-  const location = useLocationStore((state) => state.location);
-  const method = useMethodStore((state) => state.method?.id);
-  const notificationSettings = useNotificationSettings();
-  const lastScheduleRunRef = useRef(0);
-  const SCHEDULE_DEBOUNCE_MS = 2500;
+  useNotificationSetup(router);
+  usePrayerTimesPrefetch(dbReady);
+  useTranslationInit(dbReady);
 
-  // Notification response handler
-  const notificationListener = useRef<{ remove: () => void } | null>(null);
-  const responseListener = useRef<{ remove: () => void } | null>(null);
+  const [showStaleModal, closeStaleModal] = useStalePrayerTimesModal(
+    canAccessApp,
+    segments,
+    isNavigationReady
+  );
 
-  useEffect(() => {
-    debugLog("_layout.tsx:notificationEffect", "before requestPermissions", {});
-    notificationService.requestPermissions().catch(() => {});
-    debugLog("_layout.tsx:notificationEffect", "before syncPushTokenAndSettings", {});
-    syncPushTokenAndSettings().catch(() => {});
-
-    const processNotificationResponse = async (
-      response: Notifications.NotificationResponse
-    ) => {
-      const actionIdentifier = response.actionIdentifier;
-      const data = response.notification.request.content.data as Record<string, unknown> | undefined;
-
-      if (actionIdentifier === NOTIFICATION_ACTIONS.PRAYER_MARKED_PRAYED) {
-        const { prayerTrackingRepo } = await import('@/lib/database/sqlite/prayer-tracking/repository');
-        const { getTodayDateString } = await import('@/lib/services/dailyReset');
-
-        if (data?.prayerName && typeof data.prayerName === 'string') {
-          const prayerName = data.prayerName.toLowerCase();
-          const today = getTodayDateString();
-          const notifDate = typeof data?.date === 'string' ? data.date : today;
-          await prayerTrackingRepo.upsertPrayerState(today, prayerName as any, 'prayed');
-
-          await notificationService.cancelPrayerReminderForPrayer(data.prayerName, notifDate);
-          await notificationService.cancelPrayerLateReminderForPrayer(data.prayerName, notifDate);
-
-          queryClient.invalidateQueries({
-            queryKey: ['prayerTracking', 'local', today],
-          });
-        }
-        return;
-      }
-
-      if (actionIdentifier === NOTIFICATION_ACTIONS.PRAYER_REMIND_LATER) {
-        if (data?.prayerName && typeof data.prayerName === 'string') {
-          const latitude = location?.latitude ?? 41.0082;
-          const longitude = location?.longitude ?? 28.9784;
-
-          try {
-            const prayerTimesResponse = await fetchPrayerTimes({
-              latitude,
-              longitude,
-              method: method ?? 13,
-              date: getTodayDDMMYYYY(),
-            });
-
-            await notificationScheduler.scheduleReminderForNextPrayer(
-              data.prayerName,
-              prayerTimesResponse
-            );
-          } catch (error) {
-            console.error('[Notification] Failed to schedule reminder:', error);
-          }
-        }
-        return;
-      }
-
-      if (actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
-        const deepLink = typeof data?.deepLink === 'string' ? data.deepLink : '';
-        if (deepLink) {
-          if (deepLink.includes('daily-verse')) {
-            router.push('/(tabs)/more/daily-verse');
-          } else if (deepLink.includes('adhan')) {
-            router.push('/(tabs)/adhan');
-          } else if (deepLink.includes('tracking') || deepLink.includes('index')) {
-            router.push('/(tabs)');
-          }
-        } else if (data?.type === 'prayer_time') {
-          router.push('/(tabs)/adhan');
-        } else if (data?.type === 'streak') {
-          router.push('/(tabs)');
-        } else if (data?.type === 'daily_verse') {
-          router.push('/(tabs)/more/daily-verse');
-        } else if (
-          data?.type === 'pre_prayer' ||
-          data?.type === 'prayer_reminder' ||
-          data?.type === 'prayer_status' ||
-          data?.type === 'prayer_late_reminder'
-        ) {
-          router.push('/(tabs)');
-        } else if (data?.type === 'stale_prayer_times_reminder') {
-          router.push('/(tabs)/adhan');
-        }
-      }
-
-      await notificationService.handleNotificationResponse(response as any);
-    };
-
-    // Cold start: process notification that opened the app
-    // eslint-disable-next-line deprecation/deprecation -- Expo notifications: no replacement for getLastNotificationResponseAsync yet
-    Notifications.getLastNotificationResponseAsync()
-      .then((lastResponse) => {
-        if (lastResponse) {
-          processNotificationResponse(lastResponse);
-        }
-      })
-      .catch(() => {});
-
-    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-      console.log('[Notification] Received:', notification);
-    });
-
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(
-      processNotificationResponse
-    );
-
-    return () => {
-      if (notificationListener.current) {
-        notificationListener.current.remove();
-      }
-      if (responseListener.current) {
-        responseListener.current.remove();
-      }
-    };
-  }, [location?.latitude, location?.longitude, method, router]);
-
-  useEffect(() => {
-    if (!method || !dbReady) return;
-
-    // Use location if available, otherwise use default Istanbul coordinates
-    const latitude = location?.latitude ?? 41.0082;
-    const longitude = location?.longitude ?? 28.9784;
-
-    const prefetchAndSchedule = async () => {
-      const now = Date.now();
-      if (now - lastScheduleRunRef.current < SCHEDULE_DEBOUNCE_MS) {
-        return;
-      }
-      lastScheduleRunRef.current = now;
-
-      const today = getTodayDDMMYYYY();
-      const currentDate = new Date();
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth() + 1;
-
-      try {
-        const cached = await getDataByDate(today, latitude, longitude, method);
-        if (cached) {
-          const syncedAt = await getMonthSyncedAt(year, month, latitude, longitude, method);
-          usePrayerTimesStore.getState().setTodayData(cached, syncedAt ?? undefined);
-        }
-
-        const queue = await getPrayerTimesSyncQueue();
-        for (const item of queue) {
-          try {
-            const cal = await fetchPrayerTimesCalendar({
-              latitude: item.latitude,
-              longitude: item.longitude,
-              method: item.method,
-              year: item.year,
-              month: item.month,
-            });
-            await upsertMonth(
-              item.year,
-              item.month,
-              item.latitude,
-              item.longitude,
-              item.method,
-              cal.data
-            );
-            await removeFromPrayerTimesSyncQueue(item.id);
-          } catch {
-            // skip failed queue item
-          }
-        }
-
-        const cal = await fetchPrayerTimesCalendar({
-          latitude,
-          longitude,
-          method,
-          year,
-          month,
-        });
-        await upsertMonth(year, month, latitude, longitude, method, cal.data);
-
-        const todayFromCal = cal.data.find((d) => d.date?.gregorian?.date === today);
-        if (todayFromCal) {
-          usePrayerTimesStore.getState().setTodayData(todayFromCal, Date.now());
-        }
-
-        const dayIndex = cal.data.findIndex(
-          (d) => d.date?.gregorian?.date === today
-        );
-        const weekData: PrayerTimesDayData[] =
-          dayIndex >= 0
-            ? cal.data
-                .slice(dayIndex, dayIndex + 7)
-                .map((d) => ({
-                  date: d.date?.gregorian?.date ?? "",
-                  data: d,
-                }))
-            : [];
-
-        if (weekData.length > 0) {
-          const firstDay = weekData[0];
-          queryClient.prefetchQuery({
-            queryKey: queryKeys.prayerTimes.byLocation(
-              latitude,
-              longitude,
-              today,
-              method
-            ),
-            queryFn: () =>
-              Promise.resolve({
-                code: 200,
-                status: "OK" as const,
-                data: firstDay.data,
-              }),
-            staleTime: 24 * 60 * 60 * 1000,
-          });
-          await notificationScheduler.scheduleAllNotificationsFromWeek(weekData);
-        }
-        await notificationService.scheduleStalePrayerTimesReminder();
-      } catch (error) {
-        const isSimulatedOffline =
-          (error as Error)?.message === "Simulated offline for Expo testing";
-        if (!isSimulatedOffline) {
-          console.error("[Layout] Failed to fetch prayer times calendar:", error);
-        }
-        try {
-          await addToPrayerTimesSyncQueue(
-            year,
-            month,
-            latitude,
-            longitude,
-            method
-          );
-        } catch {
-          // ignore queue add failure
-        }
-      }
-    };
-
-    prefetchAndSchedule();
-  }, [location, method, notificationSettings, dbReady]);
-
-  // Show stale prayer times modal when cache is 7+ days old (today not in cacheByDate)
-  useEffect(() => {
-    if (!canAccessApp || segments[0] !== "(tabs)" || !isNavigationReady) return;
-    const checkStale = () => {
-      if (usePrayerTimesStore.getState().isPrayerTimesStale()) {
-        setShowStaleModal(true);
-      }
-    };
-    checkStale();
-    const sub = AppState.addEventListener("change", (state) => {
-      if (state === "active") checkStale();
-    });
-    return () => sub.remove();
-  }, [canAccessApp, segments, isNavigationReady]);
-
-  const { selectedTranslation, setSelectedTranslation, setTranslationData } =
-    useTranslationStore();
-  const [downloadedList, setDownloadedList] = useState<
-    Awaited<ReturnType<typeof getDownloadedTranslations>> | null
-  >(null);
-
-  // İndirilmiş çevirileri yükle (seçili yoksa data[0] ile varsayılan atamak için)
-  useEffect(() => {
-    if (!dbReady) return;
-    debugLog("_layout.tsx:getDownloadedTranslations", "before", {});
-    getDownloadedTranslations()
-      .then((list) => {
-        debugLog("_layout.tsx:getDownloadedTranslations", "success", { count: list?.length ?? 0 });
-        setDownloadedList(list);
-      })
-      .catch((err) => {
-        debugLog("_layout.tsx:getDownloadedTranslations", "error", { error: String(err) });
-        setDownloadedList([]);
-      });
-  }, [dbReady]);
-
-  // Öncelik: 1) Daha önce seçilmiş, 2) Seçili yok ve data varsa data[0]
-  const effectiveIdentifier =
-    selectedTranslation?.edition_identifier ??
-    downloadedList?.[0]?.edition_identifier ??
-    null;
-
-  const { translation: quran } = useTranslationByIdentifier(effectiveIdentifier);
-
-  // Seçili yoksa ama indirilmiş liste varsa ilkini seçili yap (persist için)
-  useEffect(() => {
-    if (!selectedTranslation && downloadedList && downloadedList.length > 0) {
-      setSelectedTranslation(downloadedList[0]);
-    }
-  }, [selectedTranslation, downloadedList, setSelectedTranslation]);
-
-  useEffect(() => {
-    if (quran) {
-      setTranslationData(quran);
-    }
-  }, [quran, setTranslationData]);
-
-
-  // Show loading screen while checking auth
-  // if (isLoading || !isNavigationReady) {
-  //   return (
-  //     <View className="flex-1 items-center justify-center bg-background-light dark:bg-background-dark">
-  //       <ActivityIndicator size="large" color="#1F8F5F" />
-  //     </View>
-  //   );
-  // }
   return (
     <DebugErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <QuranAudioProvider>
-        <EmailConfirmationProvider />
-        <LocationPermissionProvider />
-        <DhikrSyncProvider />
-        <DuaSyncProvider />
-        {!shouldShowRegister && <PrayerHeader />}
-        <StalePrayerTimesModal
-          visible={showStaleModal}
-          onClose={() => setShowStaleModal(false)}
-        />
-
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="auth" />
-        </Stack>
-      </QuranAudioProvider>
-    </QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <QuranAudioProvider>
+          <EmailConfirmationProvider />
+          <LocationPermissionProvider />
+          <DhikrSyncProvider />
+          <DuaSyncProvider />
+          {!shouldShowRegister && <PrayerHeader />}
+          <StalePrayerTimesModal
+            visible={showStaleModal}
+            onClose={closeStaleModal}
+          />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="auth" />
+          </Stack>
+        </QuranAudioProvider>
+      </QueryClientProvider>
     </DebugErrorBoundary>
   );
 }
 
-/**
- * Provider component for dhikr sync
- * Sets up automatic sync triggers
- */
 function DhikrSyncProvider() {
   useDhikrSync();
   usePrayerTimesRefreshOnReconnect();
   return null;
 }
 
-/**
- * Provider component for dua sync
- * Sets up automatic sync triggers
- */
 function DuaSyncProvider() {
   useDuaSync();
   useProfileSync();
