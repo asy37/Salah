@@ -7,8 +7,10 @@
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#2D5016"
+      "resizeMode": "cover",
+      "backgroundColor": "#2D5016",
+      "imageWidth": 200,
+      "imageHeight": 200
     },
     "assetBundlePatterns": [
       "**/*"
