@@ -2,7 +2,6 @@ import "@/lib/utils/debugLogInit";
 import "../global.css";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect, useState } from "react";
-import { InteractionManager } from "react-native";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -50,10 +49,23 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    const task = InteractionManager.runAfterInteractions(() => {
+    const run = () => {
       getDb().then(() => setDbReady(true)).catch(() => setDbReady(false));
-    });
-    return () => task.cancel();
+    };
+    const useIdle =
+      typeof requestIdleCallback === "function" &&
+      typeof cancelIdleCallback === "function";
+    let idleId: number | undefined;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    if (useIdle) {
+      idleId = requestIdleCallback(run, { timeout: 100 });
+    } else {
+      timeoutId = setTimeout(run, 0);
+    }
+    return () => {
+      if (idleId !== undefined) cancelIdleCallback(idleId);
+      if (timeoutId !== undefined) clearTimeout(timeoutId);
+    };
   }, []);
 
   useEffect(() => {

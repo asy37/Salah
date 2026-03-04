@@ -1,9 +1,9 @@
 /**
  * Bildirim izinleri, push token sync ve bildirim tıklama/aksiyon dinleyicileri.
+ * expo-notifications Expo Go'da (SDK 53+) yok; modül effect içinde lazy yüklenir, yoksa no-op.
  */
 
 import { useEffect, useRef } from "react";
-import * as Notifications from "expo-notifications";
 import type { Router } from "expo-router";
 import { notificationService } from "@/lib/notifications/NotificationService";
 import { syncPushTokenAndSettings } from "@/lib/services/pushTokenSync";
@@ -18,29 +18,45 @@ export function useNotificationSetup(router: Router): void {
   const responseListenerRef = useRef<{ remove: () => void } | null>(null);
 
   useEffect(() => {
-    notificationService.requestPermissions().catch(() => {});
-    syncPushTokenAndSettings().catch(() => {});
+    let cancelled = false;
 
-    const params: NotificationHandlerParams = {
-      router,
-      location: location ?? null,
-      method,
+    const setup = async () => {
+      let Notifications: typeof import("expo-notifications");
+      try {
+        Notifications = await import("expo-notifications");
+      } catch {
+        return;
+      }
+
+      if (cancelled) return;
+      notificationService.requestPermissions().catch(() => {});
+      syncPushTokenAndSettings().catch(() => {});
+
+      const params: NotificationHandlerParams = {
+        router,
+        location: location ?? null,
+        method,
+      };
+
+      const handleResponse = (response: import("expo-notifications").NotificationResponse) => {
+        processNotificationResponse(response, params).catch(() => {});
+      };
+
+      Notifications.getLastNotificationResponseAsync()
+        .then((last) => {
+          if (last && !cancelled) handleResponse(last);
+        })
+        .catch(() => {});
+
+      if (cancelled) return;
+      notificationListenerRef.current = Notifications.addNotificationReceivedListener(() => {});
+      responseListenerRef.current = Notifications.addNotificationResponseReceivedListener(handleResponse);
     };
 
-    const handleResponse = (response: Notifications.NotificationResponse) => {
-      processNotificationResponse(response, params).catch(() => {});
-    };
-
-    Notifications.getLastNotificationResponseAsync()
-      .then((last) => {
-        if (last) handleResponse(last);
-      })
-      .catch(() => {});
-
-    notificationListenerRef.current = Notifications.addNotificationReceivedListener(() => {});
-    responseListenerRef.current = Notifications.addNotificationResponseReceivedListener(handleResponse);
+    setup();
 
     return () => {
+      cancelled = true;
       notificationListenerRef.current?.remove();
       responseListenerRef.current?.remove();
     };
