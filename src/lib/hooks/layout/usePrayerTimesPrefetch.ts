@@ -47,7 +47,6 @@ export function usePrayerTimesPrefetch(dbReady: boolean): void {
       const t = Date.now();
       if (t - lastRunRef.current < SCHEDULE_DEBOUNCE_MS) return;
       lastRunRef.current = t;
-
       try {
         const cached = await getDataByDate(today, latitude, longitude, method);
         if (cached) {

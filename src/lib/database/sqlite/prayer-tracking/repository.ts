@@ -7,6 +7,7 @@
  */
 
 import * as SQLite from 'expo-sqlite';
+import { getDb } from '../db';
 import type { PrayerStatus, PrayerName } from '@/types/prayer-tracking';
 
 // Types
@@ -42,38 +43,8 @@ class PrayerTrackingRepository {
    */
   async initialize(): Promise<void> {
     if (this.db) return;
-
-    // Using the same database name as getDb() for consistency
-    this.db = await SQLite.openDatabaseAsync('islamic_app.db');
-    
-    // Create tables
-    const schema = `
-      -- Daily Prayer State Table (SINGLE ROW ONLY)
-      CREATE TABLE IF NOT EXISTS daily_prayer_state (
-        id INTEGER PRIMARY KEY CHECK (id = 1),
-        date TEXT NOT NULL,
-        fajr TEXT NOT NULL DEFAULT 'upcoming',
-        dhuhr TEXT NOT NULL DEFAULT 'upcoming',
-        asr TEXT NOT NULL DEFAULT 'upcoming',
-        maghrib TEXT NOT NULL DEFAULT 'upcoming',
-        isha TEXT NOT NULL DEFAULT 'upcoming',
-        updated_at INTEGER NOT NULL
-      );
-
-      -- Sync Queue Table (NO synced flag - DELETE on success)
-      CREATE TABLE IF NOT EXISTS prayer_sync_queue (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT NOT NULL,
-        payload TEXT NOT NULL,
-        created_at INTEGER NOT NULL
-      );
-
-      -- Indexes
-      CREATE INDEX IF NOT EXISTS idx_prayer_sync_queue_date ON prayer_sync_queue(date);
-      CREATE INDEX IF NOT EXISTS idx_prayer_sync_queue_created ON prayer_sync_queue(created_at);
-    `;
-
-    await this.db.execAsync(schema);
+    this.db = await getDb();
+    // Schema for daily_prayer_state and prayer_sync_queue is in db.ts (single connection)
   }
 
   /**

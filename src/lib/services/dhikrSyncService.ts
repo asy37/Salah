@@ -315,9 +315,6 @@ class DhikrSyncService {
 
       // Fetch dirty records from SQLite
       const dirtyRecords = await dhikrRepo.getDirtyDhikrs(userId);
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'run1',hypothesisId:'B',location:'src/lib/services/dhikrSyncService.ts:dirtyRecords',message:'dirtyRecordsCount',data:{count:dirtyRecords.length},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
 
       if (dirtyRecords.length === 0) {
         // No dirty records. IMPORTANT: Don't update LAST_SYNC_KEY here,
@@ -412,9 +409,6 @@ class DhikrSyncService {
     } catch (error) {
       // Fail silently - don't throw, just log
       console.error('[DhikrSync] Sync exception:', error);
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/8bb95933-fbb3-484f-ab06-c34d89a637ef',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'post-fix',hypothesisId:'E',location:'src/lib/services/dhikrSyncService.ts:syncDhikrsIfNeeded',message:'caught exception',data:{name:(error as any)?.name ?? null,message:(error as any)?.message ?? null},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       result.success = false;
     } finally {
       this.isSyncing = false;

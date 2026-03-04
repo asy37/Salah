@@ -7,6 +7,7 @@
  */
 
 import * as SQLite from 'expo-sqlite';
+import { getDb } from '../db';
 
 // Types
 export interface DhikrRecord {
@@ -32,9 +33,7 @@ class DhikrRepository {
    */
   async initialize(): Promise<void> {
     if (this.db) return;
-
-    // Using the same database name as getDb() for consistency
-    this.db = await SQLite.openDatabaseAsync('islamic_app.db');
+    this.db = await getDb();
   }
 
   /**
