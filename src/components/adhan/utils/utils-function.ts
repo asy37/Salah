@@ -1,6 +1,9 @@
 import { LocationData } from "@/lib/hooks/qibla/useLocation";
 import { PrayerTimings } from "@/components/prayer-list/types/prayer-timings";
-import { createPrayerTime } from "@/components/prayer-list/utils/utils";
+import { createPrayerTime, normalizeTimeString } from "@/components/prayer-list/utils/utils";
+
+/** Aladhan gün verisi (SQLite / store ile uyumlu); timings içerir. */
+type AladhanDayData = { timings: PrayerTimings; date?: unknown; meta?: unknown };
 
 
 export const adhanMap: Record<
@@ -47,15 +50,21 @@ export type NextPrayerInfo = {
 };
 
 /**
- * Bir sonraki ezan vaktini belirler ve kalan süreyi hesaplar
+ * Bir sonraki ezan vaktini belirler ve kalan süreyi hesaplar.
+ * Hem düz PrayerTimings hem de SQLite/store gün objesi (timings içeren) kabul eder.
  */
 export function getNextPrayer(
-  timings: PrayerTimings | undefined
+  data: PrayerTimings | AladhanDayData | undefined
 ): NextPrayerInfo | null {
+  const timings: PrayerTimings | undefined =
+    data && "timings" in data && data.timings
+      ? data.timings
+      : (data as PrayerTimings | undefined);
   if (!timings) return null;
 
   const now = new Date();
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
   today.setSeconds(0, 0);
 
   const PRAYER_ORDER = [
@@ -98,11 +107,12 @@ export function getNextPrayer(
   const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
   const seconds = Math.floor((diffMs / 1000) % 60);
 
-  const pad = (n: number) => n.toString().padStart(2, "0");
+  const pad = (n: number) =>
+    Number.isFinite(n) ? n.toString().padStart(2, "0") : "00";
 
   return {
     name: nextPrayer.name,
-    localTime: nextPrayer.time,
+    localTime: normalizeTimeString(nextPrayer.time),
     timeRemaining: `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`,
   };
 }

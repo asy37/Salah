@@ -16,6 +16,7 @@ import {
 import { useState } from "react";
 import { useUpdatePrayerStatusLocal } from "@/lib/hooks/prayer-tracking/usePrayerTrackingLocal";
 import { ActionButtons } from "./ActionButtons";
+import { normalizeTimeString } from "./utils/utils";
 
 type PrayerItem = {
   readonly name: string;
@@ -42,7 +43,7 @@ export default function PrayerItem({
 }: PrayerItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { mutate: updateStatus, isPending } = useUpdatePrayerStatusLocal();
-
+  const prayerTime = normalizeTimeString(prayer.time);
   const canExpand = extended && (isPast || isActive);
   return (
     <Pressable
@@ -93,7 +94,7 @@ export default function PrayerItem({
               getTimeTextColor(isActive, isPast, isDark)
             )}
           >
-            {prayer.time}
+            {prayerTime}
           </Text>
           {isActive && (
             <View

@@ -1,10 +1,19 @@
 import { PrayerItem, PrayerTimings } from "@/components/prayer-list/types/prayer-timings";
 
 /**
- * Vakit zamanını Date objesine çevirir
+ * Aladhan "05:52 (+03)" gibi zamanları "05:52"e çevirir; parse ve gösterim için.
+ */
+export function normalizeTimeString(time: string): string {
+  const match = /^\d{1,2}:\d{2}(?::\d{2})?/.exec(time.trim());
+  return match ? match[0] : time;
+}
+
+/**
+ * Vakit zamanını Date objesine çevirir (timezone soneki desteklenir, örn. "05:52 (+03)")
  */
 export function createPrayerTime(time: string, baseDate: Date): Date {
-  const [hours, minutes] = time.split(":").map(Number);
+  const normalized = normalizeTimeString(time);
+  const [hours, minutes] = normalized.split(":").map(Number);
   const date = new Date(baseDate);
   date.setHours(hours, minutes, 0, 0);
   date.setSeconds(0);
