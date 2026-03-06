@@ -16,7 +16,7 @@ export default function PrayerTrackingScreen() {
   
   // Get local prayer state
   const { data: localState, isLoading, error } = usePrayerTrackingLocal();
-  
+
   // Convert local state to PrayerTrackingData format
   const data = localState ? convertToPrayerTrackingData(localState) : null;
   if (isLoading) {

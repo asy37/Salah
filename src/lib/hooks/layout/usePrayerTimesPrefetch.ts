@@ -1,5 +1,6 @@
 /**
- * Ezan vakitleri: SQLite cache'den bugünü yükle, takvimi çek, store + bildirimleri güncelle.
+ * Ezan vakitleri: SQLite cache'den bugünü yükle; konum, yıl veya ay değiştiğinde (veya cache yoksa)
+ * Aladhan calendar isteği atıp SQLite'ı güncelle, store + bildirimleri güncelle.
  */
 
 import { useEffect, useRef } from "react";
@@ -34,14 +35,15 @@ export function usePrayerTimesPrefetch(dbReady: boolean): void {
   const notificationSettings = useNotificationSettings();
   const lastRunRef = useRef(0);
 
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+
   useEffect(() => {
     if (!method || !dbReady) return;
     const latitude = location?.latitude ?? DEFAULT_LAT;
     const longitude = location?.longitude ?? DEFAULT_LNG;
     const today = getTodayDDMMYYYY();
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
 
     const run = async () => {
       const t = Date.now();
@@ -139,5 +141,5 @@ export function usePrayerTimesPrefetch(dbReady: boolean): void {
     };
 
     run();
-  }, [location, method, dbReady, notificationSettings]);
+  }, [location?.latitude, location?.longitude, method, dbReady, notificationSettings, year, month]);
 }

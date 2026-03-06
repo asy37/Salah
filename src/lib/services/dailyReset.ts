@@ -52,16 +52,16 @@ export function getYesterdayDateString(): string {
 
 /**
  * Parse Imsak time from Aladhan API response
- * Format: "HH:mm" (24-hour)
+ * Format: "HH:mm" or "HH:mm (+03)" (24-hour)
  */
 export function parseImsakTime(timings: AladhanPrayerTimesResponse['data']['timings']): Date {
-  const imsakString = timings.Imsak; // "HH:mm" format
+  const imsakString = timings.Imsak ?? '';
+  const match = /^\d{1,2}:\d{2}(?::\d{2})?/.exec(imsakString.trim());
+  const normalized = match ? match[0] : imsakString;
+  const [hours, minutes] = normalized.split(':').map(Number);
   const today = new Date();
-  const [hours, minutes] = imsakString.split(':').map(Number);
-  
   const imsakDate = new Date(today);
   imsakDate.setHours(hours, minutes, 0, 0);
-  
   return imsakDate;
 }
 
