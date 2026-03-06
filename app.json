@@ -1,12 +1,12 @@
 {
   "expo": {
     "name": "Salah",
-    "slug": "islamic-app",
+    "slug": "salah",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash-screen.png",
       "resizeMode": "cover",
       "backgroundColor": "#2D5016",
       "imageWidth": 200,
@@ -17,7 +17,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.Salah.app",
+      "bundleIdentifier": "com.salah.app",
       "infoPlist": {
         "UIBackgroundModes": [
           "fetch",
@@ -50,10 +50,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/app-logo.png",
         "backgroundColor": "#2D5016"
       },
-      "package": "com.Salah.app",
+      "package": "com.salah.app",
       "permissions": [
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",
@@ -70,7 +70,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/adaptive-icon.png",
+          "icon": "./assets/app-logo.png",
           "color": "#2D5016",
           "sounds": [
             "./assets/sounds/fajr_ezan.mp3",
@@ -119,7 +119,7 @@
       },
       "router": {}
     },
-    "scheme": "Salah",
-    "owner": "asy37"
+    "scheme": "salah",
+    "owner": "asy"
   }
 }
