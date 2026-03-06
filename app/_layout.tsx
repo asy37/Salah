@@ -25,6 +25,9 @@ import { useTranslationInit } from "@/lib/hooks/layout/useTranslationInit";
 import { DebugErrorBoundary } from "@/components/DebugErrorBoundary";
 import StalePrayerTimesModal from "@/components/adhan/StalePrayerTimesModal";
 import { QuranAudioProvider } from "@/contexts/QuranAudioContext";
+import { storage } from "@/lib/storage/mmkv";
+
+const ONBOARDING_COMPLETED_KEY = "onboarding_completed";
 
 export default function RootLayout() {
   const router = useRouter();
@@ -77,13 +80,26 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (isLoading || !isNavigationReady) return;
-    const inAuth = segments[0] === "auth";
-    const inTabs = segments[0] === "(tabs)";
-    if (shouldShowRegister && !inAuth) {
-      router.replace("/auth/register");
-    } else if (canAccessApp && !inTabs && !inAuth) {
-      router.replace("/(tabs)");
-    }
+    let cancelled = false;
+    storage.getString(ONBOARDING_COMPLETED_KEY).then((value) => {
+      if (cancelled) return;
+      const inOnboarding = segments[0] === "onboarding";
+      if (value !== "true") {
+        if (!inOnboarding) router.replace("/onboarding");
+        return;
+      }
+      const inAuth = segments[0] === "auth";
+      const inTabs = segments[0] === "(tabs)";
+      if (inOnboarding) return;
+      if (shouldShowRegister && !inAuth) {
+        router.replace("/auth/register");
+      } else if (canAccessApp && !inTabs && !inAuth) {
+        router.replace("/(tabs)");
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [isLoading, shouldShowRegister, canAccessApp, segments, isNavigationReady, router]);
 
   useEffect(() => {
@@ -117,6 +133,7 @@ export default function RootLayout() {
             onClose={closeStaleModal}
           />
           <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="onboarding" />
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="auth" />
           </Stack>

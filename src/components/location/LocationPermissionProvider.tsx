@@ -13,6 +13,8 @@ import { useLocationStore } from "@/lib/storage/locationStore";
 
 const LOCATION_PERMISSION_ASKED_KEY = "location_permission_asked";
 const LOCATION_PERMISSION_GRANTED_KEY = "location_permission_granted";
+const ONBOARDING_COMPLETED_KEY = "onboarding_completed";
+
 export default function LocationPermissionProvider() {
   const { session, user, isLoading: isAuthLoading } = useAuth();
   const [showModal, setShowModal] = useState(false);
@@ -49,20 +51,25 @@ export default function LocationPermissionProvider() {
   };
 
   useEffect(() => {
-    // Wait for auth to finish loading and session to be available
+    // Only show location modal after onboarding is completed
     if (isAuthLoading) {
       return;
     }
 
-    // Don't check if there's no user yet (user not logged in)
-    // Allow both registered users (even if session is null due to email confirmation)
-    // and anonymous users (they have a session)
-    if (!user && !session) {
-      setIsChecking(false);
-      return;
-    }
-
     const checkLocationPermission = async () => {
+      const onboardingCompleted = await storage.getString(ONBOARDING_COMPLETED_KEY);
+      if (onboardingCompleted !== "true") {
+        setIsChecking(false);
+        return;
+      }
+
+      // Don't check if there's no user yet (user not logged in)
+      // Allow both registered users (even if session is null due to email confirmation)
+      // and anonymous users (they have a session)
+      if (!user && !session) {
+        setIsChecking(false);
+        return;
+      }
       try {
         setIsChecking(true);
 

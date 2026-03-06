@@ -74,10 +74,24 @@
     "restartMessage": "Language changed. The app will restart to apply.",
     "sectionTitle": "Language"
   },
+  "onboarding": {
+    "welcomeTitle": "Welcome",
+    "welcomeMessage": "Let's get started in a few steps for prayer times, Quran and more.",
+    "locationDescription": "We need your location for accurate prayer times and qibla direction. We respect your privacy.",
+    "locationAllow": "Allow Location Access",
+    "locationManual": "Enter my city manually",
+    "notificationsTitle": "Notifications",
+    "notificationsDescription": "Allow notifications for prayer times and reminders. Adhan sound can play with notifications.",
+    "notificationsAllow": "Allow Notifications",
+    "completeTitle": "You're all set",
+    "completeMessage": "Permissions completed. Let's get started.",
+    "startButton": "Start"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
     "done": "Done",
+    "continue": "Continue",
     "days": "Days",
     "day": "Day",
     "stalePrayerTimesModalTitle": "Prayer times are out of date",

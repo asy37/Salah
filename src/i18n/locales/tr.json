@@ -74,10 +74,24 @@
     "restartMessage": "Dil değişti. Uygulama uygulamak için yeniden başlayacak.",
     "sectionTitle": "Dil"
   },
+  "onboarding": {
+    "welcomeTitle": "Hoş geldiniz",
+    "welcomeMessage": "Namaz vakitleri, Kur'an ve daha fazlası için birkaç adımda başlayalım.",
+    "locationDescription": "Doğru namaz vakitleri ve kıble yönü için konumunuza ihtiyacımız var. Gizliliğinize saygı gösteriyoruz.",
+    "locationAllow": "Konum Erişimine İzin Ver",
+    "locationManual": "Şehrimi manuel olarak gireceğim",
+    "notificationsTitle": "Bildirimler",
+    "notificationsDescription": "Ezan vakitleri ve namaz hatırlatmaları için bildirimlere izin verin. Ezan sesi bildirimle birlikte çalabilir.",
+    "notificationsAllow": "Bildirimlere İzin Ver",
+    "completeTitle": "Hazırsınız",
+    "completeMessage": "İzinler tamamlandı. Haydi başlayalım.",
+    "startButton": "Başla"
+  },
   "common": {
     "save": "Kaydet",
     "cancel": "İptal",
     "done": "Bitti",
+    "continue": "Devam",
     "days": "Gün",
     "day": "Gün",
     "stalePrayerTimesModalTitle": "Ezan vakitleri güncel değil",

@@ -210,14 +210,22 @@ export default function ProfileForm() {
                 Alert.alert("Başarılı", "Profilin güncellendi.");
             } else {
                 const now = Date.now();
+                let createdAt: string;
+                if (profile?.created_at == null) {
+                    createdAt = new Date(now).toISOString();
+                } else if (typeof profile.created_at === "number") {
+                    createdAt = new Date(profile.created_at).toISOString();
+                } else {
+                    createdAt = profile.created_at;
+                }
                 const mergedProfile = {
                     id: user.id,
                     name: name || null,
                     surname: surname || null,
                     image: profile?.image ?? null,
                     is_anonymous: profile?.is_anonymous ?? false,
-                    created_at: profile?.created_at ?? now,
-                    updated_at: now,
+                    created_at: createdAt,
+                    updated_at: new Date(now).toISOString(),
                 };
                 await profileRepo.upsertLocalProfile(user.id, mergedProfile);
                 await profileRepo.addToProfileSyncQueue(user.id, {

@@ -74,10 +74,24 @@
     "restartMessage": "تم تغيير اللغة. سيتم إعادة تشغيل التطبيق للتطبيق.",
     "sectionTitle": "اللغة"
   },
+  "onboarding": {
+    "welcomeTitle": "مرحباً",
+    "welcomeMessage": "لنبدأ في خطوات قليلة لأوقات الصلاة والقرآن والمزيد.",
+    "locationDescription": "نحتاج موقعك لأوقات الصلاة الدقيقة واتجاه القبلة. نحترم خصوصيتك.",
+    "locationAllow": "السماح بالوصول للموقع",
+    "locationManual": "إدخال مدينتي يدوياً",
+    "notificationsTitle": "الإشعارات",
+    "notificationsDescription": "السماح بالإشعارات لأوقات الأذان والتذكيرات. يمكن تشغيل صوت الأذان مع الإشعارات.",
+    "notificationsAllow": "السماح بالإشعارات",
+    "completeTitle": "أنت جاهز",
+    "completeMessage": "تم إعداد الأذونات. لنبدأ.",
+    "startButton": "ابدأ"
+  },
   "common": {
     "save": "حفظ",
     "cancel": "إلغاء",
     "done": "تم",
+    "continue": "متابعة",
     "days": "أيام",
     "day": "يوم",
     "stalePrayerTimesModalTitle": "أوقات الصلاة غير محدثة",
