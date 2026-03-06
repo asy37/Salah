@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "IslamicApp",
-    "slug": "islamic-app",
+    "name": "Salah",
+    "slug": "Salah",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
@@ -17,7 +17,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.islamicapp.app",
+      "bundleIdentifier": "com.Salah.app",
       "infoPlist": {
         "UIBackgroundModes": [
           "fetch",
@@ -53,7 +53,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#2D5016"
       },
-      "package": "com.islamicapp.app",
+      "package": "com.Salah.app",
       "permissions": [
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",
@@ -70,7 +70,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/notification-icon.png",
+          "icon": "./assets/adaptive-icon.png",
           "color": "#2D5016",
           "sounds": [
             "./assets/sounds/fajr_ezan.mp3",
@@ -119,7 +119,7 @@
       },
       "router": {}
     },
-    "scheme": "islamicapp",
-    "owner": "asy37"
+    "scheme": "Salah",
+    "owner": "AhmetSefaYılmaz"
   }
 }

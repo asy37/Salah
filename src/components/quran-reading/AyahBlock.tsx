@@ -75,7 +75,7 @@ export default function AyahBlock({
           }
         >
           <Text
-            className={clsx(isDark ? colors.text.primaryDark : colors.text.primaryLight)}
+            className={clsx("text-white")}
           >
             {ayah.number}
           </Text>
