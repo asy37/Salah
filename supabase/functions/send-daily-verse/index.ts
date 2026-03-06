@@ -93,7 +93,7 @@ Deno.serve(async (req: Request) => {
         type: 'daily_verse',
         surah: randomVerse.surah,
         ayah: randomVerse.ayah,
-        deepLink: 'islamicapp://more/daily-verse',
+        deepLink: 'salah://more/daily-verse',
       },
       priority: 'default',
     }));

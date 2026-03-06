@@ -2,13 +2,13 @@
  * APK / standalone build için cihazda dosyaya yazan debug logger.
  * Loglar uygulama veri dizininde kalır; adb ile çekilebilir.
  */
-import * as FileSystem from "expo-file-system";
+import { Paths, File } from "expo-file-system";
 
-const LOG_FILE = "islamic_app_debug.log";
+const LOG_FILE = "salah_debug.log";
 let writeQueue = Promise.resolve();
 
-function getPath(): string {
-  return (FileSystem.documentDirectory ?? "") + LOG_FILE;
+function getLogFile(): File {
+  return new File(Paths.document, LOG_FILE);
 }
 
 function formatLine(location: string, message: string, data: Record<string, unknown>): string {
@@ -26,13 +26,19 @@ export function debugLog(
   writeQueue = writeQueue
     .then(async () => {
       try {
+        const file = getLogFile();
         let existing = "";
         try {
-          existing = await FileSystem.readAsStringAsync(getPath());
+          if (file.exists) existing = await file.text();
         } catch {
-          // dosya yok
+          // dosya yok veya okunamadı
         }
-        await FileSystem.writeAsStringAsync(getPath(), existing + line);
+        try {
+          if (!file.exists) file.create();
+        } catch {
+          // zaten var veya oluşturulamadı
+        }
+        file.write(existing + line);
       } catch {
         // sessizce devam
       }

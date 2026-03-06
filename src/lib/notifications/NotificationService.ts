@@ -283,7 +283,7 @@ export class NotificationService {
               prayerName: prayer.name,
               prayerNameTurkish,
               date: day.date,
-              deepLink: 'islamicapp://adhan',
+              deepLink: 'salah://adhan',
             },
           },
           trigger: {
@@ -354,7 +354,7 @@ export class NotificationService {
               prayerName: prayer.name,
               prayerNameTurkish,
               date: day.date,
-              deepLink: 'islamicapp://adhan',
+              deepLink: 'salah://adhan',
             },
           },
           trigger: {
@@ -430,7 +430,7 @@ export class NotificationService {
               prayerName: prayer.name,
               prayerNameDisplay,
               date: day.date,
-              deepLink: 'islamicapp://index',
+              deepLink: 'salah://index',
             },
           },
           trigger: {
@@ -504,7 +504,7 @@ export class NotificationService {
               prayerName: prayer.name,
               prayerNameDisplay,
               date: day.date,
-              deepLink: 'islamicapp://index',
+              deepLink: 'salah://index',
             },
           },
           trigger: {
@@ -596,7 +596,7 @@ export class NotificationService {
               prayerName: prayer.name,
               prayerNameTurkish,
               date: day.date,
-              deepLink: 'islamicapp://tracking',
+              deepLink: 'salah://tracking',
             },
           },
           trigger: {
@@ -644,7 +644,7 @@ export class NotificationService {
           prayerName,
           prayerNameTurkish,
           date,
-          deepLink: 'islamicapp://adhan',
+          deepLink: 'salah://adhan',
         },
       },
       trigger: {
@@ -696,7 +696,7 @@ export class NotificationService {
           type: 'daily_verse',
           ayahNumber,
           surahNumber,
-          deepLink: 'islamicapp://more/daily-verse',
+          deepLink: 'salah://more/daily-verse',
         },
       },
       trigger: {
@@ -752,7 +752,7 @@ export class NotificationService {
         data: {
           type: 'streak',
           count: streakCount,
-          deepLink: 'islamicapp://tracking',
+          deepLink: 'salah://tracking',
         },
       },
       trigger: {
@@ -790,7 +790,7 @@ export class NotificationService {
         sound: true,
         data: {
           type: 'stale_prayer_times_reminder',
-          deepLink: 'islamicapp://adhan',
+          deepLink: 'salah://adhan',
         },
       },
       trigger: {
@@ -951,27 +951,27 @@ export class NotificationService {
     switch (data?.type) {
       case 'prayer_time':
         // Navigate to adhan screen via deep link
-        // Deep link: islamicapp://adhan
+        // Deep link: salah://adhan
         break;
       case 'prayer_status':
         // Navigate to index (home) screen
-        // Deep link: islamicapp://index
+        // Deep link: salah://index
         break;
       case 'prayer_late_reminder':
         // Navigate to index (home) screen
-        // Deep link: islamicapp://index
+        // Deep link: salah://index
         break;
       case 'daily_verse':
         // Navigate to daily verse screen
-        // Deep link: islamicapp://daily-verse
+        // Deep link: salah://daily-verse
         break;
       case 'prayer_reminder':
         // Navigate to prayer tracking screen (legacy)
-        // Deep link: islamicapp://tracking
+        // Deep link: salah://tracking
         break;
       case 'streak':
         // Navigate to tracking screen
-        // Deep link: islamicapp://tracking
+        // Deep link: salah://tracking
         break;
     }
   }

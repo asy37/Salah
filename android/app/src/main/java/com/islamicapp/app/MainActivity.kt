@@ -1,4 +1,4 @@
-package com.islamicapp.app
+package com.salah.app
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.content.Intent

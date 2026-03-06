@@ -29,7 +29,7 @@ export class DebugErrorBoundary extends React.Component<Props, State> {
             {this.state.error.message}
           </Text>
           <Text style={{ color: "#888", fontSize: 10, marginTop: 16 }} selectable>
-            Log: adb shell run-as com.islamicapp.app cat /data/data/com.islamicapp.app/files/islamic_app_debug.log
+            Log: adb shell run-as com.salah.app cat /data/data/com.salah.app/files/salah.log
           </Text>
         </View>
       );

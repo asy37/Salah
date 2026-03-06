@@ -1,4 +1,4 @@
-package com.islamicapp.app
+package com.salah.app
 import com.facebook.react.common.assets.ReactFontManager
 
 import android.app.Application
