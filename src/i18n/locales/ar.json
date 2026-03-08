@@ -85,10 +85,12 @@
     "notificationsAllow": "السماح بالإشعارات",
     "completeTitle": "أنت جاهز",
     "completeMessage": "تم إعداد الأذونات. لنبدأ.",
-    "startButton": "ابدأ"
+    "startButton": "ابدأ",
+    "notificationsNotNow": "ليس الآن"
   },
   "common": {
     "save": "حفظ",
+    "back": "رجوع",
     "cancel": "إلغاء",
     "done": "تم",
     "continue": "متابعة",

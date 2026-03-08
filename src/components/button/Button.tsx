@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable, Text, View } from "react-native";
 import clsx from "clsx";
-import { backgroundColorClass, getIconColor, sizeClass, textColorClass } from "./utils";
+import { activeBackgroundColorClass, backgroundColorClass, getIconColor, sizeClass, textColorClass } from "./utils";
 import { useTheme } from "@/lib/storage/useThemeStore";
 
 type ButtonProps = {
@@ -39,8 +39,8 @@ export default function Button({
       onPress={onPress}
       className={clsx(
         "flex-row items-center justify-between gap-2 rounded-full shadow-sm",
-        isActive && "border-l-8 border-primary-500",
         sizeClass(size),
+        isActive && activeBackgroundColorClass(backgroundColor),
         backgroundColorClass(backgroundColor, isDark),
         className
       )}

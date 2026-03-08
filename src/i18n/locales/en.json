@@ -85,10 +85,12 @@
     "notificationsAllow": "Allow Notifications",
     "completeTitle": "You're all set",
     "completeMessage": "Permissions completed. Let's get started.",
-    "startButton": "Start"
+    "startButton": "Start",
+    "notificationsNotNow": "Not now"
   },
   "common": {
     "save": "Save",
+    "back": "Back",
     "cancel": "Cancel",
     "done": "Done",
     "continue": "Continue",

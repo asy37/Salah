@@ -27,6 +27,13 @@ export const textColorClass = (backgroundColor: "white" | "transparent" | "prima
     }[backgroundColor];
 };
 
+export const activeBackgroundColorClass = (backgroundColor: "white" | "transparent" | "primary") => {
+    return {
+        white: "border-l-8 border-primary-500",
+        transparent: "bg-transparent",
+        primary: "border-l-8 border-white"
+    }[backgroundColor];
+};
 
 export const backgroundColorClass = (backgroundColor: "white" | "transparent" | "primary", isDark: boolean) => {
     return {

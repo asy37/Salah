@@ -85,10 +85,12 @@
     "notificationsAllow": "Bildirimlere İzin Ver",
     "completeTitle": "Hazırsınız",
     "completeMessage": "İzinler tamamlandı. Haydi başlayalım.",
-    "startButton": "Başla"
+    "startButton": "Başla",
+    "notificationsNotNow": "Şimdi değil"
   },
   "common": {
     "save": "Kaydet",
+    "back": "Geri",
     "cancel": "İptal",
     "done": "Bitti",
     "continue": "Devam",
