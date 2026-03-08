@@ -1,7 +1,7 @@
 import { Text, View } from "react-native";
 import clsx from "clsx";
 import ProgressCircle from "./ProgressCircle";
-import type { PrayerTrackingData } from "@/types/prayer-tracking";
+import type { PrayerTrackingData, PrayerStatus } from "@/types/prayer-tracking";
 import { useTheme } from "@/lib/storage/useThemeStore";
 import { useTranslation } from "@/i18n";
 
@@ -29,6 +29,13 @@ export default function TodayJourneyCard({ data }: TodayJourneyCardProps) {
     } else {
       return t("tracking.motivationNotStarted");
     }
+  };
+
+  const getIndicatorColor = (status: PrayerStatus): string => {
+    if (status === "prayed") return "bg-green-500";
+    if (status === "unprayed") return "bg-red-500";
+    if (status === "later") return "bg-amber-400";
+    return isDark ? "bg-border-dark" : "bg-gray-200";
   };
 
   return (
@@ -70,16 +77,7 @@ export default function TodayJourneyCard({ data }: TodayJourneyCardProps) {
         {(['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'] as const).map((prayer) => (
           <View
             key={prayer}
-            className={clsx(
-              "h-2 flex-1 rounded-full",
-              data.prayers[prayer] === 'prayed'
-                ? isDark
-                  ? "bg-primary-500"
-                  : "bg-primary-500"
-                : isDark
-                ? "bg-border-dark"
-                : "bg-gray-200"
-            )}
+            className={clsx("h-2 flex-1 rounded-full", getIndicatorColor(data.prayers[prayer]))}
           />
         ))}
       </View>

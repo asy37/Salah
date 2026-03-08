@@ -127,7 +127,7 @@ export default function RootLayout() {
           <LocationPermissionProvider />
           <DhikrSyncProvider />
           <DuaSyncProvider />
-          {!shouldShowRegister && !ONBOARDING_COMPLETED_KEY && <PrayerHeader />}
+          {segments[0] !== "onboarding" && segments[0] !== "auth" && <PrayerHeader />}
           <StalePrayerTimesModal
             visible={showStaleModal}
             onClose={closeStaleModal}
