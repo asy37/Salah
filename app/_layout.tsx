@@ -58,26 +58,16 @@ export default function RootLayout() {
     const run = () => {
       getDb().then(() => setDbReady(true)).catch(() => setDbReady(false));
     };
-    const useIdle =
-      typeof requestIdleCallback === "function" &&
-      typeof cancelIdleCallback === "function";
-    let idleId: number | undefined;
-    let timeoutId: ReturnType<typeof setTimeout> | undefined;
-    if (useIdle) {
-      idleId = requestIdleCallback(run, { timeout: 100 });
-    } else {
-      timeoutId = setTimeout(run, 0);
-    }
-    return () => {
-      if (idleId !== undefined) cancelIdleCallback(idleId);
-      if (timeoutId !== undefined) clearTimeout(timeoutId);
-    };
+    // Production APK ilk açılışta requestIdleCallback bazen gecikiyor; doğrudan setTimeout kullan.
+    const timeoutId = setTimeout(run, 0);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   useEffect(() => {
     setupQueryManagers();
   }, []);
 
+  // Yönlendirme: nav ready olduktan sonra segment/auth değişince (örn. logout sonrası).
   useEffect(() => {
     if (isLoading || !isNavigationReady) return;
     let cancelled = false;
@@ -102,12 +92,44 @@ export default function RootLayout() {
     };
   }, [isLoading, shouldShowRegister, canAccessApp, segments, isNavigationReady, router]);
 
+  // appReady olunca önce doğru sayfaya yönlendir, sonra splash kapat ve nav ready yap (yanlış sayfa flash olmasın).
   useEffect(() => {
     if (!appReady) return;
-    SplashScreen.hideAsync()
-      .then(() => setIsNavigationReady(true))
-      .catch(() => setIsNavigationReady(true));
-  }, [appReady]);
+    let cancelled = false;
+    let done = false;
+    let delayId: ReturnType<typeof setTimeout>;
+    let fallbackId: ReturnType<typeof setTimeout>;
+    const setNavReady = () => {
+      if (done || cancelled) return;
+      done = true;
+      setIsNavigationReady(true);
+    };
+
+    storage.getString(ONBOARDING_COMPLETED_KEY).then((value) => {
+      if (cancelled) return;
+      if (value !== "true") {
+        router.replace("/onboarding");
+      } else if (shouldShowRegister) {
+        router.replace("/auth/register");
+      } else if (canAccessApp) {
+        router.replace("/(tabs)");
+      }
+      // Yönlendirme tetiklendikten sonra kısa gecikmeyle splash kapat; router'ın ekranı değiştirmesi için zaman tanı.
+      delayId = setTimeout(() => {
+        if (cancelled) return;
+        SplashScreen.hideAsync()
+          .then(setNavReady)
+          .catch(setNavReady);
+        fallbackId = setTimeout(setNavReady, 800);
+      }, 50);
+    });
+
+    return () => {
+      cancelled = true;
+      clearTimeout(delayId);
+      clearTimeout(fallbackId);
+    };
+  }, [appReady, shouldShowRegister, canAccessApp, router]);
 
   useNotificationSetup(router);
   usePrayerTimesPrefetch(dbReady);
