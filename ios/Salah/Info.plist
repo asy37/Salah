@@ -7,7 +7,7 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
-    <string>IslamicApp</string>
+    <string>Salah</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIdentifier</key>
@@ -27,8 +27,8 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>islamicapp</string>
-          <string>com.islamicapp.app</string>
+          <string>salah</string>
+          <string>com.salah.app</string>
         </array>
       </dict>
     </array>

@@ -1,12 +1,8 @@
 package com.salah.app
 import expo.modules.splashscreen.SplashScreenManager
 
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.SystemClock
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -16,39 +12,7 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate
 import expo.modules.ReactActivityDelegateWrapper
 
 class MainActivity : ReactActivity() {
-
-  private companion object {
-    const val NEW_INTENT_DELAY_MS = 1000L
-    const val STARTUP_GRACE_MS = 2500L
-  }
-
-  private val mainHandler = Handler(Looper.getMainLooper())
-  private var pendingNewIntentRunnable: Runnable? = null
-  private var createdAtRealtime = 0L
-
-  /**
-   * Defers onNewIntent briefly at startup to avoid "context is not ready" in Bridgeless.
-   * After startup grace period, delivers intents immediately.
-   */
-  override fun onNewIntent(intent: Intent) {
-    setIntent(intent)
-    val elapsed = SystemClock.elapsedRealtime() - createdAtRealtime
-    if (elapsed > STARTUP_GRACE_MS) {
-      pendingNewIntentRunnable?.let { mainHandler.removeCallbacks(it) }
-      pendingNewIntentRunnable = null
-      super.onNewIntent(intent)
-      return
-    }
-    pendingNewIntentRunnable?.let { mainHandler.removeCallbacks(it) }
-    val intentToDeliver = intent
-    pendingNewIntentRunnable = Runnable {
-      pendingNewIntentRunnable = null
-      super.onNewIntent(intentToDeliver)
-    }.also { mainHandler.postDelayed(it, NEW_INTENT_DELAY_MS) }
-  }
-
   override fun onCreate(savedInstanceState: Bundle?) {
-    createdAtRealtime = SystemClock.elapsedRealtime()
     // Set the theme to AppTheme BEFORE onCreate to support
     // coloring the background, status bar, and navigation bar.
     // This is required for expo-splash-screen.
