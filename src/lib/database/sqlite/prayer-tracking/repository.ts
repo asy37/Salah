@@ -9,6 +9,8 @@
 import * as SQLite from 'expo-sqlite';
 import { getDb } from '../db';
 import type { PrayerStatus, PrayerName } from '@/types/prayer-tracking';
+import { getEffectiveToday } from '@/lib/services/prayerDate';
+import { getPreviousDateString } from '@/lib/services/streakCalculation';
 
 // Types
 export interface DailyPrayerState {
@@ -261,19 +263,21 @@ class PrayerTrackingRepository {
   }
 
   /**
-   * Calculate local streak from SQLite
-   * Returns consecutive days with ALL prayers prayed
+   * Calculate local streak from SQLite (effective Islamic today + sync queue).
+   * Returns consecutive days with ALL prayers prayed.
    */
   async calculateLocalStreak(): Promise<number> {
     await this.initialize();
     if (!this.db) throw new Error('Database not initialized');
 
     try {
-      // Get current prayer state
+      const effectiveToday = getEffectiveToday();
       const currentState = await this.getCurrentPrayerState();
       if (!currentState) return 0;
 
-      // Check if all prayers today are prayed
+      // Only count today if state is for effective today
+      if (currentState.date !== effectiveToday) return 0;
+
       const allPrayedToday =
         currentState.fajr === 'prayed' &&
         currentState.dhuhr === 'prayed' &&
@@ -283,43 +287,26 @@ class PrayerTrackingRepository {
 
       if (!allPrayedToday) return 0;
 
-      // Get sync queue items (past days)
       const queueItems = await this.getPendingQueueItems();
-      
-      // Sort by date descending
       queueItems.sort((a, b) => b.date.localeCompare(a.date));
 
-      let streak = 1; // Today counts as 1
-
-      // Check consecutive days from sync queue
-      const today = new Date().toISOString().slice(0, 10);
-      let checkDate = new Date(today);
-      checkDate.setDate(checkDate.getDate() - 1);
+      let streak = 1;
+      let checkDate = getPreviousDateString(effectiveToday);
 
       for (let i = 0; i < 5000; i++) {
-        const dateString = checkDate.toISOString().slice(0, 10);
-        const queueItem = queueItems.find((item) => item.date === dateString);
+        const queueItem = queueItems.find((item) => item.date === checkDate);
+        if (!queueItem) break;
 
-        if (!queueItem) {
-          // No data for this date, stop counting
-          break;
-        }
-
-        // Check if all prayers were prayed
         const allPrayed =
           queueItem.payload.fajr &&
           queueItem.payload.dhuhr &&
           queueItem.payload.asr &&
           queueItem.payload.maghrib &&
           queueItem.payload.isha;
-
-        if (!allPrayed) {
-          // Streak broken
-          break;
-        }
+        if (!allPrayed) break;
 
         streak++;
-        checkDate.setDate(checkDate.getDate() - 1);
+        checkDate = getPreviousDateString(checkDate);
       }
 
       return streak;

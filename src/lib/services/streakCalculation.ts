@@ -65,7 +65,7 @@ export function calculateStreakFromSupabaseLogs(
   return streak;
 }
 
-function getPreviousDateString(yyyyMmDd: string): string {
+export function getPreviousDateString(yyyyMmDd: string): string {
   const [y, m, d] = yyyyMmDd.split('-').map(Number);
   const date = new Date(y, m - 1, d);
   date.setDate(date.getDate() - 1);
