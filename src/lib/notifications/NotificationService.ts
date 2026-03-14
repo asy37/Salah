@@ -11,7 +11,6 @@
  */
 
 import { Platform } from 'react-native';
-import type { PrayerName } from '@/types/prayer-tracking';
 import { i18n } from '@/i18n';
 
 // Conditional import for Expo Go compatibility
@@ -45,18 +44,12 @@ function getPrayerSound(prayerName: string): string | false {
 export const NOTIFICATION_CATEGORIES = {
   PRAYER_TIME: 'PRAYER_TIME',
   PRE_PRAYER: 'PRE_PRAYER',
-  PRAYER_STATUS: 'PRAYER_STATUS',           // Ezan sonrası 15-20dk: "Namazı kıldın mı?" (butonlu)
+  PRAYER_STATUS: 'PRAYER_STATUS',           // Ezan sonrası 15-20dk: "Namazı kıldın mı?"
   PRAYER_LATE_REMINDER: 'PRAYER_LATE_REMINDER', // Ezan sonrası 1 saat: hatırlatma
   PRAYER_REMINDER: 'PRAYER_REMINDER',
   PRAYER_REMINDER_LATER: 'PRAYER_REMINDER_LATER',
   DAILY_VERSE: 'DAILY_VERSE',
   STREAK: 'STREAK',
-} as const;
-
-// Notification action identifiers
-export const NOTIFICATION_ACTIONS = {
-  PRAYER_MARKED_PRAYED: 'prayer_marked_prayed',
-  PRAYER_REMIND_LATER: 'prayer_remind_later',
 } as const;
 
 // Lazy load modules to avoid errors in Expo Go
@@ -101,30 +94,14 @@ function configureNotifications() {
       }),
     });
 
-    // Set up notification categories with action buttons
-    // PRAYER_STATUS: "Namazı kıldın mı?" butonu olan bildirim (ezan sonrası 15-20dk)
-    const prayerActionButtons = [
-      {
-        identifier: NOTIFICATION_ACTIONS.PRAYER_MARKED_PRAYED,
-        buttonTitle: i18n.t('notification.markedPrayedButton'),
-        options: { opensAppToForeground: false },
-      },
-      {
-        identifier: NOTIFICATION_ACTIONS.PRAYER_REMIND_LATER,
-        buttonTitle: i18n.t('notification.remindLaterButton'),
-        options: { opensAppToForeground: false },
-      },
-    ];
-
+    // PRAYER_STATUS ve PRAYER_REMINDER kategorileri butonsuz (kıldım/kılmadım butonları kaldırıldı)
     NotificationsModule.setNotificationCategoryAsync(
       NOTIFICATION_CATEGORIES.PRAYER_STATUS,
-      prayerActionButtons
+      []
     );
-
-    // PRAYER_REMINDER: eski uyumluluk için kategori (aynı butonlar)
     NotificationsModule.setNotificationCategoryAsync(
       NOTIFICATION_CATEGORIES.PRAYER_REMINDER,
-      prayerActionButtons
+      []
     );
   }
 }
@@ -145,6 +122,21 @@ function getPrayerDisplayName(prayerName: string): string {
  */
 function getPrayerNameTurkish(prayerName: string): string {
   return getPrayerDisplayName(prayerName);
+}
+
+/** Android 8+: Varsayılan kanal (ses açık). Sistem ayarlarındaki "Allow playing sound" bu kanala bağlı. */
+async function ensureDefaultChannelAndroid(): Promise<void> {
+  if (Platform.OS !== 'android') return;
+  const NotificationsModule = getNotifications();
+  if (!NotificationsModule?.setNotificationChannelAsync) return;
+
+  await NotificationsModule.setNotificationChannelAsync('default', {
+    name: 'Salah',
+    importance: 5,
+    sound: true,
+    enableVibration: true,
+    vibrationPattern: [0, 250, 250, 250],
+  } as any);
 }
 
 /** Android 8+: Ezan bildirimi için kanal gerekli (ses + titreşim). Her vakit kendi sesi için ayrı kanal. */
@@ -203,6 +195,11 @@ export class NotificationService {
       if (existingStatus !== 'granted') {
         const { status } = await NotificationsModule.requestPermissionsAsync();
         finalStatus = status;
+      }
+
+      if (finalStatus === 'granted' && Platform.OS === 'android') {
+        await ensureDefaultChannelAndroid();
+        await ensurePrayerTimeChannelsAndroid();
       }
 
       debugLog('NotificationService.ts:requestPermissions', 'done', { finalStatus });
@@ -919,35 +916,8 @@ export class NotificationService {
       return;
     }
     const data = response.notification.request.content.data;
-    const actionIdentifier = response.actionIdentifier;
 
-    // Handle action button clicks
-    if (actionIdentifier === NOTIFICATION_ACTIONS.PRAYER_MARKED_PRAYED) {
-      const { prayerTrackingRepo } = await import('@/lib/database/sqlite/prayer-tracking/repository');
-      const { getEffectiveToday } = await import('@/lib/services/prayerDate');
-
-      if (data?.prayerName) {
-        const prayerName = data.prayerName.toLowerCase() as PrayerName;
-        const today = getEffectiveToday();
-        const notifDate = typeof data?.date === 'string' ? data.date : today;
-
-        // Mark as prayed in SQLite
-        await prayerTrackingRepo.upsertPrayerState(notifDate, prayerName, 'prayed');
-
-        // Cancel the late reminder too (user already prayed)
-        await this.cancelPrayerReminderForPrayer(data.prayerName, notifDate);
-        await this.cancelPrayerLateReminderForPrayer(data.prayerName, notifDate);
-      }
-      return;
-    }
-
-    if (actionIdentifier === NOTIFICATION_ACTIONS.PRAYER_REMIND_LATER) {
-      // Schedule reminder for next prayer time
-      // This will be handled by notificationScheduler
-      return;
-    }
-
-    // Handle different notification types (when tapped, not action button)
+    // Handle different notification types (when tapped)
     switch (data?.type) {
       case 'prayer_time':
         // Navigate to adhan screen via deep link

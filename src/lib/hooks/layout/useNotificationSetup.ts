@@ -42,11 +42,8 @@ export function useNotificationSetup(router: Router): void {
         processNotificationResponse(response, params).catch(() => {});
       };
 
-      Notifications.getLastNotificationResponseAsync()
-        .then((last) => {
-          if (last && !cancelled) handleResponse(last);
-        })
-        .catch(() => {});
+      const last = Notifications.getLastNotificationResponse();
+      if (last && !cancelled) handleResponse(last);
 
       if (cancelled) return;
       notificationListenerRef.current = Notifications.addNotificationReceivedListener(() => {});

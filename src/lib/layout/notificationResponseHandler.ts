@@ -5,12 +5,7 @@
 
 import * as Notifications from "expo-notifications";
 import type { Router } from "expo-router";
-import type { PrayerName } from "@/types/prayer-tracking";
-import { queryClient } from "@/lib/query/queryClient";
-import { getTodayDDMMYYYY } from "@/lib/services/dailyReset";
-import { fetchPrayerTimes } from "@/lib/api/services/prayerTimes";
-import { notificationService, NOTIFICATION_ACTIONS } from "@/lib/notifications/NotificationService";
-import { notificationScheduler } from "@/lib/services/notificationScheduler";
+import { notificationService } from "@/lib/notifications/NotificationService";
 
 export type NotificationHandlerParams = {
   router: Router;
@@ -22,54 +17,9 @@ export async function processNotificationResponse(
   response: Notifications.NotificationResponse,
   params: NotificationHandlerParams
 ): Promise<void> {
-  const { router, location, method } = params;
+  const { router } = params;
   const actionIdentifier = response.actionIdentifier;
   const data = response.notification.request.content.data as Record<string, unknown> | undefined;
-
-  if (actionIdentifier === NOTIFICATION_ACTIONS.PRAYER_MARKED_PRAYED) {
-    const { prayerTrackingRepo } = await import("@/lib/database/sqlite/prayer-tracking/repository");
-    const { getEffectiveToday } = await import("@/lib/services/prayerDate");
-
-    if (data?.prayerName && typeof data.prayerName === "string") {
-      const prayerName = data.prayerName.toLowerCase();
-      const effectiveToday = getEffectiveToday();
-      const notifDate = typeof data?.date === "string" ? data.date : effectiveToday;
-      await prayerTrackingRepo.upsertPrayerState(effectiveToday, prayerName as PrayerName, "prayed");
-
-      await notificationService.cancelPrayerReminderForPrayer(data.prayerName, notifDate);
-      await notificationService.cancelPrayerLateReminderForPrayer(data.prayerName, notifDate);
-
-      queryClient.invalidateQueries({
-        queryKey: ["prayerTracking", "local", effectiveToday],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["prayerStreak"],
-      });
-    }
-    return;
-  }
-
-  if (actionIdentifier === NOTIFICATION_ACTIONS.PRAYER_REMIND_LATER) {
-    if (data?.prayerName && typeof data.prayerName === "string") {
-      const latitude = location?.latitude ?? 41.0082;
-      const longitude = location?.longitude ?? 28.9784;
-      try {
-        const prayerTimesResponse = await fetchPrayerTimes({
-          latitude,
-          longitude,
-          method: method ?? 13,
-          date: getTodayDDMMYYYY(),
-        });
-        await notificationScheduler.scheduleReminderForNextPrayer(
-          data.prayerName,
-          prayerTimesResponse
-        );
-      } catch (error) {
-        console.error("[Notification] Failed to schedule reminder:", error);
-      }
-    }
-    return;
-  }
 
   if (actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
     const deepLink = typeof data?.deepLink === "string" ? data.deepLink : "";
