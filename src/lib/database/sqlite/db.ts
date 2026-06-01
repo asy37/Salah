@@ -150,9 +150,7 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase> {
   dbPromise ??= (async () => {
     try {
       debugLog("db.ts:getDb", "before openDatabaseAsync", {});
-      const db = await SQLite.openDatabaseAsync("salah.db", {
-        useNewConnection: true,
-      } as Parameters<typeof SQLite.openDatabaseAsync>[1]);
+      const db = await SQLite.openDatabaseAsync("salah.db");
       debugLog("db.ts:getDb", "before execAsync schema", {});
       await db.execAsync(SCHEMA_SQL);
       debugLog("db.ts:getDb", "SQLite init done", {});

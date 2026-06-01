@@ -56,7 +56,12 @@ export default function RootLayout() {
 
   useEffect(() => {
     const run = () => {
-      getDb().then(() => setDbReady(true)).catch(() => setDbReady(false));
+      getDb()
+        .then(() => setDbReady(true))
+        .catch((err) => {
+          console.error("DB Init error in _layout:", err);
+          setDbReady(true); // Veritabanı başlatılamasa bile uygulamanın açılmasını sağla
+        });
     };
     // Production APK ilk açılışta requestIdleCallback bazen gecikiyor; doğrudan setTimeout kullan.
     const timeoutId = setTimeout(run, 0);
